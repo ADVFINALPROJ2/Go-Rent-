@@ -44,6 +44,7 @@ export type Database = {
           role?: ProfileRole;
           updated_at?: string;
         };
+        Relationships: [];
       };
       cars: {
         Row: {
@@ -83,6 +84,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["cars"]["Insert"]>;
+        Relationships: [];
       };
       bookings: {
         Row: {
@@ -112,6 +114,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
+        Relationships: [];
       };
       messages: {
         Row: {
@@ -136,6 +139,7 @@ export type Database = {
           body?: string;
           read_at?: string | null;
         };
+        Relationships: [];
       };
       reviews: {
         Row: {
@@ -162,7 +166,16 @@ export type Database = {
           rating?: number;
           comment?: string | null;
         };
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: {
+      profile_role: ProfileRole;
+      car_status: CarStatus;
+      booking_status: BookingStatus;
+    };
+    CompositeTypes: Record<string, never>;
   };
 };
