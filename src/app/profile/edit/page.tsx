@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/select";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { getProfile, updateProfile } from "../actions";
 
@@ -187,7 +187,7 @@ export default function EditProfilePage() {
             {/* Role */}
             <div className="grid gap-2">
               <Label htmlFor="role">Role</Label>
-              <Select
+              <NativeSelect
                 id="role"
                 name="role"
                 value={role}
@@ -197,7 +197,7 @@ export default function EditProfilePage() {
               >
                 <option value="renter">Renter — I want to rent cars</option>
                 <option value="owner">Owner — I list cars for rent</option>
-              </Select>
+              </NativeSelect>
               <p className="text-xs text-muted-foreground">
                 Choose how you primarily use GoRent.
               </p>

@@ -2,6 +2,7 @@ export const mainNavigation = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse Cars" },
   { href: "/owner/dashboard", label: "Owner Dashboard" },
+  { href: "/owner/dashboard/cars", label: "My Cars" },
   { href: "/renter/dashboard", label: "Renter Dashboard" },
   { href: "/profile", label: "Profile" },
 ];
