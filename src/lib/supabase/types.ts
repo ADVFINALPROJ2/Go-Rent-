@@ -24,6 +24,8 @@ export type Database = {
           full_name: string | null;
           avatar_url: string | null;
           phone: string | null;
+          location: string | null;
+          bio: string | null;
           role: ProfileRole;
           created_at: string;
           updated_at: string;
@@ -33,6 +35,8 @@ export type Database = {
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
+          location?: string | null;
+          bio?: string | null;
           role?: ProfileRole;
           created_at?: string;
           updated_at?: string;
@@ -41,9 +45,12 @@ export type Database = {
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
+          location?: string | null;
+          bio?: string | null;
           role?: ProfileRole;
           updated_at?: string;
         };
+        Relationships: [];
       };
       cars: {
         Row: {
@@ -83,6 +90,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["cars"]["Insert"]>;
+        Relationships: [];
       };
       bookings: {
         Row: {
@@ -112,6 +120,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
+        Relationships: [];
       };
       messages: {
         Row: {
@@ -136,6 +145,7 @@ export type Database = {
           body?: string;
           read_at?: string | null;
         };
+        Relationships: [];
       };
       reviews: {
         Row: {
@@ -162,7 +172,20 @@ export type Database = {
           rating?: number;
           comment?: string | null;
         };
+        Relationships: [];
       };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 };
