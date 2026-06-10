@@ -83,6 +83,10 @@ export default function AddCarPage() {
             alert('Car listing saved successfully!');
             router.push('/owner/dashboard');
           }
+          
+          // Redirect to owner dashboard after successful creation
+          router.push('/owner/dashboard');
+
         }}
         onSuccess={() => router.push("/owner/dashboard/cars")}
       />
