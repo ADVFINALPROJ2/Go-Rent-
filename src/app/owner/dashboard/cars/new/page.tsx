@@ -61,6 +61,29 @@ export default function AddCarPage() {
       <CarForm
         mode="create"
         ownerId={userId}
+        onSubmit={async (data) => {
+          const supabase = createSupabaseBrowserClient();
+          const { error } = await supabase
+            .from('cars')
+            .insert([{ 
+              owner_id: ownerId,
+              make: data.make,
+              model: data.model,
+              year: data.year,
+              price_per_day: data.price_per_day,
+              location: data.location,
+              description: data.description,
+              image_url: data.image_url || null,
+              status: 'available'
+            }]);
+          if (error) {
+            console.error('Error saving car listing:', error);
+            alert('Failed to save car listing. Please try again.');
+          } else {
+            alert('Car listing saved successfully!');
+            router.push('/owner/dashboard');
+          }
+        }}
         onSuccess={() => router.push("/owner/dashboard/cars")}
       />
     </div>
