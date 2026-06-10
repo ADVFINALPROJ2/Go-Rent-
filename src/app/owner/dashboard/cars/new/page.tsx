@@ -66,7 +66,7 @@ export default function AddCarPage() {
           const { error } = await supabase
             .from('cars')
             .insert([{ 
-              owner_id: ownerId,
+              owner_id: userId,
               make: data.make,
               model: data.model,
               year: data.year,
