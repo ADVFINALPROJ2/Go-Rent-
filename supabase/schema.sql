@@ -20,6 +20,8 @@ create table if not exists public.profiles (
   full_name text,
   avatar_url text,
   phone text,
+  location text,
+  bio text,
   role public.profile_role not null default 'renter',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

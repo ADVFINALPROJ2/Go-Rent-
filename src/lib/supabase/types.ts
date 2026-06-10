@@ -24,6 +24,8 @@ export type Database = {
           full_name: string | null;
           avatar_url: string | null;
           phone: string | null;
+          location: string | null;
+          bio: string | null;
           role: ProfileRole;
           created_at: string;
           updated_at: string;
@@ -33,6 +35,8 @@ export type Database = {
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
+          location?: string | null;
+          bio?: string | null;
           role?: ProfileRole;
           created_at?: string;
           updated_at?: string;
@@ -41,6 +45,8 @@ export type Database = {
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
+          location?: string | null;
+          bio?: string | null;
           role?: ProfileRole;
           updated_at?: string;
         };
@@ -169,13 +175,17 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: {
-      profile_role: ProfileRole;
-      car_status: CarStatus;
-      booking_status: BookingStatus;
+    Views: {
+      [_ in never]: never;
     };
-    CompositeTypes: Record<string, never>;
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
 };
