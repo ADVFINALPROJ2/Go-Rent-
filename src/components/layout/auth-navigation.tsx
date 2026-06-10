@@ -13,12 +13,11 @@ import { supabase } from "@/lib/supabase/client";
 export function AuthNavigation() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(Boolean(supabase));
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     if (!supabase) {
-      setIsLoading(false);
       return;
     }
 
