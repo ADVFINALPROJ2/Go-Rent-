@@ -1,4 +1,5 @@
-import { Car, CircleDollarSign, Clock } from "lucide-react";
+import { Car, CircleDollarSign, Clock, List, Plus } from "lucide-react";
+import Link from "next/link";
 
 import { PageHeading } from "@/components/page-heading";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,20 @@ export default function OwnerDashboardPage() {
           title="Manage vehicles and rental requests."
           description="Owners will list cars, review booking requests, and track completed rentals here."
         />
-        <Button>Add car</Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline">
+            <Link href="/owner/dashboard/cars">
+              <List aria-hidden="true" />
+              Manage listings
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/owner/dashboard/cars/new">
+              <Plus aria-hidden="true" />
+              Add car
+            </Link>
+          </Button>
+        </div>
       </div>
       <section className="grid gap-4 md:grid-cols-3">
         {metrics.map((metric) => (
