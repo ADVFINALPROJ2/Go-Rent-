@@ -75,6 +75,10 @@ Car image uploads should use object paths in this format:
 {owner_id}/{file-name}
 ```
 
+For existing Supabase databases that already have the original `profiles` table,
+run `supabase/add-profile-fields.sql` in the Supabase SQL editor so profile
+management can save `location` and `bio`.
+
 ## Branch Workflow
 
 This setup work lives on `setup-supabase-foundation`. Open a pull request from `setup-supabase-foundation` into `main` after checks pass.

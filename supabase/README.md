@@ -11,3 +11,12 @@ The schema creates:
 - `car-images` storage bucket policies using `{owner_id}/{file-name}` object paths
 
 Required app environment variables are listed in `.env.example`.
+
+## Required migration for existing Supabase projects
+
+If the GoRent database was created before profile management was merged, run
+`supabase/add-profile-fields.sql` in the Supabase SQL editor. It adds the
+`location` and `bio` columns used by the profile view and edit pages.
+
+Fresh databases can run `supabase/schema.sql`, which already includes those
+profile fields.
