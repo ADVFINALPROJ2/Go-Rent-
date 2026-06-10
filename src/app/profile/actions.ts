@@ -1,6 +1,6 @@
 "use server";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ProfileRole } from "@/lib/supabase/types";
 
 export type ProfileData = {
@@ -33,7 +33,7 @@ export type UpdateProfileResult = {
  * If no profile row exists yet, creates one using the auth metadata.
  */
 export async function getProfile(): Promise<ProfileResult> {
-  const supabase = createSupabaseBrowserClient();
+  const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
     return { success: false, error: "Supabase client not configured." };
@@ -108,7 +108,7 @@ export async function getProfile(): Promise<ProfileResult> {
 export async function updateProfile(
   formData: FormData,
 ): Promise<UpdateProfileResult> {
-  const supabase = createSupabaseBrowserClient();
+  const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
     return { success: false, error: "Supabase client not configured." };
