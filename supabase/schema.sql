@@ -125,11 +125,16 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name, avatar_url)
+  insert into public.profiles (id, full_name, avatar_url, role)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', new.email),
-    new.raw_user_meta_data ->> 'avatar_url'
+    new.raw_user_meta_data ->> 'avatar_url',
+    case
+      when new.raw_user_meta_data ->> 'role' in ('owner', 'renter')
+        then (new.raw_user_meta_data ->> 'role')::public.profile_role
+      else 'renter'::public.profile_role
+    end
   )
   on conflict (id) do nothing;
 
