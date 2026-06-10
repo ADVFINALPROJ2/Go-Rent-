@@ -1,8 +1,8 @@
-import { CarFront, LogIn, UserPlus } from "lucide-react";
+import { CarFront } from "lucide-react";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import { authNavigation, mainNavigation } from "@/lib/routes";
+import { AuthNavigation } from "@/components/layout/auth-navigation";
+import { mainNavigation } from "@/lib/routes";
 
 export function SiteHeader() {
   return (
@@ -15,20 +15,7 @@ export function SiteHeader() {
             </span>
             <span className="text-lg">GoRent</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link href={authNavigation[0].href}>
-                <LogIn aria-hidden="true" />
-                {authNavigation[0].label}
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href={authNavigation[1].href}>
-                <UserPlus aria-hidden="true" />
-                {authNavigation[1].label}
-              </Link>
-            </Button>
-          </div>
+          <AuthNavigation />
         </div>
         <nav className="flex gap-2 overflow-x-auto pb-1 text-sm" aria-label="Main">
           {mainNavigation.map((item) => (
