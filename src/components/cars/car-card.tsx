@@ -11,6 +11,7 @@ type CarCardProps = {
   car: CarRow;
   variant?: "browse" | "dashboard";
   actions?: React.ReactNode;
+  showStatus?: boolean;
 };
 
 function formatDailyRate(rate: number) {
@@ -20,17 +21,34 @@ function formatDailyRate(rate: number) {
   }).format(Number(rate));
 }
 
+const STATUS_STYLES: Record<CarRow["status"], string> = {
+  draft: "bg-secondary text-secondary-foreground",
+  available: "bg-emerald-100 text-emerald-800",
+  unavailable: "bg-amber-100 text-amber-800",
+  archived: "bg-neutral-200 text-neutral-600",
+};
+
+function StatusBadge({ status }: { status: CarRow["status"] }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[status]}`}
+    >
+      {status}
+    </span>
+  );
+}
+
 /**
  * Reusable CarCard component for displaying car listings.
  * Supports two variants:
  * - browse: For the Browse Cars page (with View button)
  * - dashboard: For the Owner Dashboard (with custom actions slot)
  */
-export function CarCard({ car, variant = "browse", actions }: CarCardProps) {
+export function CarCard({ car, variant = "browse", actions, showStatus = false }: CarCardProps) {
   return (
     <Card className="flex flex-col overflow-hidden">
       {/* Image */}
-      <div className="aspect-video w-full overflow-hidden bg-muted">
+      <div className="relative aspect-video w-full overflow-hidden bg-muted">
         {car.image_urls.length > 0 ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -41,6 +59,11 @@ export function CarCard({ car, variant = "browse", actions }: CarCardProps) {
         ) : (
           <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,#e7eef4,#d8ebe6)]">
             <Car className="size-10 text-muted-foreground/40" aria-hidden="true" />
+          </div>
+        )}
+        {showStatus && (
+          <div className="absolute right-2 top-2">
+            <StatusBadge status={car.status} />
           </div>
         )}
       </div>
