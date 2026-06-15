@@ -1,26 +1,42 @@
 import { Car, CircleDollarSign, Clock, List, Plus } from "lucide-react";
 import Link from "next/link";
 
-import { PageHeading } from "@/components/page-heading";
+import {
+  DashboardEmptyState,
+  DashboardShell,
+  DashboardStatGrid,
+} from "@/components/dashboard/dashboard-shell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const metrics = [
-  { label: "Active cars", value: "0", icon: Car },
-  { label: "Pending requests", value: "0", icon: Clock },
-  { label: "Monthly revenue", value: "$0", icon: CircleDollarSign },
+  {
+    label: "Active cars",
+    value: "0",
+    icon: <Car className="size-5" aria-hidden="true" />,
+    description: "Visible listings",
+  },
+  {
+    label: "Pending requests",
+    value: "0",
+    icon: <Clock className="size-5" aria-hidden="true" />,
+    description: "Awaiting review",
+  },
+  {
+    label: "Monthly revenue",
+    value: "$0",
+    icon: <CircleDollarSign className="size-5" aria-hidden="true" />,
+    description: "Placeholder total",
+  },
 ];
 
 export default function OwnerDashboardPage() {
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeading
-          eyebrow="Owner dashboard"
-          title="Manage vehicles and rental requests."
-          description="Owners will list cars, review booking requests, and track completed rentals here."
-        />
-        <div className="flex items-center gap-2">
+    <DashboardShell
+      eyebrow="Owner dashboard"
+      title="Manage vehicles and rental requests."
+      description="Owners will list cars, review booking requests, and track completed rentals here."
+      actions={
+        <>
           <Button asChild variant="outline">
             <Link href="/owner/dashboard/cars">
               <List aria-hidden="true" />
@@ -33,21 +49,25 @@ export default function OwnerDashboardPage() {
               Add car
             </Link>
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className="grid gap-6">
+        <DashboardStatGrid stats={metrics} />
+        <DashboardEmptyState
+          icon={<Car className="size-7" aria-hidden="true" />}
+          title="No listing activity yet"
+          description="Owner activity, recent rental requests, and listing performance will appear here once cars and bookings are active."
+          action={
+            <Button asChild>
+              <Link href="/owner/dashboard/cars/new">
+                <Plus aria-hidden="true" />
+                Add first car
+              </Link>
+            </Button>
+          }
+        />
       </div>
-      <section className="grid gap-4 md:grid-cols-3">
-        {metrics.map((metric) => (
-          <Card key={metric.label}>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">{metric.label}</CardTitle>
-              <metric.icon className="size-5 text-primary" aria-hidden="true" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-semibold">{metric.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
-    </div>
+    </DashboardShell>
   );
 }
