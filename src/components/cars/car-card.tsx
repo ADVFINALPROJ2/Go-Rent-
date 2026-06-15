@@ -1,17 +1,45 @@
 import Link from "next/link";
 import { Car, MapPin } from "lucide-react";
+import type { ReactNode } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { Database } from "@/lib/supabase/types";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
+type CarCardStatus = CarRow["status"];
 
 type CarCardProps = {
-  car: CarRow;
+  car?: CarRow;
+  id?: string;
+  image?: string | null;
+  image_url?: string | null;
+  make?: string;
+  model?: string;
+  year?: number;
+  location?: string;
+  price_per_day?: number;
+  status?: CarCardStatus;
   variant?: "browse" | "dashboard";
-  actions?: React.ReactNode;
+  actions?: ReactNode;
   showStatus?: boolean;
+};
+
+const STATUS_VARIANTS: Record<
+  CarCardStatus,
+  "secondary" | "success" | "warning" | "muted"
+> = {
+  draft: "secondary",
+  available: "success",
+  unavailable: "warning",
+  archived: "muted",
 };
 
 function formatDailyRate(rate: number) {
@@ -21,39 +49,51 @@ function formatDailyRate(rate: number) {
   }).format(Number(rate));
 }
 
-const STATUS_STYLES: Record<CarRow["status"], string> = {
-  draft: "bg-secondary text-secondary-foreground",
-  available: "bg-emerald-100 text-emerald-800",
-  unavailable: "bg-amber-100 text-amber-800",
-  archived: "bg-neutral-200 text-neutral-600",
-};
-
-function StatusBadge({ status }: { status: CarRow["status"] }) {
+function StatusBadge({ status }: { status: CarCardStatus }) {
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[status]}`}
-    >
+    <Badge className="capitalize" variant={STATUS_VARIANTS[status]}>
       {status}
-    </span>
+    </Badge>
   );
 }
 
 /**
  * Reusable CarCard component for displaying car listings.
- * Supports two variants:
- * - browse: For the Browse Cars page (with View button)
- * - dashboard: For the Owner Dashboard (with custom actions slot)
+ * Accepts a Supabase car row or direct layout props for static previews.
  */
-export function CarCard({ car, variant = "browse", actions, showStatus = false }: CarCardProps) {
+export function CarCard({
+  car,
+  id,
+  image,
+  image_url,
+  make,
+  model,
+  year,
+  location,
+  price_per_day,
+  status,
+  variant = "browse",
+  actions,
+  showStatus = false,
+}: CarCardProps) {
+  const carId = car?.id ?? id ?? "";
+  const imageUrl = car?.image_urls?.[0] ?? image_url ?? image ?? null;
+  const carMake = car?.make ?? make ?? "Car";
+  const carModel = car?.model ?? model ?? "Model";
+  const carYear = car?.year ?? year ?? new Date().getFullYear();
+  const carLocation = car?.location ?? location ?? "Location pending";
+  const dailyRate = car?.daily_rate ?? price_per_day ?? 0;
+  const carStatus = car?.status ?? status ?? "available";
+  const title = car?.title ?? `${carMake} ${carModel}`;
+
   return (
     <Card className="flex flex-col overflow-hidden">
-      {/* Image */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
-        {car.image_urls.length > 0 ? (
+        {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={car.image_urls[0]}
-            alt={car.title}
+            src={imageUrl}
+            alt={title}
             className="size-full object-cover transition-transform duration-300 hover:scale-105"
           />
         ) : (
@@ -61,40 +101,37 @@ export function CarCard({ car, variant = "browse", actions, showStatus = false }
             <Car className="size-10 text-muted-foreground/40" aria-hidden="true" />
           </div>
         )}
-        {showStatus && (
+        {showStatus ? (
           <div className="absolute right-2 top-2">
-            <StatusBadge status={car.status} />
+            <StatusBadge status={carStatus} />
           </div>
-        )}
+        ) : null}
       </div>
 
-      {/* Details */}
       <CardHeader className="flex-1">
-        <CardTitle className="text-lg">{car.title}</CardTitle>
+        <CardTitle className="text-lg">{title}</CardTitle>
         <CardDescription>
-          {car.make} {car.model} · {car.year}
+          {carMake} {carModel} - {carYear}
         </CardDescription>
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="size-3.5" aria-hidden="true" />
-          {car.location}
+          {carLocation}
         </p>
       </CardHeader>
 
-      {/* Footer */}
       <CardContent className="flex items-center justify-between border-t pt-4">
         <p className="text-lg font-semibold text-primary">
-          {formatDailyRate(car.daily_rate)}
+          {formatDailyRate(dailyRate)}
           <span className="text-sm font-normal text-muted-foreground">/day</span>
         </p>
 
-        {/* Actions based on variant */}
-        {variant === "browse" && (
+        {variant === "browse" ? (
           <Button asChild variant="secondary" size="sm">
-            <Link href={`/cars/${car.id}`}>View</Link>
+            <Link href={`/cars/${carId}`}>View</Link>
           </Button>
-        )}
+        ) : null}
 
-        {variant === "dashboard" && actions}
+        {variant === "dashboard" ? actions : null}
       </CardContent>
     </Card>
   );

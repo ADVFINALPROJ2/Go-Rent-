@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { CarCard } from "@/components/cars/car-card";
 import { fetchAvailableCars, type CarRow } from "@/lib/cars/queries";
 
@@ -126,70 +127,92 @@ export function BrowseCarsClient() {
 
   return (
     <div className="space-y-6">
-      <form
-        className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_160px_160px_auto]"
-        onSubmit={handleFilterSubmit}
-      >
-        <label className="grid gap-2 text-sm font-medium" htmlFor="location-search">
-          Location
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <input
-              id="location-search"
-              className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-              placeholder="Search by city or area"
-              value={location}
-              onChange={(event) => setLocation(event.target.value)}
-            />
-          </div>
-        </label>
+      <Card>
+        <CardHeader>
+          <CardTitle>Find a car</CardTitle>
+          <CardDescription>
+            Filter available listings by location and daily price range.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form
+            className="grid gap-3 sm:grid-cols-[1fr_160px_160px_auto]"
+            onSubmit={handleFilterSubmit}
+          >
+            <label className="grid gap-2 text-sm font-medium" htmlFor="location-search">
+              Location
+              <div className="relative">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <Input
+                  id="location-search"
+                  className="pl-9"
+                  placeholder="Search by city or area"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                />
+              </div>
+            </label>
 
-        <label className="grid gap-2 text-sm font-medium" htmlFor="min-price">
-          Min price
-          <input
-            id="min-price"
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            min="0"
-            placeholder="0"
-            type="number"
-            value={minPrice}
-            onChange={(event) => setMinPrice(event.target.value)}
-          />
-        </label>
+            <label className="grid gap-2 text-sm font-medium" htmlFor="min-price">
+              Min price
+              <Input
+                id="min-price"
+                min="0"
+                placeholder="0"
+                type="number"
+                value={minPrice}
+                onChange={(event) => setMinPrice(event.target.value)}
+              />
+            </label>
 
-        <label className="grid gap-2 text-sm font-medium" htmlFor="max-price">
-          Max price
-          <input
-            id="max-price"
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            min="0"
-            placeholder="150"
-            type="number"
-            value={maxPrice}
-            onChange={(event) => setMaxPrice(event.target.value)}
-          />
-        </label>
+            <label className="grid gap-2 text-sm font-medium" htmlFor="max-price">
+              Max price
+              <Input
+                id="max-price"
+                min="0"
+                placeholder="150"
+                type="number"
+                value={maxPrice}
+                onChange={(event) => setMaxPrice(event.target.value)}
+              />
+            </label>
 
-        <div className="flex items-end gap-2">
-          <Button className="w-full sm:w-auto" type="submit">
-            <SlidersHorizontal aria-hidden="true" />
-            Apply
-          </Button>
-          {hasActiveFilters ? (
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={handleClearFilters}
-            >
-              Clear
-            </Button>
-          ) : null}
+            <div className="flex items-end gap-2">
+              <Button className="w-full sm:w-auto" type="submit">
+                <SlidersHorizontal aria-hidden="true" />
+                Apply
+              </Button>
+              {hasActiveFilters ? (
+                <Button
+                  className="w-full sm:w-auto"
+                  type="button"
+                  variant="outline"
+                  onClick={handleClearFilters}
+                >
+                  Clear
+                </Button>
+              ) : null}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Available listings</h2>
+          <p className="text-sm text-muted-foreground">
+            Browse cars from local owners and open a card to view details.
+          </p>
         </div>
-      </form>
+        {!isLoading && !error ? (
+          <p className="text-sm text-muted-foreground">
+            {cars.length} {cars.length === 1 ? "car" : "cars"} shown
+          </p>
+        ) : null}
+      </div>
 
       {filterError ? (
         <Card className="border-destructive/30 bg-destructive/5">
