@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { PageHeading } from "@/components/page-heading";
 import { CarForm } from "@/components/cars/car-form";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { createCar } from "@/lib/actions/cars";
 
 export default function AddCarPage() {
   const router = useRouter();
