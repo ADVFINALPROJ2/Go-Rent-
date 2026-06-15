@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertCircle, Car, MapPin, Search, SlidersHorizontal } from "lucide-react";
-import Link from "next/link";
+import { AlertCircle, Car, Search, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CarCard } from "@/components/cars/car-card";
 import { fetchAvailableCars, type CarRow } from "@/lib/cars/queries";
 
 type AppliedFilters = {
@@ -19,13 +19,6 @@ type AppliedFilters = {
   minPrice: string;
   maxPrice: string;
 };
-
-function formatDailyRate(rate: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(Number(rate));
-}
 
 function toOptionalPrice(value: string) {
   const trimmed = value.trim();
@@ -218,46 +211,7 @@ export function BrowseCarsClient() {
       ) : (
         <section className="grid gap-4 md:grid-cols-3">
           {cars.map((car) => (
-            <Card key={car.id} className="flex flex-col overflow-hidden">
-              <div className="aspect-video bg-muted">
-                {car.image_urls.length > 0 ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={car.image_urls[0]}
-                    alt={car.title}
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,#e7eef4,#d8ebe6)]">
-                    <Car
-                      className="size-10 text-muted-foreground/50"
-                      aria-hidden="true"
-                    />
-                  </div>
-                )}
-              </div>
-              <CardHeader className="flex-1">
-                <CardTitle>{car.title}</CardTitle>
-                <CardDescription>
-                  {car.make} {car.model} - {car.year}
-                </CardDescription>
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="size-4" aria-hidden="true" />
-                  {car.location}
-                </p>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between border-t pt-4">
-                <p className="font-semibold">
-                  {formatDailyRate(car.daily_rate)}
-                  <span className="text-sm font-normal text-muted-foreground">
-                    /day
-                  </span>
-                </p>
-                <Button asChild variant="secondary" size="sm">
-                  <Link href={`/cars/${car.id}`}>View</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <CarCard key={car.id} car={car} variant="browse" />
           ))}
         </section>
       )}
