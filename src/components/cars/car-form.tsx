@@ -31,13 +31,14 @@ import type { Database } from "@/lib/supabase/types";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
 type CarStatus = CarRow["status"];
+type CarInsert = Database["public"]["Tables"]["cars"]["Insert"];
 
 type CarFormProps = {
   mode: "create" | "edit";
   ownerId: string;
   defaultValues?: CarRow;
   onSuccess?: () => void;
-  onSubmit?: (data: any) => Promise<void>;
+  onSubmit?: (data: CarInsert) => Promise<void>;
 };
 
 type FormErrors = Record<string, string>;
