@@ -1,4 +1,5 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 
 type CarInsert = Database["public"]["Tables"]["cars"]["Insert"];
@@ -9,15 +10,14 @@ type CarRow = Database["public"]["Tables"]["cars"]["Row"];
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getClient() {
+function getClient(): SupabaseClient<Database> {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) {
     throw new Error(
       "Supabase client could not be created. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
     );
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return supabase as any;
+  return supabase;
 }
 
 // ---------------------------------------------------------------------------
