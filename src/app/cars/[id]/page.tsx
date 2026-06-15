@@ -158,6 +158,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
           <DetailItem label="Make" value={car.make} />
           <DetailItem label="Model" value={car.model} />
           <DetailItem label="Year" value={car.year} />
+          <DetailItem label="Status" value={car.status} />
           <DetailItem label="Transmission" value={car.transmission ?? "Not provided"} />
           <DetailItem label="Seats" value={car.seats ?? "Not provided"} />
           <DetailItem label="Fuel" value={car.fuel_type ?? "Not provided"} />
