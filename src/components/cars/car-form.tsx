@@ -37,6 +37,7 @@ type CarFormProps = {
   ownerId: string;
   defaultValues?: CarRow;
   onSuccess?: () => void;
+  onSubmit?: (data: any) => Promise<void>;
 };
 
 type FormErrors = Record<string, string>;
@@ -95,7 +96,7 @@ function validate(fd: FormData): FormErrors {
 // Component
 // ---------------------------------------------------------------------------
 
-export function CarForm({ mode, ownerId, defaultValues, onSuccess }: CarFormProps) {
+export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: CarFormProps) {
   const router = useRouter();
   const [errors, setErrors] = React.useState<FormErrors>({});
   const [globalError, setGlobalError] = React.useState("");
@@ -175,7 +176,10 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess }: CarFormProp
         fuel_type: fuelType || null,
       };
 
-      if (mode === "create") {
+      // If onSubmit is provided, use it instead
+      if (onSubmit) {
+        await onSubmit(payload);
+      } else if (mode === "create") {
         await createCar(payload);
       } else if (defaultValues) {
         await updateCar(defaultValues.id, payload);
