@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Save, ArrowLeft, UserRound } from "lucide-react";
+import { Loader2, Save, ArrowLeft, UserRound, LogIn } from "lucide-react";
 
 import { PageHeading } from "@/components/page-heading";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ export default function EditProfilePage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Form fields
   const [fullName, setFullName] = useState("");
@@ -41,12 +42,14 @@ export default function EditProfilePage() {
         setBio(result.data.bio ?? "");
         setRole(result.data.role === "owner" ? "owner" : "renter");
       } else {
+        const errorMessage = result.error ?? "Could not load profile.";
+        setLoadError(errorMessage);
         setMessage({
           type: "error",
-          text: result.error ?? "Could not load profile.",
+          text: errorMessage,
         });
         if (result.error === "NOT_AUTHENTICATED") {
-          router.push("/login");
+          router.replace("/login");
         }
       }
       setLoading(false);
@@ -98,6 +101,40 @@ export default function EditProfilePage() {
                 <div className="h-10 animate-pulse rounded-md bg-muted" />
               </div>
             ))}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    const needsLogin = loadError === "NOT_AUTHENTICATED";
+
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+        <PageHeading
+          eyebrow="Edit Profile"
+          title={needsLogin ? "Sign in to edit your profile." : "Unable to load profile."}
+          description={
+            needsLogin
+              ? "You need to be logged in before changing profile details."
+              : loadError
+          }
+        />
+        <Card>
+          <CardContent className="flex flex-col gap-4 p-6 sm:flex-row">
+            <Button asChild>
+              <Link href="/login">
+                <LogIn aria-hidden="true" />
+                Go to Login
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/profile">
+                <ArrowLeft aria-hidden="true" />
+                Back to Profile
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

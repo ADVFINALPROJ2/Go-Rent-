@@ -36,6 +36,7 @@ export function BrowseCarsClient() {
   const [cars, setCars] = React.useState<CarRow[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState("");
+  const [filterError, setFilterError] = React.useState("");
   const [location, setLocation] = React.useState("");
   const [minPrice, setMinPrice] = React.useState("");
   const [maxPrice, setMaxPrice] = React.useState("");
@@ -83,6 +84,28 @@ export function BrowseCarsClient() {
 
   function handleFilterSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const nextMinPrice = toOptionalPrice(minPrice);
+    const nextMaxPrice = toOptionalPrice(maxPrice);
+
+    if (
+      (minPrice.trim() && (nextMinPrice === undefined || nextMinPrice < 0)) ||
+      (maxPrice.trim() && (nextMaxPrice === undefined || nextMaxPrice < 0))
+    ) {
+      setFilterError("Enter a valid non-negative price range.");
+      return;
+    }
+
+    if (
+      typeof nextMinPrice === "number" &&
+      typeof nextMaxPrice === "number" &&
+      nextMinPrice > nextMaxPrice
+    ) {
+      setFilterError("Minimum price cannot be greater than maximum price.");
+      return;
+    }
+
+    setFilterError("");
     setAppliedFilters({ location, minPrice, maxPrice });
   }
 
@@ -90,6 +113,7 @@ export function BrowseCarsClient() {
     setLocation("");
     setMinPrice("");
     setMaxPrice("");
+    setFilterError("");
     setAppliedFilters({ location: "", minPrice: "", maxPrice: "" });
   }
 
@@ -189,6 +213,15 @@ export function BrowseCarsClient() {
           </p>
         ) : null}
       </div>
+
+      {filterError ? (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex items-start gap-3 p-4 text-sm text-destructive">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <p>{filterError}</p>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {isLoading ? (
         <section className="grid gap-4 md:grid-cols-3" aria-label="Loading cars">
