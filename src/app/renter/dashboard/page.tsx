@@ -1,6 +1,8 @@
-import { CalendarCheck, CarFront, MessageSquare } from "lucide-react";
+import { CalendarCheck, CarFront, MessageSquare, Search } from "lucide-react";
+import Link from "next/link";
 
 import { PageHeading } from "@/components/page-heading";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const activity = [
@@ -29,6 +31,34 @@ export default function RenterDashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </section>
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>No bookings yet</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm leading-6 text-muted-foreground">
+              Rental requests will appear here once booking workflow is connected.
+            </p>
+            <Button asChild>
+              <Link href="/browse">
+                <Search aria-hidden="true" />
+                Browse available cars
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Messages placeholder</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-6 text-muted-foreground">
+              Conversations with owners will be shown here after rental requests are available.
+            </p>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

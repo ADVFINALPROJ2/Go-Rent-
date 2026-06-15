@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { PageHeading } from "@/components/page-heading";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const metrics = [
   { label: "Active cars", value: "0", icon: Car },
@@ -47,6 +47,44 @@ export default function OwnerDashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </section>
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Vehicle listings</CardTitle>
+            <CardDescription>
+              View the Supabase-backed list of cars you have created.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild>
+              <Link href="/owner/dashboard/cars">
+                <List aria-hidden="true" />
+                Open my cars
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/owner/dashboard/cars/new">
+                <Plus aria-hidden="true" />
+                Add listing
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>No booking requests yet</CardTitle>
+            <CardDescription>
+              Requests from renters will appear here once booking workflow is added.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-6 text-muted-foreground">
+              For Day 4, owners can create, edit, and disable listings while booking actions stay
+              as placeholders.
+            </p>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );
