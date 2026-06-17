@@ -1,6 +1,7 @@
 import { AlertCircle, CalendarDays, Car, MapPin, UserRound } from "lucide-react";
 
 import { BookingRequestForm } from "@/components/bookings/booking-request-form";
+import { AvailabilityDisplay } from "@/components/cars/availability-display";
 import { PageHeading } from "@/components/page-heading";
 import {
   Card,
@@ -181,6 +182,17 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             </p>
           </CardContent>
         </Card>
+
+        <AvailabilityDisplay
+          isAvailable={car.status === "available"}
+          notes={
+            car.status === "rented"
+              ? "This car is currently rented out."
+              : car.status === "unavailable"
+                ? "The owner has marked this car as unavailable."
+                : null
+          }
+        />
 
         <BookingRequestForm
           carId={car.id}
