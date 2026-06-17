@@ -10,6 +10,14 @@ The schema creates:
 - `reviews` for completed rentals
 - `car-images` storage bucket policies using `{owner_id}/{file-name}` object paths
 
+Week 2 additions support:
+- booking requests and status tracking with `pending`, `approved`, `declined`, `completed`, and `cancelled`
+- direct messages tied to either a booking or a car
+- renter reviews for completed bookings with one review per booking
+- admin users through `profiles.role = 'admin'`
+- disabled accounts through `profiles.account_status`
+- listing states for available, disabled, and rented cars
+
 Required app environment variables are listed in `.env.example`.
 
 ## Required migration for existing Supabase projects
@@ -20,3 +28,20 @@ If the GoRent database was created before profile management was merged, run
 
 Fresh databases can run `supabase/schema.sql`, which already includes those
 profile fields.
+
+## Required migration for Week 2 features
+
+If the GoRent database was created before booking, messaging, review, and admin
+management work began, run `supabase/week2-schema-updates.sql` in the Supabase
+SQL editor.
+
+That migration adds:
+- `profiles.account_status`
+- `disabled` and `rented` car status values
+- optional `messages.car_id`
+- `reviews.renter_id` and `reviews.owner_id`
+- indexes for message and review lookups
+- an `is_admin()` helper
+- RLS updates for admin access, booking requests, messages, and reviews
+
+Fresh databases only need `supabase/schema.sql`.
