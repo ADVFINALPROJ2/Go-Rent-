@@ -7,13 +7,20 @@ export type Json =
   | Json[];
 
 export type ProfileRole = "owner" | "renter" | "admin";
-export type CarStatus = "draft" | "available" | "unavailable" | "archived";
+export type AccountStatus = "active" | "disabled";
+export type CarStatus =
+  | "draft"
+  | "available"
+  | "unavailable"
+  | "disabled"
+  | "rented"
+  | "archived";
 export type BookingStatus =
   | "pending"
   | "approved"
   | "declined"
-  | "cancelled"
-  | "completed";
+  | "completed"
+  | "cancelled";
 
 export type Database = {
   public: {
@@ -27,6 +34,7 @@ export type Database = {
           location: string | null;
           bio: string | null;
           role: ProfileRole;
+          account_status: AccountStatus;
           created_at: string;
           updated_at: string;
         };
@@ -38,6 +46,7 @@ export type Database = {
           location?: string | null;
           bio?: string | null;
           role?: ProfileRole;
+          account_status?: AccountStatus;
           created_at?: string;
           updated_at?: string;
         };
@@ -48,6 +57,7 @@ export type Database = {
           location?: string | null;
           bio?: string | null;
           role?: ProfileRole;
+          account_status?: AccountStatus;
           updated_at?: string;
         };
         Relationships: [];
@@ -126,6 +136,7 @@ export type Database = {
         Row: {
           id: string;
           booking_id: string | null;
+          car_id: string | null;
           sender_id: string;
           receiver_id: string;
           body: string;
@@ -135,6 +146,7 @@ export type Database = {
         Insert: {
           id?: string;
           booking_id?: string | null;
+          car_id?: string | null;
           sender_id: string;
           receiver_id: string;
           body: string;
@@ -142,6 +154,7 @@ export type Database = {
           created_at?: string;
         };
         Update: {
+          car_id?: string | null;
           body?: string;
           read_at?: string | null;
         };
@@ -152,8 +165,8 @@ export type Database = {
           id: string;
           booking_id: string;
           car_id: string;
-          reviewer_id: string;
-          reviewee_id: string;
+          renter_id: string;
+          owner_id: string;
           rating: number;
           comment: string | null;
           created_at: string;
@@ -162,13 +175,15 @@ export type Database = {
           id?: string;
           booking_id: string;
           car_id: string;
-          reviewer_id: string;
-          reviewee_id: string;
+          renter_id: string;
+          owner_id: string;
           rating: number;
           comment?: string | null;
           created_at?: string;
         };
         Update: {
+          renter_id?: string;
+          owner_id?: string;
           rating?: number;
           comment?: string | null;
         };
@@ -179,7 +194,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      is_admin: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;
