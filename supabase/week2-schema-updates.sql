@@ -41,6 +41,10 @@ alter table public.reviews
   drop constraint if exists reviews_one_per_booking;
 
 alter table public.reviews
+  drop column if exists reviewer_id,
+  drop column if exists reviewee_id;
+
+alter table public.reviews
   add constraint reviews_distinct_people check (renter_id <> owner_id),
   add constraint reviews_one_per_booking unique (booking_id);
 
