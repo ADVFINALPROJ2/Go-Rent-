@@ -45,6 +45,14 @@ function formatDateRange(startDate: string, endDate: string) {
   return `${start} – ${end}`;
 }
 
+const statusCardStyles: Record<BookingStatus, string> = {
+  pending: "border-l-4 border-l-amber-400",
+  approved: "border-l-4 border-l-blue-400",
+  declined: "border-l-4 border-l-red-400 opacity-75",
+  completed: "border-l-4 border-l-emerald-400 opacity-75",
+  cancelled: "border-l-4 border-l-neutral-400 opacity-60",
+};
+
 export function BookingStatusCard({
   carTitle,
   startDate,
@@ -54,7 +62,13 @@ export function BookingStatusCard({
   className,
 }: BookingStatusCardProps) {
   return (
-    <Card className={cn("transition-shadow hover:shadow-md", className)}>
+    <Card
+      className={cn(
+        "transition-shadow hover:shadow-md",
+        statusCardStyles[status],
+        className,
+      )}
+    >
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <CardTitle className="text-base leading-snug">{carTitle}</CardTitle>
         <BookingStatusBadge status={status} />
