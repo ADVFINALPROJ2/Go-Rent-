@@ -39,6 +39,8 @@ const STATUS_VARIANTS: Record<
   draft: "secondary",
   available: "success",
   unavailable: "warning",
+  disabled: "muted",
+  rented: "warning",
   archived: "muted",
 };
 

@@ -53,6 +53,8 @@ const STATUS_OPTIONS: { value: CarStatus; label: string }[] = [
   { value: "draft", label: "Draft" },
   { value: "available", label: "Available" },
   { value: "unavailable", label: "Unavailable" },
+  { value: "disabled", label: "Disabled" },
+  { value: "rented", label: "Rented" },
   { value: "archived", label: "Archived" },
 ];
 
