@@ -1,7 +1,7 @@
 import { AlertCircle, CalendarDays, Car, MapPin, UserRound } from "lucide-react";
 
+import { BookingRequestForm } from "@/components/bookings/booking-request-form";
 import { PageHeading } from "@/components/page-heading";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -177,11 +177,16 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
           <CardContent className="grid gap-4">
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <CalendarDays className="size-4" aria-hidden="true" />
-              Booking request logic will be connected later.
+              Send a rental request for the dates you need.
             </p>
-            <Button type="button">Request Rental</Button>
           </CardContent>
         </Card>
+
+        <BookingRequestForm
+          carId={car.id}
+          ownerId={car.owner_id}
+          dailyRate={car.daily_rate}
+        />
 
         <OwnerCard car={car} />
       </aside>
