@@ -6,12 +6,16 @@ begin
     create type public.profile_role as enum ('owner', 'renter', 'admin');
   end if;
 
+  if not exists (select 1 from pg_type where typname = 'account_status') then
+    create type public.account_status as enum ('active', 'disabled');
+  end if;
+
   if not exists (select 1 from pg_type where typname = 'car_status') then
-    create type public.car_status as enum ('draft', 'available', 'unavailable', 'archived');
+    create type public.car_status as enum ('draft', 'available', 'unavailable', 'disabled', 'rented', 'archived');
   end if;
 
   if not exists (select 1 from pg_type where typname = 'booking_status') then
-    create type public.booking_status as enum ('pending', 'approved', 'declined', 'cancelled', 'completed');
+    create type public.booking_status as enum ('pending', 'approved', 'declined', 'completed', 'cancelled');
   end if;
 end $$;
 
@@ -23,6 +27,7 @@ create table if not exists public.profiles (
   location text,
   bio text,
   role public.profile_role not null default 'renter',
+  account_status public.account_status not null default 'active',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -65,6 +70,7 @@ create table if not exists public.bookings (
 create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),
   booking_id uuid references public.bookings(id) on delete set null,
+  car_id uuid references public.cars(id) on delete set null,
   sender_id uuid not null references public.profiles(id) on delete cascade,
   receiver_id uuid not null references public.profiles(id) on delete cascade,
   body text not null,
@@ -77,13 +83,13 @@ create table if not exists public.reviews (
   id uuid primary key default gen_random_uuid(),
   booking_id uuid not null references public.bookings(id) on delete cascade,
   car_id uuid not null references public.cars(id) on delete cascade,
-  reviewer_id uuid not null references public.profiles(id) on delete cascade,
-  reviewee_id uuid not null references public.profiles(id) on delete cascade,
+  renter_id uuid not null references public.profiles(id) on delete cascade,
+  owner_id uuid not null references public.profiles(id) on delete cascade,
   rating integer not null check (rating between 1 and 5),
   comment text,
   created_at timestamptz not null default now(),
-  constraint reviews_distinct_people check (reviewer_id <> reviewee_id),
-  constraint reviews_one_per_pair unique (booking_id, reviewer_id, reviewee_id)
+  constraint reviews_distinct_people check (renter_id <> owner_id),
+  constraint reviews_one_per_booking unique (booking_id)
 );
 
 create index if not exists cars_owner_id_idx on public.cars(owner_id);
@@ -92,8 +98,11 @@ create index if not exists bookings_car_id_idx on public.bookings(car_id);
 create index if not exists bookings_owner_id_idx on public.bookings(owner_id);
 create index if not exists bookings_renter_id_idx on public.bookings(renter_id);
 create index if not exists messages_booking_id_idx on public.messages(booking_id);
+create index if not exists messages_car_id_idx on public.messages(car_id);
 create index if not exists messages_receiver_id_idx on public.messages(receiver_id);
 create index if not exists reviews_car_id_idx on public.reviews(car_id);
+create index if not exists reviews_owner_id_idx on public.reviews(owner_id);
+create index if not exists reviews_renter_id_idx on public.reviews(renter_id);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -119,6 +128,22 @@ drop trigger if exists set_bookings_updated_at on public.bookings;
 create trigger set_bookings_updated_at
 before update on public.bookings
 for each row execute function public.set_updated_at();
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role = 'admin'
+      and account_status = 'active'
+  );
+$$;
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -161,6 +186,13 @@ on public.profiles for select
 to authenticated
 using (true);
 
+drop policy if exists "Admins can update profiles" on public.profiles;
+create policy "Admins can update profiles"
+on public.profiles for update
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
 drop policy if exists "Users can insert their own profile" on public.profiles;
 create policy "Users can insert their own profile"
 on public.profiles for insert
@@ -177,7 +209,7 @@ with check (id = auth.uid());
 drop policy if exists "Available cars are public" on public.cars;
 create policy "Available cars are public"
 on public.cars for select
-using (status = 'available' or owner_id = auth.uid());
+using (status = 'available' or owner_id = auth.uid() or public.is_admin());
 
 drop policy if exists "Owners can insert cars" on public.cars;
 create policy "Owners can insert cars"
@@ -189,52 +221,69 @@ drop policy if exists "Owners can update cars" on public.cars;
 create policy "Owners can update cars"
 on public.cars for update
 to authenticated
-using (owner_id = auth.uid())
-with check (owner_id = auth.uid());
+using (owner_id = auth.uid() or public.is_admin())
+with check (owner_id = auth.uid() or public.is_admin());
 
 drop policy if exists "Owners can delete cars" on public.cars;
 create policy "Owners can delete cars"
 on public.cars for delete
 to authenticated
-using (owner_id = auth.uid());
+using (owner_id = auth.uid() or public.is_admin());
 
 drop policy if exists "Booking participants can view bookings" on public.bookings;
 create policy "Booking participants can view bookings"
 on public.bookings for select
 to authenticated
-using (owner_id = auth.uid() or renter_id = auth.uid());
+using (owner_id = auth.uid() or renter_id = auth.uid() or public.is_admin());
 
 drop policy if exists "Renters can request bookings" on public.bookings;
 create policy "Renters can request bookings"
 on public.bookings for insert
 to authenticated
-with check (renter_id = auth.uid() and owner_id <> auth.uid());
+with check (
+  renter_id = auth.uid()
+  and owner_id <> auth.uid()
+  and exists (
+    select 1
+    from public.cars c
+    where c.id = car_id
+      and c.owner_id = owner_id
+      and c.status = 'available'
+  )
+);
 
 drop policy if exists "Booking participants can update bookings" on public.bookings;
 create policy "Booking participants can update bookings"
 on public.bookings for update
 to authenticated
-using (owner_id = auth.uid() or renter_id = auth.uid())
-with check (owner_id = auth.uid() or renter_id = auth.uid());
+using (owner_id = auth.uid() or renter_id = auth.uid() or public.is_admin())
+with check (owner_id = auth.uid() or renter_id = auth.uid() or public.is_admin());
 
 drop policy if exists "Message participants can view messages" on public.messages;
 create policy "Message participants can view messages"
 on public.messages for select
 to authenticated
-using (sender_id = auth.uid() or receiver_id = auth.uid());
+using (sender_id = auth.uid() or receiver_id = auth.uid() or public.is_admin());
 
 drop policy if exists "Users can send messages" on public.messages;
 create policy "Users can send messages"
 on public.messages for insert
 to authenticated
-with check (sender_id = auth.uid() and receiver_id <> auth.uid());
+with check (
+  sender_id = auth.uid()
+  and receiver_id <> auth.uid()
+  and (
+    booking_id is not null
+    or car_id is not null
+  )
+);
 
 drop policy if exists "Receivers can mark messages read" on public.messages;
 create policy "Receivers can mark messages read"
 on public.messages for update
 to authenticated
-using (receiver_id = auth.uid())
-with check (receiver_id = auth.uid());
+using (receiver_id = auth.uid() or public.is_admin())
+with check (receiver_id = auth.uid() or public.is_admin());
 
 drop policy if exists "Reviews are public" on public.reviews;
 create policy "Reviews are public"
@@ -246,15 +295,23 @@ create policy "Booking participants can create reviews"
 on public.reviews for insert
 to authenticated
 with check (
-  reviewer_id = auth.uid()
+  renter_id = auth.uid()
   and exists (
     select 1
     from public.bookings b
     where b.id = booking_id
       and b.status = 'completed'
-      and (b.owner_id = auth.uid() or b.renter_id = auth.uid())
+      and b.car_id = car_id
+      and b.renter_id = renter_id
+      and b.owner_id = owner_id
   )
 );
+
+drop policy if exists "Admins can delete reviews" on public.reviews;
+create policy "Admins can delete reviews"
+on public.reviews for delete
+to authenticated
+using (public.is_admin());
 
 insert into storage.buckets (id, name, public)
 values ('car-images', 'car-images', true)
