@@ -2,6 +2,7 @@ import { AlertCircle, CalendarDays, Car, MapPin, UserRound } from "lucide-react"
 
 import { BookingRequestForm } from "@/components/bookings/booking-request-form";
 import { AvailabilityDisplay } from "@/components/cars/availability-display";
+import { MessageOwnerForm } from "@/components/messages/message-owner-form";
 import { PageHeading } from "@/components/page-heading";
 import {
   Card,
@@ -201,6 +202,13 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         />
 
         <OwnerCard car={car} />
+
+        {car.owner?.id ? (
+          <MessageOwnerForm
+            receiverId={car.owner.id}
+            receiverName={car.owner.full_name ?? "the owner"}
+          />
+        ) : null}
       </aside>
     </div>
   );
