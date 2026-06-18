@@ -16,6 +16,8 @@ type ReviewFormProps = {
   ownerId: string;
   onSuccess?: () => void;
   className?: string;
+  disabled?: boolean;
+  disabledReason?: string;
 };
 
 type FormStatus = {
@@ -39,6 +41,8 @@ export function ReviewForm({
   ownerId,
   onSuccess,
   className,
+  disabled = false,
+  disabledReason,
 }: ReviewFormProps) {
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
@@ -183,8 +187,15 @@ export function ReviewForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
+          {disabled && disabledReason && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50/70 p-3.5 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-300 animate-pulse" role="status">
+              <AlertCircle className="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span>{disabledReason}</span>
+            </div>
+          )}
+
           {/* Rating field */}
-          <div className="space-y-2.5">
+          <div className={cn("space-y-2.5", disabled && "opacity-60 pointer-events-none")}>
             <div className="flex items-center justify-between">
               <Label className="text-sm font-semibold tracking-wide text-slate-800 dark:text-slate-200">
                 Your Rating
@@ -209,7 +220,7 @@ export function ReviewForm({
                     }}
                     onMouseEnter={() => setHoverRating(starValue)}
                     onMouseLeave={() => setHoverRating(0)}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || disabled}
                     className="group relative rounded-md p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-all duration-200 disabled:opacity-50"
                     aria-label={`Rate ${starValue} star${starValue > 1 ? "s" : ""}`}
                   >
@@ -234,7 +245,7 @@ export function ReviewForm({
           </div>
 
           {/* Comment field */}
-          <div className="space-y-2">
+          <div className={cn("space-y-2", disabled && "opacity-60 pointer-events-none")}>
             <div className="flex items-center justify-between">
               <Label htmlFor="review-comment" className="text-sm font-semibold tracking-wide text-slate-800 dark:text-slate-200">
                 Written Review
@@ -263,7 +274,7 @@ export function ReviewForm({
               }}
               placeholder="What did you like or dislike about the car? How was the host's communication?"
               rows={4}
-              disabled={isSubmitting}
+              disabled={isSubmitting || disabled}
               className={cn(
                 "resize-none border-slate-200 bg-slate-50/50 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/50 dark:focus:border-blue-400 dark:focus:bg-slate-900",
                 validationErrors.comment && "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -300,7 +311,7 @@ export function ReviewForm({
           {/* Submit button */}
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || disabled}
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:from-blue-500 dark:to-indigo-500"
           >
             {isSubmitting ? (
