@@ -1,5 +1,4 @@
-import { CalendarDays, MapPin, MessageSquare, ShieldCheck, Fuel, Compass, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { ShieldCheck, Fuel, Compass, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { PageHeading } from "@/components/page-heading";
@@ -24,16 +23,14 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
   const { id } = await params;
 
   let car = null;
-  let errorMsg = "";
   let isSupabaseConfigured = true;
 
   try {
     car = await fetchAvailableCarById(id);
-  } catch (err: any) {
-    if (err.message?.includes("Supabase is not configured")) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes("Supabase is not configured")) {
       isSupabaseConfigured = false;
-    } else {
-      errorMsg = err.message || "Failed to load car details.";
     }
   }
 
@@ -198,11 +195,6 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
               <CardTitle className="text-base font-bold">Hosted by {car.owner.full_name}</CardTitle>
               <CardDescription>Based in {car.owner.location || "Unknown location"}</CardDescription>
             </CardHeader>
-            {car.owner.bio && (
-              <CardContent>
-                <p className="text-sm text-slate-600 dark:text-slate-400 italic">"{car.owner.bio}"</p>
-              </CardContent>
-            )}
           </Card>
         )}
 

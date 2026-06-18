@@ -146,7 +146,7 @@ export default async function RenterDashboardPage() {
             carId: b.car_id,
             ownerId: b.owner_id,
             renterId: b.renter_id,
-            carTitle: b.cars ? (b.cars as any).title : "Unknown Vehicle",
+            carTitle: b.cars && !Array.isArray(b.cars) ? (b.cars as unknown as { title: string }).title : "Unknown Vehicle",
             startDate: b.start_date,
             endDate: b.end_date,
             status: b.status,
@@ -156,7 +156,7 @@ export default async function RenterDashboardPage() {
         }
       }
     }
-  } catch (err) {
+  } catch {
     // Ignore errors and fallback to placeholders
   }
 
