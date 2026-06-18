@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { CalendarDays, DollarSign } from "lucide-react";
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
@@ -7,16 +10,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ReviewForm } from "@/components/reviews/review-form";
 import type { BookingStatus } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
 type BookingStatusCardProps = {
+  bookingId?: string;
+  carId?: string;
+  renterId?: string;
+  ownerId?: string;
   carTitle: string;
   startDate: string;
   endDate: string;
   status: BookingStatus;
   totalPrice: number;
   className?: string;
+  showReviewAction?: boolean;
 };
 
 function formatCurrency(amount: number) {
@@ -54,34 +64,84 @@ const statusCardStyles: Record<BookingStatus, string> = {
 };
 
 export function BookingStatusCard({
+  bookingId,
+  carId,
+  renterId,
+  ownerId,
   carTitle,
   startDate,
   endDate,
   status,
   totalPrice,
   className,
+  showReviewAction = false,
 }: BookingStatusCardProps) {
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+
+  const canReview = status === "completed" && showReviewAction && !hasReviewed;
+
   return (
     <Card
       className={cn(
-        "transition-shadow hover:shadow-md",
+        "transition-shadow hover:shadow-md overflow-hidden",
         statusCardStyles[status],
         className,
       )}
     >
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+      <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2">
         <CardTitle className="text-base leading-snug">{carTitle}</CardTitle>
         <BookingStatusBadge status={status} />
       </CardHeader>
-      <CardContent className="grid gap-2">
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
-          {formatDateRange(startDate, endDate)}
-        </p>
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <DollarSign className="size-4 shrink-0" aria-hidden="true" />
-          {formatCurrency(totalPrice)}
-        </p>
+      <CardContent className="grid gap-3">
+        <div className="grid gap-1.5">
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
+            {formatDateRange(startDate, endDate)}
+          </p>
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <DollarSign className="size-4 shrink-0" aria-hidden="true" />
+            {formatCurrency(totalPrice)}
+          </p>
+        </div>
+
+        {canReview && (
+          <div className="border-t pt-3 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">How was your trip?</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs font-semibold px-3"
+                onClick={() => setIsReviewOpen(!isReviewOpen)}
+              >
+                {isReviewOpen ? "Cancel Review" : "Write a Review"}
+              </Button>
+            </div>
+
+            {isReviewOpen && (
+              <div className="mt-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                <ReviewForm
+                  bookingId={bookingId || "preview-booking-id"}
+                  carId={carId || "preview-car-id"}
+                  renterId={renterId || "preview-renter-id"}
+                  ownerId={ownerId || "preview-owner-id"}
+                  onSuccess={() => {
+                    setHasReviewed(true);
+                    setIsReviewOpen(false);
+                  }}
+                  className="border-0 shadow-none bg-slate-50/50 p-0 dark:bg-slate-900/50"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {hasReviewed && (
+          <div className="text-xs text-green-600 font-semibold border-t pt-3 flex items-center gap-1.5 dark:text-green-400">
+            ✓ Review submitted successfully!
+          </div>
+        )}
       </CardContent>
     </Card>
   );
