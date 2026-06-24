@@ -239,24 +239,16 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
 
         {/* Reviews Section */}
         <hr className="border-slate-200" />
-        <div id="reviews-section" className="space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold text-slate-950">Reviews & Ratings</h3>
-            <p className="text-sm text-slate-500">
-              Read feedback from previous renters or submit your own.
-            </p>
-          </div>
-
-          {/* Render Review Form */}
-          <ReviewForm
-            bookingId={bookingId}
-            carId={car.id}
-            renterId={renterId || (user ? user.id : "")}
-            ownerId={ownerId}
-            disabled={reviewDisabled}
-            disabledReason={reviewDisabledReason}
-          />
-        </div>
+        <ReviewsSection
+          carId={car.id}
+          reviewForm={{
+            bookingId,
+            renterId: renterId || (user ? user.id : ""),
+            ownerId,
+            disabled: reviewDisabled,
+            disabledReason: reviewDisabledReason,
+          }}
+        />
       </section>
 
       {/* Sidebar - Request Booking Form */}
