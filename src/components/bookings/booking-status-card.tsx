@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { CalendarDays, DollarSign } from "lucide-react";
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { ReviewForm } from "@/components/reviews/review-form";
 import type { BookingStatus } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,10 @@ type BookingStatusCardProps = {
   totalPrice: number;
   className?: string;
   showReviewAction?: boolean;
+  actions?: ReactNode;
+  renterName?: string | null;
+  renterEmail?: string | null;
+  message?: string | null;
 };
 
 function formatCurrency(amount: number) {
@@ -75,6 +79,10 @@ export function BookingStatusCard({
   totalPrice,
   className,
   showReviewAction = false,
+  actions,
+  renterName,
+  renterEmail,
+  message,
 }: BookingStatusCardProps) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
@@ -84,7 +92,7 @@ export function BookingStatusCard({
   return (
     <Card
       className={cn(
-        "overflow-hidden bg-white transition-shadow hover:shadow-md hover:shadow-sky-950/10",
+        "overflow-hidden transition-shadow hover:shadow-md",
         statusCardStyles[status],
         className,
       )}
@@ -105,14 +113,32 @@ export function BookingStatusCard({
           </p>
         </div>
 
+        {(renterName || renterEmail || message) && (
+          <div className="rounded-md border bg-muted/30 p-3 text-sm">
+            {renterName && (
+              <p className="font-medium text-foreground">Renter: {renterName}</p>
+            )}
+            {renterEmail && (
+              <p className="text-muted-foreground">{renterEmail}</p>
+            )}
+            {message && (
+              <p className="mt-2 text-muted-foreground">“{message}”</p>
+            )}
+          </div>
+        )}
+
+        {actions && <div className="flex flex-wrap gap-2 border-t pt-3">{actions}</div>}
+
         {canReview && (
-          <div className="border-t pt-3 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 border-t pt-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">How was your trip?</span>
+              <span className="text-xs font-medium text-slate-500">
+                How was your trip?
+              </span>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 text-xs font-semibold px-3"
+                className="h-8 px-3 text-xs font-semibold"
                 onClick={() => setIsReviewOpen(!isReviewOpen)}
               >
                 {isReviewOpen ? "Cancel Review" : "Write a Review"}
@@ -130,7 +156,7 @@ export function BookingStatusCard({
                     setHasReviewed(true);
                     setIsReviewOpen(false);
                   }}
-                  className="border-0 bg-slate-50/50 p-0 shadow-none"
+                  className="border-0 bg-slate-50/50 p-0 shadow-none dark:bg-slate-900/50"
                 />
               </div>
             )}
@@ -138,7 +164,7 @@ export function BookingStatusCard({
         )}
 
         {hasReviewed && (
-          <div className="flex items-center gap-1.5 border-t pt-3 text-xs font-semibold text-green-600">
+          <div className="flex items-center gap-1.5 border-t pt-3 text-xs font-semibold text-green-600 dark:text-green-400">
             ✓ Review submitted successfully!
           </div>
         )}

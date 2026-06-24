@@ -3,7 +3,13 @@
 import { useState, type FormEvent } from "react";
 import { Star, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -167,9 +173,9 @@ export function ReviewForm({
       setComment("");
       if (onSuccess) onSuccess();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-
       setIsSubmitting(false);
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
       setStatus({
         type: "error",
         message: `An unexpected error occurred: ${message}`,
