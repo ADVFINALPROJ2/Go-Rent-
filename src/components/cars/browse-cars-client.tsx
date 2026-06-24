@@ -126,17 +126,20 @@ export function BrowseCarsClient() {
     : "No available cars found";
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-8">
+      <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
         <CardHeader>
-          <CardTitle>Find a car</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="size-5 text-primary" aria-hidden="true" />
+            Find a car
+          </CardTitle>
           <CardDescription>
             Filter available listings by location and daily price range.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form
-            className="grid gap-3 sm:grid-cols-[1fr_160px_160px_auto]"
+            className="grid gap-3 lg:grid-cols-[1fr_160px_160px_auto]"
             onSubmit={handleFilterSubmit}
           >
             <label className="grid gap-2 text-sm font-medium" htmlFor="location-search">
@@ -148,7 +151,7 @@ export function BrowseCarsClient() {
                 />
                 <Input
                   id="location-search"
-                  className="pl-9"
+                  className="h-11 pl-9"
                   placeholder="Search by city or area"
                   value={location}
                   onChange={(event) => setLocation(event.target.value)}
@@ -160,6 +163,7 @@ export function BrowseCarsClient() {
               Min price
               <Input
                 id="min-price"
+                className="h-11"
                 min="0"
                 placeholder="0"
                 type="number"
@@ -172,6 +176,7 @@ export function BrowseCarsClient() {
               Max price
               <Input
                 id="max-price"
+                className="h-11"
                 min="0"
                 placeholder="150"
                 type="number"
@@ -180,7 +185,7 @@ export function BrowseCarsClient() {
               />
             </label>
 
-            <div className="flex items-end gap-2">
+            <div className="flex flex-col items-stretch gap-2 sm:flex-row lg:items-end">
               <Button className="w-full sm:w-auto" type="submit">
                 <SlidersHorizontal aria-hidden="true" />
                 Apply
@@ -200,15 +205,15 @@ export function BrowseCarsClient() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Available listings</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-2xl font-bold text-slate-950">Available listings</h2>
+          <p className="text-sm text-slate-500">
             Browse cars from local owners and open a card to view details.
           </p>
         </div>
         {!isLoading && !error ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="w-fit rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-sm font-semibold text-primary">
             {cars.length} {cars.length === 1 ? "car" : "cars"} shown
           </p>
         ) : null}
@@ -224,7 +229,7 @@ export function BrowseCarsClient() {
       ) : null}
 
       {isLoading ? (
-        <section className="grid gap-4 md:grid-cols-3" aria-label="Loading cars">
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Loading cars">
           {Array.from({ length: 3 }).map((_, index) => (
             <Card className="animate-pulse" key={index}>
               <CardHeader>
@@ -249,7 +254,7 @@ export function BrowseCarsClient() {
           </CardContent>
         </Card>
       ) : cars.length === 0 ? (
-        <Card className="py-12 text-center">
+        <Card className="border-dashed border-sky-200 py-12 text-center">
           <CardContent className="flex flex-col items-center gap-4">
             <div className="flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
               <Car className="size-7" aria-hidden="true" />
@@ -265,7 +270,7 @@ export function BrowseCarsClient() {
           </CardContent>
         </Card>
       ) : (
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {cars.map((car) => (
             <CarCard key={car.id} car={car} variant="browse" />
           ))}
