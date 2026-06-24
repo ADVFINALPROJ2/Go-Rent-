@@ -4,7 +4,7 @@ export const mainNavigation = [
   { href: "/owner/dashboard", label: "Owner Dashboard" },
   { href: "/owner/dashboard/cars", label: "My Cars" },
   { href: "/renter/dashboard", label: "Renter Dashboard" },
-  { href: "/admin/dashboard", label: "Admin Dashboard" },
+  { href: "/messages", label: "Messages" },
   { href: "/profile", label: "Profile" },
 ];
 

@@ -1,19 +1,25 @@
 import { MessageSquareMore } from "lucide-react";
 
+import { MessagesClient } from "@/components/messages/messages-client";
+import { PageHeading } from "@/components/page-heading";
+
 export default function MessagesPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-4 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="rounded-lg border bg-card p-8 shadow-sm">
-        <div className="flex items-center gap-3">
-          <MessageSquareMore className="size-6" aria-hidden="true" />
-          <div>
-            <h1 className="text-xl font-semibold">Messages</h1>
-            <p className="text-sm text-muted-foreground">
-              Messaging is not part of this owner booking task, but this route is available for the app shell.
-            </p>
+    <main className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+        <div className="flex items-start gap-4">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-primary">
+            <MessageSquareMore className="size-6" aria-hidden="true" />
           </div>
+          <PageHeading
+            eyebrow="Messages"
+            title="Your conversations"
+            description="Read stored messages about cars and bookings, then reply to owners or renters from one place."
+          />
         </div>
       </div>
+
+      <MessagesClient />
     </main>
   );
 }

@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { PageHeading } from "@/components/page-heading";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BookingRequestForm } from "@/components/bookings/booking-request-form";
-import { ReviewsSection } from "@/components/reviews/reviews-section";
+import { MessageOwnerForm } from "@/components/messages/message-owner-form";
+import { ReviewForm } from "@/components/reviews/review-form";
 import { fetchAvailableCarById } from "@/lib/cars/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -284,6 +285,13 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             </CardContent>
           </Card>
         )}
+        {isSupabaseConfigured ? (
+          <MessageOwnerForm
+            carId={car.id}
+            ownerId={car.owner_id}
+            carTitle={car.title}
+          />
+        ) : null}
       </aside>
     </div>
   );
