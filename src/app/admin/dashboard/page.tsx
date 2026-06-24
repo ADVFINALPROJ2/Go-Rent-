@@ -105,7 +105,7 @@ function StatusBadge({
   className: string;
 }) {
   return (
-    <Badge variant="outline" className={cn("capitalize", className)}>
+    <Badge variant="secondary" className={cn("border capitalize", className)}>
       {children}
     </Badge>
   );
