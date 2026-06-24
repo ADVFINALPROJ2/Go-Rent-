@@ -1,9 +1,14 @@
 export function SiteFooter() {
   return (
-    <footer className="border-t bg-card">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <p>GoRent peer-to-peer car rentals.</p>
-        <p>Supabase-backed MVC foundation.</p>
+    <footer className="border-t border-slate-900 bg-slate-950 text-white">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm sm:grid-cols-[1fr_auto] sm:items-end sm:px-6 lg:px-8">
+        <div>
+          <p className="text-lg font-bold">GoRent</p>
+          <p className="mt-2 max-w-md text-slate-400">
+            Peer-to-peer car rentals with clean listings, owner tools, and renter-ready booking flows.
+          </p>
+        </div>
+        <p className="text-slate-500">Supabase-backed MVC foundation.</p>
       </div>
     </footer>
   );
