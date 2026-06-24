@@ -150,7 +150,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         {/* Header/Title Info */}
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/30">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/50 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
               <ShieldCheck className="size-3.5" />
               Verified Listing
             </span>
@@ -186,7 +186,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
 
         {/* Specifications Grid */}
         <div className="space-y-4">
-          <h3 className="text-lg font-bold tracking-tight text-slate-950 dark:text-slate-50">Vehicle Specifications</h3>
+          <h3 className="text-lg font-bold text-slate-950">Vehicle Specifications</h3>
           <div className="grid gap-4 sm:grid-cols-3">
             <Card className="border border-slate-200/60 bg-white shadow-sm">
               <CardHeader className="pb-2">
@@ -240,7 +240,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         <hr className="border-slate-200" />
         <div id="reviews-section" className="space-y-6">
           <div className="space-y-1">
-            <h3 className="text-xl font-bold tracking-tight text-slate-950">Reviews & Ratings</h3>
+            <h3 className="text-xl font-bold text-slate-950">Reviews & Ratings</h3>
             <p className="text-sm text-slate-500">
               Read feedback from previous renters or submit your own.
             </p>
@@ -278,7 +278,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             dailyRate={Number(car.daily_rate)}
           />
         ) : (
-          <Card className="border-amber-200 bg-amber-50/20 dark:border-amber-900/30">
+          <Card className="border-amber-200 bg-amber-50/20">
             <CardHeader>
               <CardTitle className="text-base">Rental Booking (Demo Mode)</CardTitle>
             </CardHeader>
@@ -286,7 +286,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
               <p className="text-sm text-slate-500">
                 Booking forms and database transactions require Supabase.
               </p>
-              <div className="rounded-lg border border-dashed border-amber-300 p-3 bg-amber-50/50 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-400">
+              <div className="rounded-lg border border-dashed border-amber-300 bg-amber-50/50 p-3 text-xs text-amber-800">
                 Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env file to enable live booking.
               </div>
             </CardContent>
