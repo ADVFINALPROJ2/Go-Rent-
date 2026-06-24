@@ -58,7 +58,7 @@ export default function ProfilePage() {
   /* ---- Loading skeleton ---- */
   if (loading) {
     return (
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="Profile"
           title="Loading your profile…"
@@ -86,7 +86,7 @@ export default function ProfilePage() {
   /* ---- Not authenticated ---- */
   if (error || !profile) {
     return (
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="Profile"
           title="Sign in to view your profile."
@@ -111,24 +111,26 @@ export default function ProfilePage() {
 
   /* ---- Profile display ---- */
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeading
-          eyebrow="Profile"
-          title="Your account at a glance."
-          description="View and manage your personal information, role, and contact details."
-        />
-        <Button asChild className="shrink-0 self-start sm:self-auto">
-          <Link href="/profile/edit">
-            <Pencil aria-hidden="true" />
-            Edit Profile
-          </Link>
-        </Button>
+    <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <PageHeading
+            eyebrow="Profile"
+            title="Your account at a glance."
+            description="View and manage your personal information, role, and contact details."
+          />
+          <Button asChild className="shrink-0 self-start sm:self-auto">
+            <Link href="/profile/edit">
+              <Pencil aria-hidden="true" />
+              Edit Profile
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden bg-white shadow-xl shadow-sky-950/10">
         {/* Gradient banner */}
-        <div className="h-28 bg-gradient-to-r from-primary/80 via-[#0ea5a0] to-accent" />
+        <div className="h-28 bg-gradient-to-r from-sky-600 via-sky-400 to-blue-100" />
 
         <CardContent className="relative px-6 pb-8 pt-16">
           {/* Avatar */}
@@ -140,7 +142,7 @@ export default function ProfilePage() {
               className="absolute -top-10 left-6 size-20 rounded-full border-4 border-card bg-card object-cover shadow-md"
             />
           ) : (
-            <div className="absolute -top-10 left-6 flex size-20 items-center justify-center rounded-full border-4 border-card bg-gradient-to-br from-primary to-[#0ea5a0] text-xl font-bold text-primary-foreground shadow-md">
+            <div className="absolute -top-10 left-6 flex size-20 items-center justify-center rounded-full border-4 border-card bg-gradient-to-br from-primary to-sky-400 text-xl font-bold text-primary-foreground shadow-md">
               {getInitials(profile.full_name)}
             </div>
           )}

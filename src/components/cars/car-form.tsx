@@ -203,8 +203,11 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border-sky-100 bg-white shadow-xl shadow-sky-950/10">
       <CardHeader>
+        <div className="mb-2 flex size-12 items-center justify-center rounded-lg bg-sky-50 text-primary">
+          <ImagePlus className="size-6" aria-hidden="true" />
+        </div>
         <CardTitle>{mode === "create" ? "Add new car" : "Edit listing"}</CardTitle>
         <CardDescription>
           {mode === "create"
@@ -329,7 +332,7 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-input bg-background px-4 py-8 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-accent/30"
+                  className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-sky-200 bg-sky-50/40 px-4 py-8 text-sm text-slate-500 transition-colors hover:border-primary/40 hover:bg-sky-50"
                 >
                   <Upload className="size-6" aria-hidden="true" />
                   <span>Click to upload an image</span>
@@ -442,7 +445,7 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
           </div>
 
           {/* ---- Submit ---- */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
             <Button type="submit" disabled={submitting}>
               {submitting && <Loader2 className="animate-spin" aria-hidden="true" />}
               {mode === "create" ? "Create listing" : "Save changes"}

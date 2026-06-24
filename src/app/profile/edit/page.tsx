@@ -81,7 +81,7 @@ export default function EditProfilePage() {
   /* ---- Loading state ---- */
   if (loading) {
     return (
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
         <PageHeading
           eyebrow="Edit Profile"
           title="Loading your details…"
@@ -111,7 +111,7 @@ export default function EditProfilePage() {
     const needsLogin = loadError === "NOT_AUTHENTICATED";
 
     return (
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="Edit Profile"
           title={needsLogin ? "Sign in to edit your profile." : "Unable to load profile."}
@@ -142,16 +142,18 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
-      <PageHeading
-        eyebrow="Edit Profile"
-        title="Update your account details."
-        description="Keep your name, contact info, and role up to date so owners and renters can connect with you."
-      />
+    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
+      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+        <PageHeading
+          eyebrow="Edit Profile"
+          title="Update your account details."
+          description="Keep your name, contact info, and role up to date so owners and renters can connect with you."
+        />
+      </div>
 
-      <Card>
+      <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
         <CardHeader>
-          <div className="flex size-12 items-center justify-center rounded-md bg-accent text-accent-foreground">
+          <div className="flex size-12 items-center justify-center rounded-lg bg-sky-50 text-primary">
             <UserRound className="size-6" aria-hidden="true" />
           </div>
           <CardTitle>Profile details</CardTitle>
@@ -241,7 +243,7 @@ export default function EditProfilePage() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
               <Button type="submit" disabled={saving}>
                 {saving ? (
                   <Loader2 className="animate-spin" aria-hidden="true" />
