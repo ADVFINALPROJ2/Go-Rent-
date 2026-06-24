@@ -166,30 +166,32 @@ export function ReviewForm({
       setRating(0);
       setComment("");
       if (onSuccess) onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+
       setIsSubmitting(false);
       setStatus({
         type: "error",
-        message: `An unexpected error occurred: ${err.message || err}`,
+        message: `An unexpected error occurred: ${message}`,
       });
     }
   }
 
   return (
-    <Card className={cn("overflow-hidden border border-slate-200/80 bg-white/80 backdrop-blur-md shadow-lg transition-shadow duration-300 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950/80", className)}>
+    <Card className={cn("overflow-hidden border border-sky-100 bg-white shadow-lg shadow-sky-950/10 transition-shadow duration-300 hover:shadow-xl", className)}>
       <CardHeader className="space-y-1.5 pb-4">
-        <CardTitle className="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-400">
+        <CardTitle className="bg-gradient-to-r from-sky-700 to-blue-500 bg-clip-text text-xl font-bold text-transparent">
           Rate your rental experience
         </CardTitle>
-        <CardDescription className="text-slate-500 dark:text-slate-400">
+        <CardDescription className="text-slate-500">
           Share your feedback on this vehicle and booking trip.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
           {disabled && disabledReason && (
-            <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50/70 p-3.5 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-300 animate-pulse" role="status">
-              <AlertCircle className="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50/70 p-3.5 text-sm text-amber-800" role="status">
+              <AlertCircle className="size-5 shrink-0 text-amber-600" />
               <span>{disabledReason}</span>
             </div>
           )}
@@ -197,17 +199,16 @@ export function ReviewForm({
           {/* Rating field */}
           <div className={cn("space-y-2.5", disabled && "opacity-60 pointer-events-none")}>
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-semibold tracking-wide text-slate-800 dark:text-slate-200">
+              <Label className="text-sm font-semibold tracking-wide text-slate-800">
                 Your Rating
               </Label>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-medium text-slate-500">
                 {ratingLabels[hoverRating || rating] || ratingLabels[0]}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((starValue) => {
                 const isHighlighted = starValue <= (hoverRating || rating);
-                const isSelected = starValue <= rating;
                 return (
                   <button
                     key={starValue}
@@ -229,7 +230,7 @@ export function ReviewForm({
                         "size-8 transition-transform duration-200 group-hover:scale-110",
                         isHighlighted
                           ? "fill-amber-400 stroke-amber-400 drop-shadow-[0_0_3px_rgba(251,191,36,0.3)]"
-                          : "fill-transparent stroke-slate-300 dark:stroke-slate-700"
+                          : "fill-transparent stroke-slate-300"
                       )}
                     />
                   </button>
@@ -247,7 +248,7 @@ export function ReviewForm({
           {/* Comment field */}
           <div className={cn("space-y-2", disabled && "opacity-60 pointer-events-none")}>
             <div className="flex items-center justify-between">
-              <Label htmlFor="review-comment" className="text-sm font-semibold tracking-wide text-slate-800 dark:text-slate-200">
+              <Label htmlFor="review-comment" className="text-sm font-semibold tracking-wide text-slate-800">
                 Written Review
               </Label>
               <span
@@ -257,7 +258,7 @@ export function ReviewForm({
                     ? "text-red-500"
                     : comment.length >= 450
                     ? "text-amber-500"
-                    : "text-slate-400 dark:text-slate-500"
+                    : "text-slate-400"
                 )}
               >
                 {comment.length}/500
@@ -276,7 +277,7 @@ export function ReviewForm({
               rows={4}
               disabled={isSubmitting || disabled}
               className={cn(
-                "resize-none border-slate-200 bg-slate-50/50 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/50 dark:focus:border-blue-400 dark:focus:bg-slate-900",
+                "resize-none border-slate-200 bg-slate-50/50 focus:border-blue-500 focus:bg-white focus:ring-blue-500",
                 validationErrors.comment && "border-red-500 focus:border-red-500 focus:ring-red-500"
               )}
             />
@@ -294,15 +295,15 @@ export function ReviewForm({
               className={cn(
                 "flex items-start gap-2.5 rounded-lg border p-3.5 text-sm transition-all duration-300",
                 status.type === "success"
-                  ? "border-emerald-200 bg-emerald-50/70 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-300"
-                  : "border-red-200 bg-red-50/70 text-red-800 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300"
+                  ? "border-emerald-200 bg-emerald-50/70 text-emerald-800"
+                  : "border-red-200 bg-red-50/70 text-red-800"
               )}
               role={status.type === "error" ? "alert" : "status"}
             >
               {status.type === "success" ? (
-                <CheckCircle2 className="size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="size-5 shrink-0 text-emerald-600" />
               ) : (
-                <AlertCircle className="size-5 shrink-0 text-red-600 dark:text-red-400" />
+                <AlertCircle className="size-5 shrink-0 text-red-600" />
               )}
               <span>{status.message}</span>
             </div>
@@ -312,7 +313,7 @@ export function ReviewForm({
           <Button
             type="submit"
             disabled={isSubmitting || disabled}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:from-blue-500 dark:to-indigo-500"
+            className="w-full bg-primary text-white shadow-md shadow-sky-900/20 hover:bg-sky-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             {isSubmitting ? (
               <>

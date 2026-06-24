@@ -84,7 +84,7 @@ export function BookingStatusCard({
   return (
     <Card
       className={cn(
-        "transition-shadow hover:shadow-md overflow-hidden",
+        "overflow-hidden bg-white transition-shadow hover:shadow-md hover:shadow-sky-950/10",
         statusCardStyles[status],
         className,
       )}
@@ -130,7 +130,7 @@ export function BookingStatusCard({
                     setHasReviewed(true);
                     setIsReviewOpen(false);
                   }}
-                  className="border-0 shadow-none bg-slate-50/50 p-0 dark:bg-slate-900/50"
+                  className="border-0 bg-slate-50/50 p-0 shadow-none"
                 />
               </div>
             )}
@@ -138,7 +138,7 @@ export function BookingStatusCard({
         )}
 
         {hasReviewed && (
-          <div className="text-xs text-green-600 font-semibold border-t pt-3 flex items-center gap-1.5 dark:text-green-400">
+          <div className="flex items-center gap-1.5 border-t pt-3 text-xs font-semibold text-green-600">
             ✓ Review submitted successfully!
           </div>
         )}

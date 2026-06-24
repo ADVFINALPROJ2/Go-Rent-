@@ -16,14 +16,14 @@ export function PageHeading({
   return (
     <div className={cn("max-w-3xl space-y-3", className)}>
       {eyebrow ? (
-        <p className="text-sm font-medium uppercase tracking-wide text-primary">
+        <p className="text-sm font-semibold uppercase tracking-wide text-primary">
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="text-3xl font-semibold tracking-normal text-foreground sm:text-4xl">
+      <h1 className="text-3xl font-bold tracking-normal text-foreground sm:text-5xl">
         {title}
       </h1>
-      <p className="text-base leading-7 text-muted-foreground">{description}</p>
+      <p className="text-base leading-7 text-muted-foreground sm:text-lg">{description}</p>
     </div>
   );
 }

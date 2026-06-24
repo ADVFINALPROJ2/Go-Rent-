@@ -2,24 +2,24 @@
 
 :root {
   --radius: 0.5rem;
-  --background: #fbfaf8;
-  --foreground: #1f2933;
+  --background: #f8fbff;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #1f2933;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #1f2933;
-  --primary: #0f766e;
-  --primary-foreground: #f8fffd;
-  --secondary: #e7eef4;
-  --secondary-foreground: #22313f;
-  --muted: #eef1f3;
-  --muted-foreground: #5f6f7c;
-  --accent: #d8ebe6;
-  --accent-foreground: #173f3b;
+  --popover-foreground: #0f172a;
+  --primary: #0284c7;
+  --primary-foreground: #f8fbff;
+  --secondary: #e0f2fe;
+  --secondary-foreground: #075985;
+  --muted: #edf4fb;
+  --muted-foreground: #64748b;
+  --accent: #dff4ff;
+  --accent-foreground: #075985;
   --destructive: #b42318;
-  --border: #d8dee4;
-  --input: #d8dee4;
-  --ring: #0f766e;
+  --border: #dbe7f1;
+  --input: #dbe7f1;
+  --ring: #38bdf8;
 }
 
 @theme inline {
@@ -54,7 +54,9 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 32rem),
+    linear-gradient(180deg, #ffffff 0%, var(--background) 42rem);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

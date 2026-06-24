@@ -142,7 +142,7 @@ export function BookingRequestForm({
   }
 
   return (
-    <Card>
+    <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
       <CardHeader>
         <CardTitle>Request this rental</CardTitle>
         <CardDescription>Choose your dates and send a note to the owner.</CardDescription>
