@@ -166,11 +166,13 @@ export function ReviewForm({
       setRating(0);
       setComment("");
       if (onSuccess) onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+
       setIsSubmitting(false);
       setStatus({
         type: "error",
-        message: `An unexpected error occurred: ${err.message || err}`,
+        message: `An unexpected error occurred: ${message}`,
       });
     }
   }
@@ -207,7 +209,6 @@ export function ReviewForm({
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((starValue) => {
                 const isHighlighted = starValue <= (hoverRating || rating);
-                const isSelected = starValue <= rating;
                 return (
                   <button
                     key={starValue}
