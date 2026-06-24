@@ -6,7 +6,10 @@ import path from "node:path";
 import * as schema from "@/db/schema";
 
 const databasePath = process.env.SQLITE_DB_PATH ?? "./data/gorent.sqlite";
-const resolvedDatabasePath = path.resolve(process.cwd(), databasePath);
+const resolvedDatabasePath = path.resolve(
+  /* turbopackIgnore: true */ process.cwd(),
+  databasePath,
+);
 
 fs.mkdirSync(path.dirname(resolvedDatabasePath), { recursive: true });
 
