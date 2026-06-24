@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { requireOwnerSession } from "@/lib/auth/role-guards";
 import type { BookingStatus, Database } from "@/lib/supabase/types";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
@@ -67,26 +67,12 @@ export default function OwnerDashboardPage() {
     setSuccess("");
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      if (!supabase) {
-        throw new Error(
-          "Supabase client is not configured. Check your environment variables.",
-        );
-      }
-
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw new Error(userError.message);
-      }
-
-      if (!user) {
-        router.push("/login");
+      const ownerSession = await requireOwnerSession(router);
+      if (!ownerSession) {
         return;
       }
+
+      const { supabase, user } = ownerSession;
 
       const { data: bookingRows, error: bookingsError } = await supabase
         .from("bookings")
@@ -210,26 +196,12 @@ export default function OwnerDashboardPage() {
     setSuccess("");
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      if (!supabase) {
-        throw new Error(
-          "Supabase client is not configured. Check your environment variables.",
-        );
-      }
-
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw new Error(userError.message);
-      }
-
-      if (!user) {
-        router.push("/login");
+      const ownerSession = await requireOwnerSession(router);
+      if (!ownerSession) {
         return;
       }
+
+      const { supabase, user } = ownerSession;
 
       const expectedCurrentStatus = status === "completed" ? "approved" : "pending";
 
@@ -400,6 +372,18 @@ export default function OwnerDashboardPage() {
                       renterName={booking.renterName}
                       renterEmail={booking.renterEmail}
                       message={booking.message}
+                      actions={
+                        <Button
+                          size="sm"
+                          onClick={() => void handleBookingAction(booking, "completed")}
+                          disabled={processingId === booking.id}
+                        >
+                          {processingId === booking.id ? (
+                            <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                          ) : null}
+                          Mark Completed
+                        </Button>
+                      }
                     />
                   ))
                 ) : (

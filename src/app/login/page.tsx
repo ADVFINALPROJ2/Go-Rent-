@@ -96,11 +96,18 @@ export default function LoginPage() {
         .eq("id", user.id)
         .single();
 
-      role = profile?.role === "owner" ? "owner" : "renter";
+      role = profile?.role ?? "renter";
     }
 
     setMessage({ type: "success", text: "Login successful. Redirecting..." });
-    router.push(role === "owner" ? "/owner/dashboard" : "/renter/dashboard");
+    const redirectPath =
+      role === "owner"
+        ? "/owner/dashboard"
+        : role === "admin"
+          ? "/admin/dashboard"
+          : "/renter/dashboard";
+
+    router.push(redirectPath);
     router.refresh();
   }
 

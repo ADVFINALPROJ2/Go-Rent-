@@ -7,7 +7,7 @@ import { AlertCircle } from "lucide-react";
 import { PageHeading } from "@/components/page-heading";
 import { CarForm } from "@/components/cars/car-form";
 import { getCarById } from "@/lib/actions/cars";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { requireOwnerSession } from "@/lib/auth/role-guards";
 import type { Database } from "@/lib/supabase/types";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
@@ -23,19 +23,12 @@ export default function EditCarPage() {
   React.useEffect(() => {
     async function load() {
       try {
-        const supabase = createSupabaseBrowserClient();
-        if (!supabase) throw new Error("Supabase client unavailable.");
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) {
-          router.push("/login");
+        const ownerSession = await requireOwnerSession(router);
+        if (!ownerSession) {
           return;
         }
 
-        setUserId(user.id);
+        setUserId(ownerSession.user.id);
 
         const carData = await getCarById(params.id);
 
@@ -44,7 +37,7 @@ export default function EditCarPage() {
           return;
         }
 
-        if (carData.owner_id !== user.id) {
+        if (carData.owner_id !== ownerSession.user.id) {
           setError("You do not have permission to edit this listing.");
           return;
         }

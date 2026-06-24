@@ -53,6 +53,12 @@ For an existing database that already has profile `location` and `bio` fields
 but does not have Week 2 booking, messaging, review, and admin support:
 
 1. Run `supabase/week2-schema-updates.sql`.
+2. Run `supabase/final-security-rbac-booking-fixes.sql`.
+
+For an existing database that already has Week 2 support but needs the final
+RBAC and booking transition hardening:
+
+1. Run `supabase/final-security-rbac-booking-fixes.sql`.
 
 ## Required migration for existing Supabase projects
 
@@ -79,3 +85,17 @@ That migration adds:
 - RLS updates for admin access, booking requests, messages, and reviews
 
 Fresh databases only need `supabase/schema.sql`.
+
+## Required migration for final RBAC and booking security
+
+Before the final live demo, existing Supabase projects should run
+`supabase/final-security-rbac-booking-fixes.sql`.
+
+That migration:
+- requires an active owner profile for car insert/update/delete policies
+- keeps admin car management access through `public.is_admin()`
+- replaces broad booking participant update access with status-specific policies
+- allows owners to approve/decline pending bookings
+- allows owners to mark approved bookings as completed
+- allows renters to cancel only their own pending bookings
+- adds a trigger that blocks client updates to booking fields other than status
