@@ -20,21 +20,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/types";
+import {
+  getUserMessages,
+  markMessagesRead,
+  sendMessage,
+  type MessageWithContext,
+} from "@/lib/actions/messages";
 import { cn } from "@/lib/utils";
-
-type MessageRow = Database["public"]["Tables"]["messages"]["Row"];
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
-type CarRow = Database["public"]["Tables"]["cars"]["Row"];
-
-type MessageWithContext = MessageRow & {
-  otherUserId: string;
-  otherUserName: string;
-  carTitle: string | null;
-  carLocation: string | null;
-  carImageUrl: string | null;
-};
 
 type Conversation = {
   key: string;
@@ -48,10 +40,6 @@ type Conversation = {
   lastMessage: MessageWithContext;
   unreadCount: number;
 };
-
-function formatShortUser(id: string) {
-  return `User ${id.slice(0, 8)}`;
-}
 
 function formatMessageTime(iso: string) {
   return new Date(iso).toLocaleString("en-US", {
@@ -87,113 +75,19 @@ export function MessagesClient() {
       setSuccess("");
 
       try {
-        const supabase = createSupabaseBrowserClient();
+        const result = await getUserMessages();
+        setCurrentUserId(result.currentUserId);
 
-        if (!supabase) {
-          throw new Error(
-            "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-          );
-        }
-
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError) {
-          throw new Error(userError.message);
-        }
-
-        if (!user) {
-          router.push("/login");
-          return;
-        }
-
-        setCurrentUserId(user.id);
-
-        const { data: messageRows, error: messagesError } = await supabase
-          .from("messages")
-          .select("*")
-          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-          .order("created_at", { ascending: true });
-
-        if (messagesError) {
-          throw new Error(messagesError.message);
-        }
-
-        if (!messageRows?.length) {
+        if (!result.messages.length) {
           setMessages([]);
           setSelectedConversationKey(null);
           return;
         }
 
-        const userIds = [
-          ...new Set(
-            messageRows.flatMap((message) => [message.sender_id, message.receiver_id]),
-          ),
-        ];
-        const carIds = [
-          ...new Set(
-            messageRows
-              .map((message) => message.car_id)
-              .filter((carId): carId is string => Boolean(carId)),
-          ),
-        ];
-
-        const profilesPromise =
-          userIds.length > 0
-            ? supabase.from("profiles").select("id, full_name").in("id", userIds)
-            : Promise.resolve({ data: [] as ProfileRow[], error: null });
-
-        const carsPromise =
-          carIds.length > 0
-            ? supabase
-                .from("cars")
-                .select("id, title, make, model, location, image_urls")
-                .in("id", carIds)
-            : Promise.resolve({ data: [] as CarRow[], error: null });
-
-        const [profilesResult, carsResult] = await Promise.all([
-          profilesPromise,
-          carsPromise,
-        ]);
-
-        if (profilesResult.error) {
-          throw new Error(profilesResult.error.message);
-        }
-
-        if (carsResult.error) {
-          throw new Error(carsResult.error.message);
-        }
-
-        const profileMap = new Map(
-          (profilesResult.data ?? []).map((profile) => [profile.id, profile]),
-        );
-        const carMap = new Map((carsResult.data ?? []).map((car) => [car.id, car]));
-
-        const contextualMessages = messageRows.map((message) => {
-          const otherUserId =
-            message.sender_id === user.id ? message.receiver_id : message.sender_id;
-          const otherProfile = profileMap.get(otherUserId);
-          const car = message.car_id ? carMap.get(message.car_id) : null;
-          const carTitle = car
-            ? car.title || `${car.make} ${car.model}`
-            : null;
-
-          return {
-            ...message,
-            otherUserId,
-            otherUserName: otherProfile?.full_name ?? formatShortUser(otherUserId),
-            carTitle,
-            carLocation: car?.location ?? null,
-            carImageUrl: car?.image_urls?.[0] ?? null,
-          };
-        });
-
-        setMessages(contextualMessages);
+        setMessages(result.messages);
 
         const nextKeys = new Set(
-          contextualMessages.map((message) =>
+          result.messages.map((message) =>
             buildConversationKey(message.otherUserId, message.car_id),
           ),
         );
@@ -201,7 +95,7 @@ export function MessagesClient() {
         if (preferredConversationKey && nextKeys.has(preferredConversationKey)) {
           setSelectedConversationKey(preferredConversationKey);
         } else {
-          const newestMessage = [...contextualMessages].sort(
+          const newestMessage = [...result.messages].sort(
             (a, b) =>
               new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
           )[0];
@@ -210,6 +104,11 @@ export function MessagesClient() {
           );
         }
       } catch (err) {
+        if (err instanceof Error && err.message === "NOT_AUTHENTICATED") {
+          router.push("/login");
+          return;
+        }
+
         setError(err instanceof Error ? err.message : "Failed to load messages.");
       } finally {
         setLoading(false);
@@ -289,24 +188,13 @@ export function MessagesClient() {
 
       setMarkingReadKey(selectedConversation.key);
 
-      const supabase = createSupabaseBrowserClient();
-      if (!supabase) {
-        setMarkingReadKey(null);
-        return;
-      }
+      const storedReadAt = await markMessagesRead(unreadMessageIds);
 
-      const readAt = new Date().toISOString();
-      const { error: readError } = await supabase
-        .from("messages")
-        .update({ read_at: readAt })
-        .in("id", unreadMessageIds)
-        .eq("receiver_id", currentUserId);
-
-      if (!readError) {
+      if (storedReadAt) {
         setMessages((previousMessages) =>
           previousMessages.map((message) =>
             unreadMessageIds.includes(message.id)
-              ? { ...message, read_at: readAt }
+              ? { ...message, read_at: storedReadAt }
               : message,
           ),
         );
@@ -334,25 +222,12 @@ export function MessagesClient() {
     setSuccess("");
 
     try {
-      const supabase = createSupabaseBrowserClient();
-
-      if (!supabase) {
-        throw new Error(
-          "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-        );
-      }
-
-      const { error: sendError } = await supabase.from("messages").insert({
-        sender_id: currentUserId,
-        receiver_id: selectedConversation.otherUserId,
-        car_id: selectedConversation.carId,
-        booking_id: null,
+      await sendMessage({
+        receiverId: selectedConversation.otherUserId,
+        carId: selectedConversation.carId,
+        bookingId: null,
         body: trimmedReply,
       });
-
-      if (sendError) {
-        throw new Error(sendError.message);
-      }
 
       setReplyBody("");
       setSuccess("Reply sent.");
