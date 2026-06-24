@@ -5,7 +5,7 @@ import { PageHeading } from "@/components/page-heading";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BookingRequestForm } from "@/components/bookings/booking-request-form";
 import { MessageOwnerForm } from "@/components/messages/message-owner-form";
-import { ReviewForm } from "@/components/reviews/review-form";
+import { ReviewsSection } from "@/components/reviews/reviews-section";
 import { fetchAvailableCarById } from "@/lib/cars/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
