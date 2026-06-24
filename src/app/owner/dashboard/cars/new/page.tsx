@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { PageHeading } from "@/components/page-heading";
 import { CarForm } from "@/components/cars/car-form";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { requireOwnerSession } from "@/lib/auth/role-guards";
 
 export default function AddCarPage() {
   const router = useRouter();
@@ -15,19 +15,12 @@ export default function AddCarPage() {
   React.useEffect(() => {
     async function checkAuth() {
       try {
-        const supabase = createSupabaseBrowserClient();
-        if (!supabase) throw new Error("Supabase client unavailable.");
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) {
-          router.push("/login");
+        const ownerSession = await requireOwnerSession(router);
+        if (!ownerSession) {
           return;
         }
 
-        setUserId(user.id);
+        setUserId(ownerSession.user.id);
       } catch {
         router.push("/login");
       } finally {
