@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CalendarCheck, CarFront, Loader2, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -67,7 +67,7 @@ export default function RenterDashboardPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const loadBookings = async () => {
+  const loadBookings = useCallback(async () => {
     setLoading(true);
     setError("");
     setSuccess("");
@@ -140,13 +140,13 @@ export default function RenterDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     queueMicrotask(() => {
       void loadBookings();
     });
-  }, [router]);
+  }, [loadBookings]);
 
   async function handleCancelBooking(booking: RenterBooking) {
     if (booking.status !== "pending") {
