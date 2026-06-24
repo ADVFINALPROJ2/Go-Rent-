@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerLocalUser } from "@/app/auth/actions";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase/client";
-import type { ProfileRole } from "@/lib/supabase/types";
+import type { UserRole } from "@/db/schema";
 
-type RegisterRole = Extract<ProfileRole, "renter" | "owner">;
+type RegisterRole = Extract<UserRole, "renter" | "owner">;
 
 type FormErrors = {
   fullName?: string;
@@ -96,60 +96,27 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!supabase) {
-      setMessage({
-        type: "error",
-        text: "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
-    const { data, error } = await supabase.auth.signUp({
+    const result = await registerLocalUser({
+      fullName: normalizedName,
       email: normalizedEmail,
       password,
-      options: {
-        data: {
-          full_name: normalizedName,
-          role,
-        },
-      },
+      role,
     });
 
-    if (error) {
+    if (!result.success) {
       setIsSubmitting(false);
-      setMessage({ type: "error", text: error.message });
-      return;
-    }
-
-    if (data.session && data.user) {
-      const { error: profileError } = await supabase.from("profiles").upsert({
-        id: data.user.id,
-        full_name: normalizedName,
-        role,
+      setMessage({
+        type: "error",
+        text: result.error ?? "Could not create account.",
       });
-
-      if (profileError) {
-        setIsSubmitting(false);
-        setMessage({
-          type: "error",
-          text: `Account created, but profile details could not be saved: ${profileError.message}`,
-        });
-        return;
-      }
-
-      setMessage({ type: "success", text: "Account created. Redirecting..." });
-      router.push(role === "owner" ? "/owner/dashboard" : "/renter/dashboard");
-      router.refresh();
       return;
     }
 
-    setIsSubmitting(false);
-    setMessage({
-      type: "success",
-      text: "Account created. Check your email to confirm your account, then log in.",
-    });
+    setMessage({ type: "success", text: "Account created. Redirecting..." });
+    router.push(result.redirectTo ?? "/renter/dashboard");
+    router.refresh();
   }
 
   return (
@@ -313,7 +280,7 @@ export default function RegisterPage() {
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {[
-              ["Verified profiles", "Profile records connect to Supabase Auth."],
+              ["Verified profiles", "Profile records connect to local auth."],
               ["Owner ready", "Save your role for future listing workflows."],
               ["Simple access", "Responsive forms for mobile and desktop."],
             ].map(([title, description]) => (

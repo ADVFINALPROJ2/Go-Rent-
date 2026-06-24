@@ -4,45 +4,31 @@ import { useEffect, useState } from "react";
 import { LogIn, LogOut, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 
 import { Button } from "@/components/ui/button";
+import { logoutLocalUser } from "@/app/auth/actions";
 import { authNavigation } from "@/lib/routes";
-import { supabase } from "@/lib/supabase/client";
+import type { SessionUser } from "@/lib/auth/session";
 
 export function AuthNavigation() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(Boolean(supabase));
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
-    if (!supabase) {
-      return;
-    }
-
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setIsLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    fetch("/api/auth/me")
+      .then((response) => response.json())
+      .then((data: { user: SessionUser | null }) => {
+        setUser(data.user);
+      })
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
   }, []);
 
   async function handleLogout() {
-    if (!supabase) {
-      return;
-    }
-
     setIsSigningOut(true);
-    await supabase.auth.signOut();
+    await logoutLocalUser();
     setUser(null);
     router.push("/login");
     router.refresh();

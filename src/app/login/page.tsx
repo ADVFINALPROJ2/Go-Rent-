@@ -15,8 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/lib/supabase/client";
-import type { ProfileRole } from "@/lib/supabase/types";
+import { loginLocalUser } from "@/app/auth/actions";
 
 type FormErrors = {
   email?: string;
@@ -62,52 +61,24 @@ export default function LoginPage() {
       return;
     }
 
-    if (!supabase) {
-      setMessage({
-        type: "error",
-        text: "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const result = await loginLocalUser({
       email: email.trim(),
       password,
     });
 
-    if (error) {
+    if (!result.success) {
       setIsSubmitting(false);
-      setMessage({ type: "error", text: error.message });
+      setMessage({
+        type: "error",
+        text: result.error ?? "Login failed.",
+      });
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    let role: ProfileRole = "renter";
-
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      role = profile?.role ?? "renter";
-    }
-
     setMessage({ type: "success", text: "Login successful. Redirecting..." });
-    const redirectPath =
-      role === "owner"
-        ? "/owner/dashboard"
-        : role === "admin"
-          ? "/admin/dashboard"
-          : "/renter/dashboard";
-
-    router.push(redirectPath);
+    router.push(result.redirectTo ?? "/renter/dashboard");
     router.refresh();
   }
 
