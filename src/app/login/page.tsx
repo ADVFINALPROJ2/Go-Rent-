@@ -105,29 +105,35 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="bg-[linear-gradient(180deg,#fbfaf8_0%,#eef6f3_100%)]">
-      <div className="mx-auto grid min-h-[calc(100vh-9rem)] max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+    <section className="bg-[linear-gradient(180deg,#ffffff_0%,#eef8ff_100%)]">
+      <div className="mx-auto grid min-h-[calc(100vh-9rem)] max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
         <div className="flex flex-col justify-center">
           <div className="max-w-xl">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
               Welcome back
             </p>
-            <h1 className="text-4xl font-bold leading-tight text-foreground sm:text-5xl">
+            <h1 className="text-4xl font-bold leading-tight text-slate-950 sm:text-6xl">
               Pick up where your next drive begins.
             </h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-muted-foreground">
+            <p className="mt-5 max-w-lg text-base leading-7 text-slate-600">
               Access saved rentals, manage requests, and keep your GoRent plans moving from one
               clean dashboard.
             </p>
           </div>
 
-          <div className="mt-10 overflow-hidden rounded-lg border bg-card shadow-sm">
-            <div className="relative min-h-64 bg-[#101820] p-6 text-white">
-              <div className="absolute inset-x-6 bottom-0 h-28 rounded-t-full bg-primary/25 blur-2xl" />
-              <div className="relative flex h-full flex-col justify-between gap-10">
+          <div className="mt-10 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-sky-950/10">
+            <div className="relative min-h-72 overflow-hidden bg-slate-950 p-6 text-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80"
+                alt="Premium car ready for rental"
+                className="absolute inset-0 size-full object-cover opacity-55"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-slate-950/10" />
+              <div className="relative flex min-h-60 flex-col justify-between gap-10">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold italic">GoRent</span>
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs">Secure access</span>
+                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs">Secure access</span>
                 </div>
                 <div>
                   <Car className="mb-4 size-14 text-primary" aria-hidden="true" />
@@ -137,7 +143,7 @@ export default function LoginPage() {
                 </div>
               </div>
             </div>
-            <div className="grid gap-3 p-5 text-sm text-muted-foreground sm:grid-cols-3">
+            <div className="grid gap-3 p-5 text-sm text-slate-600 sm:grid-cols-3">
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-primary" aria-hidden="true" />
                 Rentals
@@ -155,9 +161,9 @@ export default function LoginPage() {
         </div>
 
         <div className="flex items-center">
-          <Card className="w-full border-0 shadow-xl">
+          <Card className="w-full border-sky-100 shadow-2xl shadow-sky-950/10">
             <CardHeader className="space-y-2">
-              <div className="flex size-11 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <LogIn className="size-5" aria-hidden="true" />
               </div>
               <CardTitle className="text-2xl">Login</CardTitle>

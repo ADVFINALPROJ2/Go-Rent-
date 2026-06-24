@@ -62,7 +62,7 @@ export default function EditCarPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="Edit car"
           title="Loading…"
@@ -75,7 +75,7 @@ export default function EditCarPage() {
 
   if (error) {
     return (
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="Edit car"
           title="Unable to load listing"
@@ -92,12 +92,14 @@ export default function EditCarPage() {
   if (!car || !userId) return null;
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
-      <PageHeading
-        eyebrow="Edit car"
-        title={`Editing: ${car.title}`}
-        description="Update the details below and save your changes."
-      />
+    <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+        <PageHeading
+          eyebrow="Edit car"
+          title={`Editing: ${car.title}`}
+          description="Update the details below and save your changes."
+        />
+      </div>
       <CarForm
         mode="edit"
         ownerId={userId}

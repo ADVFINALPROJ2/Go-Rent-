@@ -84,7 +84,7 @@ export default function OwnerCarsPage() {
   // ----- Loading skeleton -----
   if (loading) {
     return (
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="My cars"
           title="Loading your listings…"
@@ -108,20 +108,22 @@ export default function OwnerCarsPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeading
-          eyebrow="My cars"
-          title="Your vehicle listings"
-          description="Create, edit, and manage the visibility of your car listings."
-        />
-        <Button asChild>
-          <Link href="/owner/dashboard/cars/new">
-            <Plus aria-hidden="true" />
-            Add car
-          </Link>
-        </Button>
+      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <PageHeading
+            eyebrow="My cars"
+            title="Your vehicle listings"
+            description="Create, edit, and manage the visibility of your car listings."
+          />
+          <Button asChild>
+            <Link href="/owner/dashboard/cars/new">
+              <Plus aria-hidden="true" />
+              Add car
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Error */}
@@ -133,8 +135,8 @@ export default function OwnerCarsPage() {
 
       {/* Empty state */}
       {cars.length === 0 && !error && (
-        <Card className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
+        <Card className="flex flex-col items-center justify-center border-dashed border-sky-200 bg-sky-50/40 py-16 text-center">
+          <div className="flex size-14 items-center justify-center rounded-lg bg-white text-primary shadow-sm">
             <Car className="size-7" aria-hidden="true" />
           </div>
           <CardHeader>
@@ -156,7 +158,7 @@ export default function OwnerCarsPage() {
 
       {/* Car grid */}
       {cars.length > 0 && (
-        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {cars.map((car) => (
             <CarCard
               key={car.id}

@@ -40,7 +40,7 @@ export default function AddCarPage() {
 
   if (loading || !userId) {
     return (
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="Add car"
           title="Loading…"
@@ -52,12 +52,14 @@ export default function AddCarPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
-      <PageHeading
-        eyebrow="Add car"
-        title="List a new vehicle"
-        description="Complete the form below to create a new listing visible to renters on GoRent."
-      />
+    <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+        <PageHeading
+          eyebrow="Add car"
+          title="List a new vehicle"
+          description="Complete the form below to create a polished listing visible to renters on GoRent."
+        />
+      </div>
       <CarForm
         mode="create"
         ownerId={userId}

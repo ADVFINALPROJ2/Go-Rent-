@@ -153,12 +153,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <section className="bg-[linear-gradient(180deg,#fbfaf8_0%,#eef6f3_100%)]">
-      <div className="mx-auto grid min-h-[calc(100vh-9rem)] max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+    <section className="bg-[linear-gradient(180deg,#ffffff_0%,#eef8ff_100%)]">
+      <div className="mx-auto grid min-h-[calc(100vh-9rem)] max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="flex items-center">
-          <Card className="w-full border-0 shadow-xl">
+          <Card className="w-full border-sky-100 shadow-2xl shadow-sky-950/10">
             <CardHeader className="space-y-2">
-              <div className="flex size-11 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <UserPlus className="size-5" aria-hidden="true" />
               </div>
               <CardTitle className="text-2xl">Create your account</CardTitle>
@@ -262,8 +262,8 @@ export default function RegisterPage() {
                     {(["renter", "owner"] as const).map((option) => (
                       <button
                         className={cn(
-                          "rounded-md border bg-background p-4 text-left transition-colors hover:border-primary hover:bg-accent",
-                          role === option && "border-primary bg-accent text-accent-foreground",
+                          "rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50",
+                          role === option && "border-primary bg-sky-50 text-accent-foreground ring-2 ring-sky-100",
                         )}
                         key={option}
                         type="button"
@@ -302,10 +302,10 @@ export default function RegisterPage() {
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
               Start with GoRent
             </p>
-            <h1 className="text-4xl font-bold leading-tight text-foreground sm:text-5xl">
+            <h1 className="text-4xl font-bold leading-tight text-slate-950 sm:text-6xl">
               Your journey starts with the right account.
             </h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-muted-foreground">
+            <p className="mt-5 max-w-lg text-base leading-7 text-slate-600">
               Register once, then rent cars for everyday trips or list your own vehicle for local
               renters.
             </p>
@@ -317,7 +317,7 @@ export default function RegisterPage() {
               ["Owner ready", "Save your role for future listing workflows."],
               ["Simple access", "Responsive forms for mobile and desktop."],
             ].map(([title, description]) => (
-              <div className="rounded-lg border bg-card p-4 shadow-sm" key={title}>
+              <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm" key={title}>
                 <ShieldCheck className="mb-4 size-6 text-primary" aria-hidden="true" />
                 <h2 className="text-sm font-semibold">{title}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
@@ -325,7 +325,7 @@ export default function RegisterPage() {
             ))}
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-lg border bg-card shadow-sm">
+          <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-sky-950/10">
             <div className="grid items-center gap-6 p-6 sm:grid-cols-[1fr_160px]">
               <div>
                 <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
@@ -337,8 +337,16 @@ export default function RegisterPage() {
                   The same sign-up flow keeps both sides of the marketplace ready for Day 2 auth.
                 </p>
               </div>
-              <div className="flex aspect-square items-center justify-center rounded-lg bg-[#101820] text-primary">
-                <CarFront className="size-20" aria-hidden="true" />
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-slate-950 text-primary">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=600&q=80"
+                  alt="Car interior for GoRent account setup"
+                  className="size-full object-cover opacity-75"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/30">
+                  <CarFront className="size-16 text-white" aria-hidden="true" />
+                </div>
               </div>
             </div>
           </div>

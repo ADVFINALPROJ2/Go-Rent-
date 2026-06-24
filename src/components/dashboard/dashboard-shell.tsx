@@ -35,10 +35,12 @@ export function DashboardShell({
   children,
 }: DashboardShellProps) {
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeading eyebrow={eyebrow} title={title} description={description} />
-        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+    <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <PageHeading eyebrow={eyebrow} title={title} description={description} />
+          {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+        </div>
       </div>
 
       {sidebar ? (
@@ -57,7 +59,7 @@ export function DashboardStatGrid({ stats }: { stats: DashboardStat[] }) {
   return (
     <section className="grid gap-4 md:grid-cols-3">
       {stats.map((stat) => (
-        <Card key={stat.label}>
+        <Card className="bg-white" key={stat.label}>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="text-base">{stat.label}</CardTitle>
@@ -65,10 +67,12 @@ export function DashboardStatGrid({ stats }: { stats: DashboardStat[] }) {
                 <CardDescription className="mt-1">{stat.description}</CardDescription>
               ) : null}
             </div>
-            <div className="text-primary">{stat.icon}</div>
+            <div className="flex size-10 items-center justify-center rounded-lg bg-sky-50 text-primary">
+              {stat.icon}
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold">{stat.value}</p>
+            <p className="text-3xl font-bold text-slate-950">{stat.value}</p>
           </CardContent>
         </Card>
       ))}
@@ -90,9 +94,9 @@ export function DashboardEmptyState({
   className?: string;
 }) {
   return (
-    <Card className={cn("border-dashed", className)}>
+    <Card className={cn("border-dashed border-sky-200 bg-sky-50/40", className)}>
       <CardContent className="flex flex-col items-center gap-4 px-6 py-12 text-center">
-        <div className="flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
+        <div className="flex size-14 items-center justify-center rounded-lg bg-white text-primary shadow-sm">
           {icon}
         </div>
         <div>
