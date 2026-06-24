@@ -48,7 +48,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         eq(bookings.renterId, user.id),
         eq(bookings.status, "completed"),
       ),
-    });
+    }).sync();
 
     if (completedBooking) {
       hasCompletedBooking = true;

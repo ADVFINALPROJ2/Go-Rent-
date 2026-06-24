@@ -48,7 +48,7 @@ export async function registerLocalUser(input: {
 
   const existingUser = db.query.users.findFirst({
     where: eq(users.email, email),
-  });
+  }).sync();
 
   if (existingUser) {
     return { success: false, error: "An account with this email already exists." };
@@ -94,7 +94,7 @@ export async function loginLocalUser(input: {
 
   const user = db.query.users.findFirst({
     where: eq(users.email, email),
-  });
+  }).sync();
 
   if (!user) {
     return { success: false, error: "Invalid email or password." };

@@ -124,7 +124,7 @@ export async function createCar(data: LegacyCarInsert): Promise<LegacyCarRow> {
 
   const car = db.query.cars.findFirst({
     where: eq(cars.id, id),
-  });
+  }).sync();
 
   if (!car) {
     throw new Error("Failed to create car.");
@@ -140,7 +140,7 @@ export async function updateCar(
   const user = assertOwner(await requireUser());
   const existing = db.query.cars.findFirst({
     where: eq(cars.id, carId),
-  });
+  }).sync();
 
   if (!existing) {
     throw new Error("Car not found.");
@@ -157,7 +157,7 @@ export async function updateCar(
 
   const updated = db.query.cars.findFirst({
     where: eq(cars.id, carId),
-  });
+  }).sync();
 
   if (!updated) {
     throw new Error("Failed to update car.");
@@ -176,7 +176,7 @@ export async function getOwnerCars(ownerId: string): Promise<LegacyCarRow[]> {
   const rows = db.query.cars.findMany({
     where: eq(cars.ownerId, ownerId),
     orderBy: desc(cars.createdAt),
-  });
+  }).sync();
 
   return rows.map(mapCarToLegacy);
 }
@@ -184,7 +184,7 @@ export async function getOwnerCars(ownerId: string): Promise<LegacyCarRow[]> {
 export async function getCarById(carId: string): Promise<LegacyCarRow | null> {
   const car = db.query.cars.findFirst({
     where: eq(cars.id, carId),
-  });
+  }).sync();
 
   return car ? mapCarToLegacy(car) : null;
 }

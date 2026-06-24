@@ -86,7 +86,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 
     const user = db.query.users.findFirst({
       where: eq(users.id, userId),
-    });
+    }).sync();
 
     if (!user) {
       return null;

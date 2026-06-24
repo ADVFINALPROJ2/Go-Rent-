@@ -279,10 +279,10 @@ export default async function AdminDashboardPage() {
   }
 
   const [userRows, profileRows, carRows, bookingRows] = [
-    db.query.users.findMany({ orderBy: desc(usersTable.createdAt) }),
-    db.query.profiles.findMany(),
-    db.query.cars.findMany({ orderBy: desc(carsTable.createdAt) }),
-    db.query.bookings.findMany(),
+    db.query.users.findMany({ orderBy: desc(usersTable.createdAt) }).sync(),
+    db.query.profiles.findMany().sync(),
+    db.query.cars.findMany({ orderBy: desc(carsTable.createdAt) }).sync(),
+    db.query.bookings.findMany().sync(),
   ];
 
   const profileMap = new Map(profileRows.map((profile) => [profile.userId, profile]));

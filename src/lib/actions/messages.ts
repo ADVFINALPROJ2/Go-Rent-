@@ -58,7 +58,7 @@ export async function sendMessage(input: SendMessageInput) {
   if (input.carId) {
     const car = db.query.cars.findFirst({
       where: eq(cars.id, input.carId),
-    });
+    }).sync();
 
     if (!car) {
       throw new Error("Car not found.");
@@ -87,7 +87,7 @@ export async function getUserMessages(): Promise<UserMessagesResult> {
   const rows = db.query.messages.findMany({
     where: or(eq(messages.senderId, user.id), eq(messages.receiverId, user.id)),
     orderBy: asc(messages.createdAt),
-  });
+  }).sync();
 
   const userIds = [
     ...new Set(rows.flatMap((message) => [message.senderId, message.receiverId])),
@@ -98,12 +98,12 @@ export async function getUserMessages(): Promise<UserMessagesResult> {
   const profileRows = userIds.length
     ? db.query.profiles.findMany({
         where: inArray(profiles.userId, userIds),
-      })
+      }).sync()
     : [];
   const carRows = carIds.length
     ? db.query.cars.findMany({
         where: inArray(cars.id, carIds),
-      })
+      }).sync()
     : [];
 
   const profileMap = new Map(profileRows.map((profile) => [profile.userId, profile]));

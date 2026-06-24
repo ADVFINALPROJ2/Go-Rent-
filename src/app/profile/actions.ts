@@ -61,7 +61,7 @@ export async function getProfile(): Promise<ProfileResult> {
 
   let profile = db.query.profiles.findFirst({
     where: eq(profiles.userId, user.id),
-  });
+  }).sync();
 
   if (!profile) {
     const profileId = crypto.randomUUID();
@@ -75,7 +75,7 @@ export async function getProfile(): Promise<ProfileResult> {
 
     profile = db.query.profiles.findFirst({
       where: eq(profiles.userId, user.id),
-    });
+    }).sync();
   }
 
   if (!profile) {

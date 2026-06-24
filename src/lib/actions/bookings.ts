@@ -91,7 +91,7 @@ export async function createBookingRequest(input: BookingRequestInput) {
 
   const car = db.query.cars.findFirst({
     where: eq(cars.id, input.carId),
-  });
+  }).sync();
 
   if (!car || car.status !== "available") {
     throw new Error("This car is not available for booking.");
@@ -126,13 +126,13 @@ export async function getRenterBookings(): Promise<RenterBookingSummary[]> {
   const rows = db.query.bookings.findMany({
     where: eq(bookings.renterId, user.id),
     orderBy: desc(bookings.createdAt),
-  });
+  }).sync();
 
   const carIds = [...new Set(rows.map((booking) => booking.carId))];
   const carRows = carIds.length
     ? db.query.cars.findMany({
         where: inArray(cars.id, carIds),
-      })
+      }).sync()
     : [];
   const carMap = new Map(carRows.map((car) => [car.id, car]));
 
@@ -159,7 +159,7 @@ export async function cancelRenterBooking(bookingId: string) {
 
   const booking = db.query.bookings.findFirst({
     where: eq(bookings.id, bookingId),
-  });
+  }).sync();
 
   if (!booking || booking.renterId !== user.id) {
     throw new Error("Booking not found.");
@@ -189,20 +189,20 @@ export async function getOwnerDashboardBookings(): Promise<OwnerDashboardBooking
   const ownerBookings = db.query.bookings.findMany({
     where: eq(bookings.ownerId, user.id),
     orderBy: desc(bookings.createdAt),
-  });
+  }).sync();
   const ownerCars = db.query.cars.findMany({
     where: eq(cars.ownerId, user.id),
-  });
+  }).sync();
   const renterIds = [...new Set(ownerBookings.map((booking) => booking.renterId))];
   const renterProfiles = renterIds.length
     ? db.query.profiles.findMany({
         where: inArray(profiles.userId, renterIds),
-      })
+      }).sync()
     : [];
   const renterUsers = renterIds.length
     ? db.query.users.findMany({
         where: inArray(users.id, renterIds),
-      })
+      }).sync()
     : [];
 
   const carMap = new Map(ownerCars.map((car) => [car.id, car]));
@@ -254,7 +254,7 @@ export async function updateOwnerBookingStatus(
 
   const booking = db.query.bookings.findFirst({
     where: eq(bookings.id, bookingId),
-  });
+  }).sync();
 
   if (!booking || booking.ownerId !== user.id) {
     throw new Error("Booking not found.");

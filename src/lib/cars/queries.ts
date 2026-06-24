@@ -1,3 +1,5 @@
+"use server";
+
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
@@ -41,7 +43,7 @@ export async function fetchAvailableCars(
   const rows = db.query.cars.findMany({
     where: and(...conditions),
     orderBy: desc(cars.createdAt),
-  });
+  }).sync();
 
   return rows.map(mapCarToLegacy);
 }
@@ -51,7 +53,7 @@ export async function fetchAvailableCarById(
 ): Promise<CarWithOwner | null> {
   const car = db.query.cars.findFirst({
     where: and(eq(cars.id, carId), eq(cars.status, "available")),
-  });
+  }).sync();
 
   if (!car) {
     return null;
@@ -59,11 +61,11 @@ export async function fetchAvailableCarById(
 
   const ownerUser = db.query.users.findFirst({
     where: eq(users.id, car.ownerId),
-  });
+  }).sync();
 
   const ownerProfile = db.query.profiles.findFirst({
     where: eq(profiles.userId, car.ownerId),
-  });
+  }).sync();
 
   return {
     ...mapCarToLegacy(car),

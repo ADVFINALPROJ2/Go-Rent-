@@ -36,12 +36,12 @@ export async function getCarReviews(carId: string): Promise<ReviewWithProfile[]>
   const reviewRows = db.query.reviews.findMany({
     where: eq(reviews.carId, carId),
     orderBy: desc(reviews.createdAt),
-  });
+  }).sync();
   const renterIds = [...new Set(reviewRows.map((review) => review.renterId))];
   const profileRows = renterIds.length
     ? db.query.profiles.findMany({
         where: inArray(profiles.userId, renterIds),
-      })
+      }).sync()
     : [];
   const profileMap = new Map(profileRows.map((profile) => [profile.userId, profile]));
 
@@ -90,7 +90,7 @@ export async function submitReview(input: SubmitReviewInput) {
 
   const booking = db.query.bookings.findFirst({
     where: eq(bookings.id, input.bookingId),
-  });
+  }).sync();
 
   if (
     !booking ||
