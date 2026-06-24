@@ -28,6 +28,7 @@ type BookingStatusCardProps = {
   className?: string;
   showReviewAction?: boolean;
   actions?: ReactNode;
+  secondaryActions?: ReactNode;
   renterName?: string | null;
   renterEmail?: string | null;
   message?: string | null;
@@ -80,6 +81,7 @@ export function BookingStatusCard({
   className,
   showReviewAction = false,
   actions,
+  secondaryActions,
   renterName,
   renterEmail,
   message,
@@ -127,7 +129,12 @@ export function BookingStatusCard({
           </div>
         )}
 
-        {actions && <div className="flex flex-wrap gap-2 border-t pt-3">{actions}</div>}
+        {(actions || secondaryActions) && (
+          <div className="flex flex-wrap gap-2 border-t pt-3">
+            {actions}
+            {secondaryActions}
+          </div>
+        )}
 
         {canReview && (
           <div className="flex flex-col gap-3 border-t pt-3">
