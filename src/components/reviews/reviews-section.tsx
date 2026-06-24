@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, Loader2, MessageSquareText, Star } from "lucide-react";
+import { Loader2, MessageSquareText, Star } from "lucide-react";
 
 import { ReviewForm } from "@/components/reviews/review-form";
 import { AlertBanner } from "@/components/ui/alert-banner";
@@ -13,20 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/types";
+import {
+  getCarReviews,
+  type ReviewWithProfile,
+} from "@/lib/actions/reviews";
 import { cn } from "@/lib/utils";
-
-type ReviewRow = Database["public"]["Tables"]["reviews"]["Row"];
-type ProfileRow = Pick<
-  Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "avatar_url"
->;
-
-type ReviewWithProfile = ReviewRow & {
-  reviewerName: string;
-  reviewerAvatarUrl: string | null;
-};
 
 type ReviewFormConfig = {
   bookingId: string;
@@ -47,10 +38,6 @@ function formatReviewDate(value: string) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(value));
-}
-
-function getReviewerFallback(renterId: string) {
-  return renterId ? `Renter ${renterId.slice(0, 8)}` : "Verified renter";
 }
 
 function RatingStars({
@@ -82,63 +69,23 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<ReviewWithProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [setupMessage, setSetupMessage] = useState<string | null>(null);
 
   const loadReviews = useCallback(async () => {
-    const supabase = createSupabaseBrowserClient();
-
-    if (!supabase) {
-      setReviews([]);
-      setError(null);
-      setSetupMessage(
-        "Supabase is not configured, so live reviews cannot be loaded in this environment.",
-      );
-      setIsLoading(false);
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
-    setSetupMessage(null);
 
-    const { data, error: reviewsError } = await supabase
-      .from("reviews")
-      .select("id, booking_id, car_id, renter_id, owner_id, rating, comment, created_at")
-      .eq("car_id", carId)
-      .order("created_at", { ascending: false });
-
-    if (reviewsError) {
+    try {
+      setReviews(await getCarReviews(carId));
+    } catch (err) {
       setReviews([]);
-      setError(`Reviews could not be loaded: ${reviewsError.message}`);
+      setError(
+        err instanceof Error
+          ? `Reviews could not be loaded: ${err.message}`
+          : "Reviews could not be loaded.",
+      );
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const reviewRows = data ?? [];
-    const renterIds = Array.from(new Set(reviewRows.map((review) => review.renter_id)));
-    let profileMap = new Map<string, ProfileRow>();
-
-    if (renterIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", renterIds);
-
-      profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
-    }
-
-    setReviews(
-      reviewRows.map((review) => {
-        const profile = profileMap.get(review.renter_id);
-
-        return {
-          ...review,
-          reviewerName: profile?.full_name || getReviewerFallback(review.renter_id),
-          reviewerAvatarUrl: profile?.avatar_url ?? null,
-        };
-      }),
-    );
-    setIsLoading(false);
   }, [carId]);
 
   useEffect(() => {
@@ -186,13 +133,6 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
           </CardContent>
         </Card>
       </div>
-
-      {setupMessage && (
-        <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50/70 p-3.5 text-sm text-amber-800">
-          <AlertCircle className="size-5 shrink-0 text-amber-600" aria-hidden="true" />
-          <span>{setupMessage}</span>
-        </div>
-      )}
 
       {error && (
         <div className="space-y-3">

@@ -1,13 +1,16 @@
 import { ShieldCheck, Fuel, Compass, Sparkles, MapPin, CarFront } from "lucide-react";
 import { notFound } from "next/navigation";
+import { and, eq } from "drizzle-orm";
 
 import { PageHeading } from "@/components/page-heading";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BookingRequestForm } from "@/components/bookings/booking-request-form";
 import { MessageOwnerForm } from "@/components/messages/message-owner-form";
 import { ReviewsSection } from "@/components/reviews/reviews-section";
+import { db } from "@/db/client";
+import { bookings } from "@/db/schema";
+import { getCurrentUser } from "@/lib/auth/session";
 import { fetchAvailableCarById } from "@/lib/cars/queries";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type CarDetailsPageProps = {
   params: Promise<{ id: string }>;
@@ -23,76 +26,35 @@ function formatCurrency(amount: number) {
 export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
   const { id } = await params;
 
-  let car = null;
-  let isSupabaseConfigured = true;
-
-  try {
-    car = await fetchAvailableCarById(id);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message.includes("Supabase is not configured")) {
-      isSupabaseConfigured = false;
-    }
-  }
-
-  // Fallback demo data if Supabase is not configured (to allow UI rendering and testing)
-  if (!isSupabaseConfigured) {
-    car = {
-      id: id,
-      owner_id: "demo-owner-123",
-      title: "Tesla Model 3 (Demo)",
-      description: "A premium electric sedan with excellent range and autopilot capabilities. This is a local demo preview because Supabase keys are not set.",
-      make: "Tesla",
-      model: "Model 3",
-      year: 2023,
-      location: "San Francisco, CA",
-      daily_rate: 99,
-      status: "available",
-      image_urls: [],
-      seats: 5,
-      transmission: "Automatic",
-      fuel_type: "Electric",
-      owner: {
-        id: "demo-owner-123",
-        full_name: "Alex Johnson (Demo Host)",
-        avatar_url: null,
-        location: "San Francisco, CA",
-      },
-    };
-  }
+  const car = await fetchAvailableCarById(id);
 
   if (!car) {
     return notFound();
   }
 
   // Fetch current user and booking info to check if they can leave a review
-  let user = null;
+  let user: Awaited<ReturnType<typeof getCurrentUser>> = null;
   let hasCompletedBooking = false;
   let bookingId = "";
   let renterId = "";
   let ownerId = car.owner_id;
 
-  const supabase = await createSupabaseServerClient();
-  if (supabase) {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    user = authUser;
+  user = await getCurrentUser();
 
-    if (user) {
-      // Check if user has a completed booking for this car
-      const { data: bookings } = await supabase
-        .from("bookings")
-        .select("id, renter_id, owner_id")
-        .eq("car_id", id)
-        .eq("renter_id", user.id)
-        .eq("status", "completed")
-        .limit(1);
+  if (user) {
+    const completedBooking = db.query.bookings.findFirst({
+      where: and(
+        eq(bookings.carId, id),
+        eq(bookings.renterId, user.id),
+        eq(bookings.status, "completed"),
+      ),
+    });
 
-      if (bookings && bookings.length > 0) {
-        hasCompletedBooking = true;
-        bookingId = bookings[0].id;
-        renterId = bookings[0].renter_id;
-        ownerId = bookings[0].owner_id;
-      }
+    if (completedBooking) {
+      hasCompletedBooking = true;
+      bookingId = completedBooking.id;
+      renterId = completedBooking.renterId;
+      ownerId = completedBooking.ownerId;
     }
   }
 
@@ -100,12 +62,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
   let reviewDisabled = false;
   let reviewDisabledReason = "";
 
-  if (!isSupabaseConfigured) {
-    // If Supabase is not configured, run ReviewForm in demo mode with preview IDs
-    reviewDisabled = false;
-    bookingId = "preview-booking-id";
-    renterId = "preview-renter-id";
-  } else if (!user) {
+  if (!user) {
     reviewDisabled = true;
     reviewDisabledReason = "Please log in to submit a review for this vehicle.";
   } else if (user.id === car.owner_id) {
@@ -264,34 +221,16 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             </CardDescription>
           </CardHeader>
         </Card>
-        {isSupabaseConfigured ? (
-          <BookingRequestForm
-            carId={car.id}
-            ownerId={car.owner_id}
-            dailyRate={Number(car.daily_rate)}
-          />
-        ) : (
-          <Card className="border-amber-200 bg-amber-50/20">
-            <CardHeader>
-              <CardTitle className="text-base">Rental Booking (Demo Mode)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-slate-500">
-                Booking forms and database transactions require Supabase.
-              </p>
-              <div className="rounded-lg border border-dashed border-amber-300 bg-amber-50/50 p-3 text-xs text-amber-800">
-                Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env file to enable live booking.
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        {isSupabaseConfigured ? (
-          <MessageOwnerForm
-            carId={car.id}
-            ownerId={car.owner_id}
-            carTitle={car.title}
-          />
-        ) : null}
+        <BookingRequestForm
+          carId={car.id}
+          ownerId={car.owner_id}
+          dailyRate={Number(car.daily_rate)}
+        />
+        <MessageOwnerForm
+          carId={car.id}
+          ownerId={car.owner_id}
+          carTitle={car.title}
+        />
       </aside>
     </div>
   );
