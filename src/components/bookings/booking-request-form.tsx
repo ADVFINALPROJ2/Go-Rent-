@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBookingRequest } from "@/lib/actions/bookings";
 
 type BookingRequestFormProps = {
   carId: string;
@@ -25,16 +25,6 @@ type FormStatus = {
   type: "success" | "error";
   message: string;
 } | null;
-
-const dayInMilliseconds = 1000 * 60 * 60 * 24;
-
-function calculateTotalPrice(startDate: string, endDate: string, dailyRate: number) {
-  const startTime = new Date(`${startDate}T00:00:00`).getTime();
-  const endTime = new Date(`${endDate}T00:00:00`).getTime();
-  const rentalDays = Math.floor((endTime - startTime) / dayInMilliseconds) + 1;
-
-  return Math.max(rentalDays, 1) * Number(dailyRate);
-}
 
 function validateDates(startDate: string, endDate: string) {
   if (!startDate) {
@@ -55,7 +45,6 @@ function validateDates(startDate: string, endDate: string) {
 export function BookingRequestForm({
   carId,
   ownerId,
-  dailyRate,
 }: BookingRequestFormProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -73,64 +62,29 @@ export function BookingRequestForm({
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) {
+    setIsSubmitting(true);
+
+    try {
+      await createBookingRequest({
+        carId,
+        ownerId,
+        startDate,
+        endDate,
+        message,
+      });
+    } catch (error) {
+      setIsSubmitting(false);
       setStatus({
         type: "error",
         message:
-          "Supabase is not configured. Add the public Supabase URL and anon key to submit booking requests.",
+          error instanceof Error
+            ? error.message
+            : "Unable to submit booking request.",
       });
       return;
     }
-
-    setIsSubmitting(true);
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setIsSubmitting(false);
-      setStatus({
-        type: "error",
-        message: "Please log in before requesting this rental.",
-      });
-      return;
-    }
-
-    if (user.id === ownerId) {
-      setIsSubmitting(false);
-      setStatus({
-        type: "error",
-        message: "You cannot request a rental for your own car.",
-      });
-      return;
-    }
-
-    const totalPrice = calculateTotalPrice(startDate, endDate, dailyRate);
-    const trimmedMessage = message.trim();
-
-    const { error } = await supabase.from("bookings").insert({
-      car_id: carId,
-      owner_id: ownerId,
-      renter_id: user.id,
-      start_date: startDate,
-      end_date: endDate,
-      total_price: totalPrice,
-      message: trimmedMessage || null,
-      status: "pending",
-    });
 
     setIsSubmitting(false);
-
-    if (error) {
-      setStatus({
-        type: "error",
-        message: `Unable to submit booking request: ${error.message}`,
-      });
-      return;
-    }
 
     setStartDate("");
     setEndDate("");

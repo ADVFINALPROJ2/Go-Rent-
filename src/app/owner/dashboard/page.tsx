@@ -20,30 +20,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  getOwnerDashboardBookings,
+  updateOwnerBookingStatus,
+  type OwnerBookingSummary,
+} from "@/lib/actions/bookings";
 import { requireOwnerSession } from "@/lib/auth/role-guards";
-import type { BookingStatus, Database } from "@/lib/supabase/types";
 
-type CarRow = Database["public"]["Tables"]["cars"]["Row"];
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
-
-type OwnerBooking = {
-  id: string;
-  ownerId: string;
-  renterId: string;
-  carId: string;
-  carTitle: string;
-  make: string;
-  model: string;
-  location: string;
-  dailyRate: number;
-  startDate: string;
-  endDate: string;
-  status: BookingStatus;
-  totalPrice: number;
-  message: string | null;
-  renterName: string | null;
-  renterEmail: string | null;
-};
+type OwnerBooking = OwnerBookingSummary;
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-US", {
@@ -72,101 +56,9 @@ export default function OwnerDashboardPage() {
         return;
       }
 
-      const { supabase, user } = ownerSession;
-
-      const { data: bookingRows, error: bookingsError } = await supabase
-        .from("bookings")
-        .select(
-          "id, car_id, owner_id, renter_id, start_date, end_date, total_price, status, message, created_at",
-        )
-        .eq("owner_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (bookingsError) {
-        throw new Error(bookingsError.message);
-      }
-
-      if (!bookingRows?.length) {
-        setBookings([]);
-        setActiveCarCount(0);
-        return;
-      }
-
-      const carIds = [...new Set(bookingRows.map((booking) => booking.car_id))];
-      const renterIds = [...new Set(bookingRows.map((booking) => booking.renter_id))];
-
-      const carsPromise =
-        carIds.length > 0
-          ? supabase
-              .from("cars")
-              .select("id, title, make, model, location, daily_rate")
-              .in("id", carIds)
-          : Promise.resolve({ data: [] as CarRow[], error: null });
-
-      const profilesPromise =
-        renterIds.length > 0
-          ? supabase
-              .from("profiles")
-              .select("id, full_name")
-              .in("id", renterIds)
-          : Promise.resolve({ data: [] as ProfileRow[], error: null });
-
-      const ownerCarsPromise = supabase
-        .from("cars")
-        .select("id")
-        .eq("owner_id", user.id);
-
-      const [carsResult, profilesResult, ownerCarsResult] = await Promise.all([
-        carsPromise,
-        profilesPromise,
-        ownerCarsPromise,
-      ]);
-
-      if (carsResult.error) {
-        throw new Error(carsResult.error.message);
-      }
-
-      if (profilesResult.error) {
-        throw new Error(profilesResult.error.message);
-      }
-
-      if (ownerCarsResult.error) {
-        throw new Error(ownerCarsResult.error.message);
-      }
-
-      const carMap = new Map(
-        (carsResult.data ?? []).map((car) => [car.id, car]),
-      );
-      const profileMap = new Map(
-        (profilesResult.data ?? []).map((profile) => [profile.id, profile]),
-      );
-
-      const mappedBookings: OwnerBooking[] = bookingRows.map((booking) => {
-        const car = carMap.get(booking.car_id);
-        const profile = profileMap.get(booking.renter_id);
-
-        return {
-          id: booking.id,
-          ownerId: booking.owner_id,
-          renterId: booking.renter_id,
-          carId: booking.car_id,
-          carTitle: car?.title ?? "Unknown vehicle",
-          make: car?.make ?? "Unknown",
-          model: car?.model ?? "Unknown",
-          location: car?.location ?? "Location pending",
-          dailyRate: Number(car?.daily_rate ?? 0),
-          startDate: booking.start_date,
-          endDate: booking.end_date,
-          status: booking.status as BookingStatus,
-          totalPrice: Number(booking.total_price),
-          message: booking.message,
-          renterName: profile?.full_name ?? null,
-          renterEmail: null,
-        };
-      });
-
-      setBookings(mappedBookings);
-      setActiveCarCount(ownerCarsResult.data?.length ?? 0);
+      const dashboardBookings = await getOwnerDashboardBookings();
+      setBookings(dashboardBookings.bookings);
+      setActiveCarCount(dashboardBookings.activeCarCount);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load bookings.");
     } finally {
@@ -201,21 +93,7 @@ export default function OwnerDashboardPage() {
         return;
       }
 
-      const { supabase, user } = ownerSession;
-
-      const expectedCurrentStatus = status === "completed" ? "approved" : "pending";
-
-      const { error: updateError } = await supabase
-        .from("bookings")
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq("id", booking.id)
-        .eq("owner_id", user.id)
-        .eq("status", expectedCurrentStatus);
-
-      if (updateError) {
-        throw new Error(updateError.message);
-      }
-
+      await updateOwnerBookingStatus(booking.id, status);
       setSuccess(
         status === "completed"
           ? "Booking marked as completed successfully."
