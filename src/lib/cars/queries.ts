@@ -1,13 +1,18 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 
-import type { Database } from "@/lib/supabase/types";
+import { db } from "@/db/client";
+import { cars, profiles, users } from "@/db/schema";
+import {
+  mapCarToLegacy,
+  mapOwnerToLegacy,
+  type LegacyCarRow,
+  type LegacyCarWithOwner,
+  type LegacyProfileRow,
+} from "@/lib/cars/mappers";
 
-export type CarRow = Database["public"]["Tables"]["cars"]["Row"];
-export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
-
-export type CarWithOwner = CarRow & {
-  owner?: Pick<ProfileRow, "id" | "full_name" | "avatar_url" | "location"> | null;
-};
+export type CarRow = LegacyCarRow;
+export type ProfileRow = LegacyProfileRow;
+export type CarWithOwner = LegacyCarWithOwner;
 
 export type BrowseCarFilters = {
   location?: string;
@@ -15,92 +20,53 @@ export type BrowseCarFilters = {
   maxPrice?: number;
 };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-export function createPublicSupabaseClient() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-
-  return createClient<Database>(supabaseUrl, supabaseAnonKey);
-}
-
 export async function fetchAvailableCars(
   filters: BrowseCarFilters = {},
-  client: SupabaseClient<Database> | null = createPublicSupabaseClient(),
 ): Promise<CarRow[]> {
-  if (!client) {
-    throw new Error(
-      "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-    );
-  }
+  const conditions = [eq(cars.status, "available")];
+  const location = filters.location?.trim().toLowerCase();
 
-  let query = client
-    .from("cars")
-    .select("*")
-    .eq("status", "available")
-    .order("created_at", { ascending: false });
-
-  const location = filters.location?.trim();
   if (location) {
-    query = query.ilike("location", `%${location}%`);
+    conditions.push(sql`lower(${cars.location}) like ${`%${location}%`}`);
   }
 
   if (typeof filters.minPrice === "number") {
-    query = query.gte("daily_rate", filters.minPrice);
+    conditions.push(gte(cars.dailyRate, filters.minPrice));
   }
 
   if (typeof filters.maxPrice === "number") {
-    query = query.lte("daily_rate", filters.maxPrice);
+    conditions.push(lte(cars.dailyRate, filters.maxPrice));
   }
 
-  const { data, error } = await query;
+  const rows = db.query.cars.findMany({
+    where: and(...conditions),
+    orderBy: desc(cars.createdAt),
+  });
 
-  if (error) {
-    throw new Error(`Failed to fetch cars: ${error.message}`);
-  }
-
-  return data ?? [];
+  return rows.map(mapCarToLegacy);
 }
 
 export async function fetchAvailableCarById(
   carId: string,
-  client: SupabaseClient<Database> | null = createPublicSupabaseClient(),
 ): Promise<CarWithOwner | null> {
-  if (!client) {
-    throw new Error(
-      "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-    );
-  }
-
-  const { data: car, error } = await client
-    .from("cars")
-    .select("*")
-    .eq("id", carId)
-    .eq("status", "available")
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`Failed to fetch car details: ${error.message}`);
-  }
+  const car = db.query.cars.findFirst({
+    where: and(eq(cars.id, carId), eq(cars.status, "available")),
+  });
 
   if (!car) {
     return null;
   }
 
-  const { data: owner, error: ownerError } = await client
-    .from("profiles")
-    .select("id, full_name, avatar_url, location")
-    .eq("id", car.owner_id)
-    .maybeSingle();
+  const ownerUser = db.query.users.findFirst({
+    where: eq(users.id, car.ownerId),
+  });
 
-  if (ownerError) {
-    throw new Error(`Failed to fetch owner details: ${ownerError.message}`);
-  }
+  const ownerProfile = db.query.profiles.findFirst({
+    where: eq(profiles.userId, car.ownerId),
+  });
 
   return {
-    ...car,
-    owner: owner ?? null,
+    ...mapCarToLegacy(car),
+    owner: ownerUser ? mapOwnerToLegacy(ownerUser, ownerProfile) : null,
   };
 }
