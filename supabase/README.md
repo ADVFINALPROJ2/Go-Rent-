@@ -18,7 +18,41 @@ Week 2 additions support:
 - disabled accounts through `profiles.account_status`
 - listing states for available, disabled, and rented cars
 
-Required app environment variables are listed in `.env.example`.
+Required app environment variables are listed in `.env.example` and
+`.env.local.example`.
+
+## Local environment setup
+
+Create a local-only `.env.local` file before testing Supabase-backed flows:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+Use the values from the Supabase project settings. Do not commit `.env.local`
+or real Supabase secrets.
+
+`SUPABASE_SERVICE_ROLE_KEY` appears in `.env.local.example` for future
+server/admin tasks, but the current browser app flow only requires
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+
+## Recommended SQL application order
+
+For a fresh Supabase database:
+
+1. Run `supabase/schema.sql`.
+
+For an existing database that already has the Day 1 schema but is missing the
+profile `location` or `bio` fields:
+
+1. Run `supabase/add-profile-fields.sql`.
+2. Run `supabase/week2-schema-updates.sql`.
+
+For an existing database that already has profile `location` and `bio` fields
+but does not have Week 2 booking, messaging, review, and admin support:
+
+1. Run `supabase/week2-schema-updates.sql`.
 
 ## Required migration for existing Supabase projects
 
