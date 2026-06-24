@@ -372,6 +372,18 @@ export default function OwnerDashboardPage() {
                       renterName={booking.renterName}
                       renterEmail={booking.renterEmail}
                       message={booking.message}
+                      actions={
+                        <Button
+                          size="sm"
+                          onClick={() => void handleBookingAction(booking, "completed")}
+                          disabled={processingId === booking.id}
+                        >
+                          {processingId === booking.id ? (
+                            <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                          ) : null}
+                          Mark Completed
+                        </Button>
+                      }
                     />
                   ))
                 ) : (
