@@ -142,7 +142,11 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
   }, [carId]);
 
   useEffect(() => {
-    void loadReviews();
+    const timeoutId = window.setTimeout(() => {
+      void loadReviews();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadReviews]);
 
   const averageRating = useMemo(() => {
