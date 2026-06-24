@@ -8,25 +8,38 @@ GoRent is a peer-to-peer car rental web app where owners list vehicles and rente
 - Next.js App Router with TypeScript
 - Tailwind CSS
 - shadcn/ui-style component setup
-- Supabase Auth, PostgreSQL, and Storage
+- SQLite local database
+- Drizzle ORM and Drizzle Kit migrations
+- Local email/password auth with HTTP-only session cookies
 
 ## Local Setup
 
 ```bash
 npm install
 copy .env.local.example .env.local
+npm run db:migrate
+npm run db:seed
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Fill `.env.local` with values from the Supabase project:
+`.env.local` should contain:
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+```env
+AUTH_SECRET=change-this-local-development-secret
+SQLITE_DB_PATH=./data/gorent.sqlite
 ```
+
+The SQLite database file is created under `data/`, which is ignored by Git.
+
+## Demo Users
+
+All seeded users use the password `Password123!`.
+
+- Admin: `admin@gorent.test`
+- Owner: `owner@gorent.test`
+- Renter: `renter@gorent.test`
 
 ## Available Scripts
 
@@ -35,19 +48,25 @@ npm run dev
 npm run lint
 npm run build
 npm start
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+npm run db:studio
 ```
 
 ## Project Structure
 
-- `src/app` contains route pages and the global layout.
-- `src/components/layout` contains shared navigation and footer shell.
-- `src/components/ui` contains shadcn/ui-style primitives used by pages.
-- `src/lib/supabase` contains typed Supabase client factories.
-- `src/lib/routes.ts` contains shared navigation route definitions.
-- `supabase/schema.sql` contains Day 1 database tables, policies, triggers, and storage bucket setup.
-- `.env.example` and `.env.local.example` document required environment variables.
+- `src/app` contains route pages and server actions.
+- `src/components` contains shared UI, feature components, and dashboard shells.
+- `src/db/schema.ts` contains the Drizzle schema for users, profiles, cars, bookings, messages, and reviews.
+- `src/db/client.ts` opens the local SQLite database.
+- `src/lib/auth` contains local auth/session helpers.
+- `src/lib/actions` contains Drizzle-backed server actions.
+- `drizzle/` contains generated SQLite migrations.
+- `scripts/seed.ts` creates demo users and sample data.
+- `.env.example` and `.env.local.example` document local environment variables.
 
-## Day 1 Routes
+## Main Routes
 
 - `/` Home
 - `/register` Register
@@ -55,30 +74,16 @@ npm start
 - `/browse` Browse Cars
 - `/cars/[id]` Car Details
 - `/owner/dashboard` Owner Dashboard
+- `/owner/dashboard/cars` Owner Listings
+- `/owner/dashboard/cars/new` Add Car
 - `/renter/dashboard` Renter Dashboard
 - `/profile` Profile
+- `/profile/edit` Edit Profile
+- `/messages` Messages
+- `/admin/dashboard` Admin Dashboard
 
-## Supabase Schema
+## Database Notes
 
-Run `supabase/schema.sql` in the Supabase SQL editor or through the Supabase CLI. The schema creates:
+Local demo use does not require Supabase. Run `npm run db:migrate` after pulling schema changes, then `npm run db:seed` when you need fresh demo accounts and sample data.
 
-- `profiles`
-- `cars`
-- `bookings`
-- `messages`
-- `reviews`
-- `car-images` storage bucket policies
-
-Car image uploads should use object paths in this format:
-
-```text
-{owner_id}/{file-name}
-```
-
-For existing Supabase databases that already have the original `profiles` table,
-run `supabase/add-profile-fields.sql` in the Supabase SQL editor so profile
-management can save `location` and `bio`.
-
-## Branch Workflow
-
-This setup work lives on `setup-supabase-foundation`. Open a pull request from `setup-supabase-foundation` into `main` after checks pass.
+For production, SQLite requires persistent storage. Use a Docker volume, persistent disk, or migrate the Drizzle schema to a managed database before deploying to a stateless platform.
