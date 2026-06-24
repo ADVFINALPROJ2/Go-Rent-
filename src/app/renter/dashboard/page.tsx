@@ -189,7 +189,7 @@ export default async function RenterDashboardPage() {
         <DashboardStatGrid stats={activity} />
 
         {/* Pending requests */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Pending Requests</CardTitle>
             <CardDescription>
@@ -219,7 +219,7 @@ export default async function RenterDashboardPage() {
         </Card>
 
         {/* Approved / Active bookings */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Approved Bookings</CardTitle>
             <CardDescription>
@@ -249,7 +249,7 @@ export default async function RenterDashboardPage() {
         </Card>
 
         {/* Past bookings */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Past Bookings</CardTitle>
             <CardDescription>

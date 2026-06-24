@@ -133,7 +133,7 @@ export default function OwnerDashboardPage() {
         <DashboardStatGrid stats={metrics} />
 
         {/* Incoming requests */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Incoming Requests</CardTitle>
             <CardDescription>
@@ -159,7 +159,7 @@ export default function OwnerDashboardPage() {
         </Card>
 
         {/* Approved bookings */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Approved Bookings</CardTitle>
             <CardDescription>
@@ -185,7 +185,7 @@ export default function OwnerDashboardPage() {
         </Card>
 
         {/* Past bookings */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Past Bookings</CardTitle>
             <CardDescription>
