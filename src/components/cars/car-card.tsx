@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Database } from "@/lib/supabase/types";
+import type { Database } from "@/lib/local-types";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
 type CarCardStatus = CarRow["status"];
@@ -61,7 +61,7 @@ function StatusBadge({ status }: { status: CarCardStatus }) {
 
 /**
  * Reusable CarCard component for displaying car listings.
- * Accepts a Supabase car row or direct layout props for static previews.
+ * Accepts a local database car row or direct layout props for static previews.
  */
 export function CarCard({
   car,
@@ -152,3 +152,4 @@ export function CarCard({
     </Card>
   );
 }
+

@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ReviewForm } from "@/components/reviews/review-form";
-import type { BookingStatus } from "@/lib/supabase/types";
+import type { BookingStatus } from "@/lib/local-types";
 import { cn } from "@/lib/utils";
 
 type BookingStatusCardProps = {
@@ -179,3 +179,4 @@ export function BookingStatusCard({
     </Card>
   );
 }
+

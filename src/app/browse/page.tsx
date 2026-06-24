@@ -15,7 +15,7 @@ export default function BrowseCarsPage() {
             <p className="text-sm font-semibold uppercase text-primary">Marketplace status</p>
             <p className="mt-2 text-3xl font-bold text-slate-950">Available now</p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Listings are loaded from Supabase and filtered to cars marked available.
+              Listings are loaded from the local SQLite database and filtered to cars marked available.
             </p>
           </div>
         </div>

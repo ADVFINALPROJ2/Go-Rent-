@@ -244,7 +244,7 @@ export default function HomePage() {
             <h2 className="mt-2 text-4xl font-bold text-slate-950">Fleet preview</h2>
           </div>
           <p className="max-w-lg text-sm leading-6 text-slate-500">
-            Sample marketplace cards preview the browsing experience. Live listings load from Supabase on the Browse Cars page.
+            Sample marketplace cards preview the browsing experience. Live listings load from SQLite on the Browse Cars page.
           </p>
         </div>
 

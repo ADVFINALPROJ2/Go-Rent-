@@ -24,7 +24,7 @@ import {
 import { CarCard } from "@/components/cars/car-card";
 import { getOwnerCars, toggleCarStatus } from "@/lib/actions/cars";
 import { requireOwnerSession } from "@/lib/auth/role-guards";
-import type { Database } from "@/lib/supabase/types";
+import type { Database } from "@/lib/local-types";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
 
@@ -194,3 +194,4 @@ export default function OwnerCarsPage() {
     </div>
   );
 }
+

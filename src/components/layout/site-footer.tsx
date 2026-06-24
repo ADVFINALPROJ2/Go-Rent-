@@ -8,7 +8,7 @@ export function SiteFooter() {
             Peer-to-peer car rentals with clean listings, owner tools, and renter-ready booking flows.
           </p>
         </div>
-        <p className="text-slate-500">Supabase-backed MVC foundation.</p>
+        <p className="text-slate-500">SQLite-backed MVC foundation.</p>
       </div>
     </footer>
   );

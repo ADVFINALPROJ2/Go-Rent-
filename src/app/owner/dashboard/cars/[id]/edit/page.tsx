@@ -8,7 +8,7 @@ import { PageHeading } from "@/components/page-heading";
 import { CarForm } from "@/components/cars/car-form";
 import { getCarById } from "@/lib/actions/cars";
 import { requireOwnerSession } from "@/lib/auth/role-guards";
-import type { Database } from "@/lib/supabase/types";
+import type { Database } from "@/lib/local-types";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
 
@@ -102,3 +102,4 @@ export default function EditCarPage() {
     </div>
   );
 }
+

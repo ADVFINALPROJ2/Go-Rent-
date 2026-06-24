@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createCar, updateCar, uploadCarImage } from "@/lib/actions/cars";
-import type { Database } from "@/lib/supabase/types";
+import type { Database } from "@/lib/local-types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -476,3 +476,4 @@ function FieldError({ message }: { message: string }) {
     </p>
   );
 }
+

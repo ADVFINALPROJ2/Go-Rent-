@@ -1,5 +1,5 @@
 import type { Car, Profile, User } from "@/db/schema";
-import type { Database } from "@/lib/supabase/types";
+import type { Database } from "@/lib/local-types";
 
 export type LegacyCarRow = Database["public"]["Tables"]["cars"]["Row"];
 export type LegacyCarInsert = Database["public"]["Tables"]["cars"]["Insert"];
@@ -42,3 +42,4 @@ export function mapOwnerToLegacy(
     location: profile?.location ?? null,
   };
 }
+
