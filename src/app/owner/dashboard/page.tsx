@@ -194,8 +194,13 @@ export default function OwnerDashboardPage() {
     });
   }, [loadBookings]);
 
-  async function handleBookingAction(booking: OwnerBooking, status: "approved" | "declined") {
-    if (booking.status !== "pending") {
+  async function handleBookingAction(booking: OwnerBooking, status: "approved" | "declined" | "completed") {
+    if (status === "completed") {
+      if (booking.status !== "approved") {
+        setError("Only approved bookings can be marked as completed.");
+        return;
+      }
+    } else if (booking.status !== "pending") {
       setError("Only pending requests can be approved or declined.");
       return;
     }
@@ -226,19 +231,23 @@ export default function OwnerDashboardPage() {
         return;
       }
 
+      const expectedCurrentStatus = status === "completed" ? "approved" : "pending";
+
       const { error: updateError } = await supabase
         .from("bookings")
         .update({ status, updated_at: new Date().toISOString() })
         .eq("id", booking.id)
         .eq("owner_id", user.id)
-        .eq("status", "pending");
+        .eq("status", expectedCurrentStatus);
 
       if (updateError) {
         throw new Error(updateError.message);
       }
 
       setSuccess(
-        `Booking ${status === "approved" ? "approved" : "declined"} successfully.`,
+        status === "completed"
+          ? "Booking marked as completed successfully."
+          : `Booking ${status === "approved" ? "approved" : "declined"} successfully.`,
       );
       await loadBookings();
     } catch (err) {

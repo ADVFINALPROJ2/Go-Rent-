@@ -1,5 +1,9 @@
-import { CalendarCheck, CarFront, MessageSquare } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { CalendarCheck, CarFront, Loader2, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { BookingListEmpty } from "@/components/bookings/booking-list-empty";
 import { BookingStatusCard } from "@/components/bookings/booking-status-card";
@@ -7,6 +11,7 @@ import {
   DashboardShell,
   DashboardStatGrid,
 } from "@/components/dashboard/dashboard-shell";
+import { AlertBanner } from "@/components/ui/alert-banner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,8 +20,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { BookingStatus } from "@/lib/supabase/types";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { BookingStatus, Database } from "@/lib/supabase/types";
+
+type CarRow = Database["public"]["Tables"]["cars"]["Row"];
+
+type RenterBooking = {
+  id: string;
+  carId?: string;
+  renterId?: string;
+  ownerId?: string;
+  carTitle: string;
+  startDate: string;
+  endDate: string;
+  status: BookingStatus;
+  totalPrice: number;
+  message: string | null;
+};
 
 const activity = [
   {
@@ -39,130 +59,145 @@ const activity = [
   },
 ];
 
-// TEMPORARY: placeholder data for layout preview — replace with Supabase query
-type PlaceholderBooking = {
-  id: string;
-  carId?: string;
-  renterId?: string;
-  ownerId?: string;
-  carTitle: string;
-  startDate: string;
-  endDate: string;
-  status: BookingStatus;
-  totalPrice: number;
-};
+export default function RenterDashboardPage() {
+  const router = useRouter();
+  const [bookings, setBookings] = useState<RenterBooking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-const placeholderBookings: PlaceholderBooking[] = [
-  {
-    id: "preview-1",
-    carId: "preview-car-1",
-    renterId: "preview-renter-1",
-    ownerId: "preview-owner-1",
-    carTitle: "Toyota Camry 2023",
-    startDate: "2026-07-01",
-    endDate: "2026-07-05",
-    status: "pending",
-    totalPrice: 200,
-  },
-  {
-    id: "preview-2",
-    carId: "preview-car-2",
-    renterId: "preview-renter-2",
-    ownerId: "preview-owner-2",
-    carTitle: "Honda Civic 2024",
-    startDate: "2026-06-20",
-    endDate: "2026-06-25",
-    status: "approved",
-    totalPrice: 300,
-  },
-  {
-    id: "preview-3",
-    carId: "preview-car-3",
-    renterId: "preview-renter-3",
-    ownerId: "preview-owner-3",
-    carTitle: "Ford Mustang 2022",
-    startDate: "2026-05-10",
-    endDate: "2026-05-15",
-    status: "completed",
-    totalPrice: 500,
-  },
-  {
-    id: "preview-4",
-    carId: "preview-car-4",
-    renterId: "preview-renter-4",
-    ownerId: "preview-owner-4",
-    carTitle: "Chevrolet Malibu 2023",
-    startDate: "2026-06-01",
-    endDate: "2026-06-03",
-    status: "declined",
-    totalPrice: 150,
-  },
-  {
-    id: "preview-5",
-    carId: "preview-car-5",
-    renterId: "preview-renter-5",
-    ownerId: "preview-owner-5",
-    carTitle: "Hyundai Sonata 2024",
-    startDate: "2026-06-10",
-    endDate: "2026-06-12",
-    status: "cancelled",
-    totalPrice: 120,
-  },
-];
-// END TEMPORARY
+  const loadBookings = async () => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
 
-export default async function RenterDashboardPage() {
-  let bookings: PlaceholderBooking[] = [];
-  let isRealData = false;
+    try {
+      const supabase = createSupabaseBrowserClient();
+      if (!supabase) {
+        throw new Error(
+          "Supabase client is not configured. Check your environment variables.",
+        );
+      }
 
-  try {
-    const supabase = await createSupabaseServerClient();
-    if (supabase) {
       const {
         data: { user },
+        error: userError,
       } = await supabase.auth.getUser();
 
-      if (user) {
-        // Fetch real renter bookings
-        const { data: bookingsData, error } = await supabase
-          .from("bookings")
-          .select(`
-            id,
-            car_id,
-            owner_id,
-            renter_id,
-            start_date,
-            end_date,
-            total_price,
-            status,
-            cars:cars(title)
-          `)
-          .eq("renter_id", user.id)
-          .order("created_at", { ascending: false });
-
-        if (bookingsData && !error) {
-          bookings = bookingsData.map((b) => ({
-            id: b.id,
-            carId: b.car_id,
-            ownerId: b.owner_id,
-            renterId: b.renter_id,
-            carTitle: b.cars && !Array.isArray(b.cars) ? (b.cars as unknown as { title: string }).title : "Unknown Vehicle",
-            startDate: b.start_date,
-            endDate: b.end_date,
-            status: b.status,
-            totalPrice: Number(b.total_price),
-          }));
-          isRealData = true;
-        }
+      if (userError) {
+        throw new Error(userError.message);
       }
-    }
-  } catch {
-    // Ignore errors and fallback to placeholders
-  }
 
-  // Use placeholders if no real bookings or not logged in
-  if (!isRealData || bookings.length === 0) {
-    bookings = placeholderBookings;
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: bookingRows, error: bookingsError } = await supabase
+        .from("bookings")
+        .select(
+          "id, car_id, owner_id, renter_id, start_date, end_date, total_price, status, message, created_at",
+        )
+        .eq("renter_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (bookingsError) {
+        throw new Error(bookingsError.message);
+      }
+
+      const carIds = [...new Set((bookingRows ?? []).map((booking) => booking.car_id))];
+      const carsResult =
+        carIds.length > 0
+          ? await supabase
+              .from("cars")
+              .select("id, title")
+              .in("id", carIds)
+          : { data: [] as CarRow[], error: null };
+
+      if (carsResult.error) {
+        throw new Error(carsResult.error.message);
+      }
+
+      const carMap = new Map((carsResult.data ?? []).map((car) => [car.id, car]));
+
+      const mappedBookings: RenterBooking[] = (bookingRows ?? []).map((booking) => ({
+        id: booking.id,
+        carId: booking.car_id,
+        ownerId: booking.owner_id,
+        renterId: booking.renter_id,
+        carTitle: carMap.get(booking.car_id)?.title ?? "Unknown Vehicle",
+        startDate: booking.start_date,
+        endDate: booking.end_date,
+        status: booking.status as BookingStatus,
+        totalPrice: Number(booking.total_price),
+        message: booking.message,
+      }));
+
+      setBookings(mappedBookings);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load bookings.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadBookings();
+    });
+  }, [router]);
+
+  async function handleCancelBooking(booking: RenterBooking) {
+    if (booking.status !== "pending") {
+      setError("Only pending bookings can be cancelled.");
+      return;
+    }
+
+    setProcessingId(booking.id);
+    setError("");
+    setSuccess("");
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      if (!supabase) {
+        throw new Error(
+          "Supabase client is not configured. Check your environment variables.",
+        );
+      }
+
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        throw new Error(userError.message);
+      }
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from("bookings")
+        .update({ status: "cancelled", updated_at: new Date().toISOString() })
+        .eq("id", booking.id)
+        .eq("renter_id", user.id)
+        .eq("status", "pending");
+
+      if (updateError) {
+        throw new Error(updateError.message);
+      }
+
+      setSuccess("Booking cancelled successfully.");
+      await loadBookings();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to cancel booking.");
+    } finally {
+      setProcessingId(null);
+    }
   }
 
   const pendingBookings = bookings.filter((b) => b.status === "pending");
@@ -188,96 +223,125 @@ export default async function RenterDashboardPage() {
       <div className="grid gap-6">
         <DashboardStatGrid stats={activity} />
 
-        {/* Pending requests */}
-        <Card className="bg-white">
-          <CardHeader>
-            <CardTitle>Pending Requests</CardTitle>
-            <CardDescription>
-              Booking requests waiting for owner review.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            {pendingBookings.length > 0 ? (
-              pendingBookings.map((booking) => (
-                <BookingStatusCard
-                  key={booking.id}
-                  bookingId={booking.id}
-                  carId={booking.carId}
-                  renterId={booking.renterId}
-                  ownerId={booking.ownerId}
-                  carTitle={booking.carTitle}
-                  startDate={booking.startDate}
-                  endDate={booking.endDate}
-                  status={booking.status}
-                  totalPrice={booking.totalPrice}
-                />
-              ))
-            ) : (
-              <BookingListEmpty variant="no-requests" />
-            )}
-          </CardContent>
-        </Card>
+        {error ? <AlertBanner variant="error" message={error} /> : null}
+        {success ? <AlertBanner variant="success" message={success} /> : null}
 
-        {/* Approved / Active bookings */}
-        <Card className="bg-white">
-          <CardHeader>
-            <CardTitle>Approved Bookings</CardTitle>
-            <CardDescription>
-              Upcoming and active rentals.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            {activeBookings.length > 0 ? (
-              activeBookings.map((booking) => (
-                <BookingStatusCard
-                  key={booking.id}
-                  bookingId={booking.id}
-                  carId={booking.carId}
-                  renterId={booking.renterId}
-                  ownerId={booking.ownerId}
-                  carTitle={booking.carTitle}
-                  startDate={booking.startDate}
-                  endDate={booking.endDate}
-                  status={booking.status}
-                  totalPrice={booking.totalPrice}
-                />
-              ))
-            ) : (
-              <BookingListEmpty variant="no-approved" />
-            )}
-          </CardContent>
-        </Card>
+        {loading ? (
+          <Card>
+            <CardContent className="flex items-center justify-center gap-3 py-10 text-sm text-muted-foreground">
+              <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+              Loading your bookings…
+            </CardContent>
+          </Card>
+        ) : null}
 
-        {/* Past bookings */}
-        <Card className="bg-white">
-          <CardHeader>
-            <CardTitle>Past Bookings</CardTitle>
-            <CardDescription>
-              Completed, declined, and cancelled bookings.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            {pastBookings.length > 0 ? (
-              pastBookings.map((booking) => (
-                <BookingStatusCard
-                  key={booking.id}
-                  bookingId={booking.id}
-                  carId={booking.carId}
-                  renterId={booking.renterId}
-                  ownerId={booking.ownerId}
-                  carTitle={booking.carTitle}
-                  startDate={booking.startDate}
-                  endDate={booking.endDate}
-                  status={booking.status}
-                  totalPrice={booking.totalPrice}
-                  showReviewAction={booking.status === "completed"}
-                />
-              ))
-            ) : (
-              <BookingListEmpty variant="no-completed" />
-            )}
-          </CardContent>
-        </Card>
+        {!loading && !error && (
+          <>
+            {/* Pending requests */}
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle>Pending Requests</CardTitle>
+                <CardDescription>
+                  Booking requests waiting for owner review.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {pendingBookings.length > 0 ? (
+                  pendingBookings.map((booking) => (
+                    <BookingStatusCard
+                      key={booking.id}
+                      bookingId={booking.id}
+                      carId={booking.carId}
+                      renterId={booking.renterId}
+                      ownerId={booking.ownerId}
+                      carTitle={booking.carTitle}
+                      startDate={booking.startDate}
+                      endDate={booking.endDate}
+                      status={booking.status}
+                      totalPrice={booking.totalPrice}
+                      secondaryActions={
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void handleCancelBooking(booking)}
+                          disabled={processingId === booking.id}
+                        >
+                          {processingId === booking.id ? (
+                            <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                          ) : null}
+                          Cancel
+                        </Button>
+                      }
+                    />
+                  ))
+                ) : (
+                  <BookingListEmpty variant="no-requests" />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Approved / Active bookings */}
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle>Approved Bookings</CardTitle>
+                <CardDescription>
+                  Upcoming and active rentals.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {activeBookings.length > 0 ? (
+                  activeBookings.map((booking) => (
+                    <BookingStatusCard
+                      key={booking.id}
+                      bookingId={booking.id}
+                      carId={booking.carId}
+                      renterId={booking.renterId}
+                      ownerId={booking.ownerId}
+                      carTitle={booking.carTitle}
+                      startDate={booking.startDate}
+                      endDate={booking.endDate}
+                      status={booking.status}
+                      totalPrice={booking.totalPrice}
+                    />
+                  ))
+                ) : (
+                  <BookingListEmpty variant="no-approved" />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Past bookings */}
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle>Past Bookings</CardTitle>
+                <CardDescription>
+                  Completed, declined, and cancelled bookings.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {pastBookings.length > 0 ? (
+                  pastBookings.map((booking) => (
+                    <BookingStatusCard
+                      key={booking.id}
+                      bookingId={booking.id}
+                      carId={booking.carId}
+                      renterId={booking.renterId}
+                      ownerId={booking.ownerId}
+                      carTitle={booking.carTitle}
+                      startDate={booking.startDate}
+                      endDate={booking.endDate}
+                      status={booking.status}
+                      totalPrice={booking.totalPrice}
+                      showReviewAction={booking.status === "completed"}
+                    />
+                  ))
+                ) : (
+                  <BookingListEmpty variant="no-completed" />
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </DashboardShell>
   );
