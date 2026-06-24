@@ -3,7 +3,13 @@
 import { useState, type FormEvent } from "react";
 import { Star, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -166,11 +172,13 @@ export function ReviewForm({
       setRating(0);
       setComment("");
       if (onSuccess) onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsSubmitting(false);
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
       setStatus({
         type: "error",
-        message: `An unexpected error occurred: ${err.message || err}`,
+        message: `An unexpected error occurred: ${message}`,
       });
     }
   }
@@ -207,7 +215,6 @@ export function ReviewForm({
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((starValue) => {
                 const isHighlighted = starValue <= (hoverRating || rating);
-                const isSelected = starValue <= rating;
                 return (
                   <button
                     key={starValue}
