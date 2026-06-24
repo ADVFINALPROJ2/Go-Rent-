@@ -1,4 +1,4 @@
-import { ShieldCheck, Fuel, Compass, Sparkles } from "lucide-react";
+import { ShieldCheck, Fuel, Compass, Sparkles, MapPin, CarFront } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { PageHeading } from "@/components/page-heading";
@@ -115,27 +115,49 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
     reviewDisabledReason = "Only renters who have completed a booking for this vehicle can leave a review.";
   }
 
+  const carImageUrl = car.image_urls?.[0] ?? null;
+
   return (
-    <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_380px] lg:px-8">
+    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_390px] lg:px-8">
       <section className="space-y-8">
         {/* Car Image Area */}
-        <div className="group relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-md dark:border-slate-800 dark:bg-slate-900">
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,#e2e8f0,#f8fafc_60%,#f1f5f9)] dark:bg-[linear-gradient(135deg,#0f172a,#1e293b_60%,#0f172a)]" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-            <Sparkles className="size-12 text-blue-500 animate-pulse mb-3" />
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{car.make} {car.model}</h3>
-            <p className="text-sm text-slate-500 max-w-md mt-1">Vehicle image gallery will load here once photos are uploaded.</p>
+        <div className="group relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-xl shadow-sky-950/10">
+          {carImageUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={carImageUrl}
+              alt={car.title}
+              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,#e0f2fe,#f8fafc_60%,#dbeafe)]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                <CarFront className="mb-3 size-16 text-primary/45" aria-hidden="true" />
+                <h3 className="text-lg font-bold text-slate-800">{car.make} {car.model}</h3>
+                <p className="mt-1 max-w-md text-sm text-slate-500">
+                  Vehicle image gallery will load here once photos are uploaded.
+                </p>
+              </div>
+            </>
+          )}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 to-transparent p-5 text-white">
+            <p className="text-sm font-medium text-sky-100">Available rental</p>
+            <h2 className="mt-1 text-2xl font-bold">{car.make} {car.model}</h2>
           </div>
         </div>
 
         {/* Header/Title Info */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/30">
               <ShieldCheck className="size-3.5" />
               Verified Listing
             </span>
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-slate-700">
+              {car.status}
+            </span>
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
               Year {car.year}
             </span>
           </div>
@@ -144,45 +166,61 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             title={car.title}
             description={car.description || "No description provided."}
           />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <MapPin className="size-5 text-primary" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-semibold uppercase text-slate-500">Pickup area</p>
+                <p className="text-sm font-bold text-slate-950">{car.location}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <Sparkles className="size-5 text-primary" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-semibold uppercase text-slate-500">Price per day</p>
+                <p className="text-sm font-bold text-slate-950">{formatCurrency(car.daily_rate)}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Specifications Grid */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold tracking-tight text-slate-950 dark:text-slate-50">Vehicle Specifications</h3>
           <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border border-slate-200/60 bg-white/60 shadow-sm dark:border-slate-800/60 dark:bg-slate-950/60">
+            <Card className="border border-slate-200/60 bg-white shadow-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <CardTitle className="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                   <Compass className="size-4 text-blue-500" />
                   Transmission
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-base font-bold text-slate-800 dark:text-slate-200">{car.transmission || "Automatic"}</p>
+                <p className="text-base font-bold text-slate-800">{car.transmission || "Automatic"}</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-slate-200/60 bg-white/60 shadow-sm dark:border-slate-800/60 dark:bg-slate-950/60">
+            <Card className="border border-slate-200/60 bg-white shadow-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <CardTitle className="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                   <ShieldCheck className="size-4 text-blue-500" />
                   Seats Capacity
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-base font-bold text-slate-800 dark:text-slate-200">{car.seats ? `${car.seats} Seats` : "5 Seats"}</p>
+                <p className="text-base font-bold text-slate-800">{car.seats ? `${car.seats} Seats` : "5 Seats"}</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-slate-200/60 bg-white/60 shadow-sm dark:border-slate-800/60 dark:bg-slate-950/60">
+            <Card className="border border-slate-200/60 bg-white shadow-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <CardTitle className="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                   <Fuel className="size-4 text-blue-500" />
                   Fuel Type
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-base font-bold text-slate-800 dark:text-slate-200">{car.fuel_type || "Gasoline"}</p>
+                <p className="text-base font-bold text-slate-800">{car.fuel_type || "Gasoline"}</p>
               </CardContent>
             </Card>
           </div>
@@ -190,7 +228,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
 
         {/* Host Info */}
         {car.owner && (
-          <Card className="border border-slate-200 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900/50">
+          <Card className="border border-sky-100 bg-sky-50/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-bold">Hosted by {car.owner.full_name}</CardTitle>
               <CardDescription>Based in {car.owner.location || "Unknown location"}</CardDescription>
@@ -199,11 +237,11 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         )}
 
         {/* Reviews Section */}
-        <hr className="border-slate-200 dark:border-slate-800" />
+        <hr className="border-slate-200" />
         <div id="reviews-section" className="space-y-6">
           <div className="space-y-1">
-            <h3 className="text-xl font-bold tracking-tight text-slate-950 dark:text-slate-50">Reviews & Ratings</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <h3 className="text-xl font-bold tracking-tight text-slate-950">Reviews & Ratings</h3>
+            <p className="text-sm text-slate-500">
               Read feedback from previous renters or submit your own.
             </p>
           </div>
@@ -221,7 +259,18 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
       </section>
 
       {/* Sidebar - Request Booking Form */}
-      <aside className="space-y-4">
+      <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start">
+        <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+          <CardHeader>
+            <CardTitle className="text-3xl text-primary">
+              {formatCurrency(car.daily_rate)}
+              <span className="text-sm font-medium text-slate-500">/day</span>
+            </CardTitle>
+            <CardDescription>
+              Request your dates and the owner can approve or decline the booking.
+            </CardDescription>
+          </CardHeader>
+        </Card>
         {isSupabaseConfigured ? (
           <BookingRequestForm
             carId={car.id}
