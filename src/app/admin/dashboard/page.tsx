@@ -6,6 +6,7 @@ import {
   Clock,
   Eye,
   ShieldCheck,
+  Trash2,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -201,7 +202,7 @@ function UsersTable({ users }: { users: UserRecord[] }) {
               <th className="px-4 py-3 font-semibold">Role</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Joined</th>
-              <th className="px-4 py-3 font-semibold">Action</th>
+              <th className="px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
@@ -226,9 +227,24 @@ function UsersTable({ users }: { users: UserRecord[] }) {
                 </td>
                 <td className="px-4 py-3 text-slate-600">{formatDate(user.created_at)}</td>
                 <td className="px-4 py-3">
-                  <Button size="sm" variant="outline" disabled>
-                    View user
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" disabled title="User detail view coming soon">
+                      <Eye aria-hidden="true" />
+                      View
+                    </Button>
+                    <Button size="sm" variant="outline" disabled title="Disable user coming soon">
+                      <Ban aria-hidden="true" />
+                      Disable
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      title="Delete user coming soon"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -293,8 +309,17 @@ function ListingsTable({ listings }: { listings: ListingRecord[] }) {
                         View
                       </Link>
                     </Button>
-                    <Button size="sm" variant="outline" disabled>
+                    <Button size="sm" variant="outline" disabled title="Disable listing coming soon">
                       Disable
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      title="Delete listing coming soon"
+                    >
+                      <Trash2 aria-hidden="true" />
+                      Delete
                     </Button>
                   </div>
                 </td>
