@@ -1,4 +1,5 @@
 import {
+  Activity,
   AlertTriangle,
   Ban,
   Car,
@@ -155,6 +156,26 @@ function UnauthorizedState({ isDisabled = false }: { isDisabled?: boolean }) {
         }
       />
     </DashboardShell>
+  );
+}
+
+function RecentActivitySection() {
+  return (
+    <Card className="bg-white shadow-sm">
+      <CardHeader>
+        <CardTitle>Recent activity</CardTitle>
+        <CardDescription>
+          Platform events such as signups, listing changes, and booking updates will appear here.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <DashboardEmptyState
+          icon={<Activity className="size-7" aria-hidden="true" />}
+          title="No recent activity"
+          description="Activity feed integration is pending. Admin actions and marketplace events will be summarized here later."
+        />
+      </CardContent>
+    </Card>
   );
 }
 
@@ -466,6 +487,8 @@ export default async function AdminDashboardPage() {
             <ListingsTable listings={listings} />
           </CardContent>
         </Card>
+
+        <RecentActivitySection />
       </div>
     </DashboardShell>
   );
