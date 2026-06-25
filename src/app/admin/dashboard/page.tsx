@@ -469,7 +469,20 @@ export default async function AdminDashboardPage() {
       description="Admins can review account health, listing status, and pending marketplace activity from one workspace."
     >
       <div className="grid gap-6">
-        <DashboardStatGrid stats={metrics} />
+        <section aria-labelledby="admin-overview-heading" className="grid gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-950" id="admin-overview-heading">
+              Overview
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Live counts from Supabase profiles, cars, and bookings.
+            </p>
+          </div>
+          <DashboardStatGrid
+            className="sm:grid-cols-2 xl:grid-cols-5"
+            stats={metrics}
+          />
+        </section>
 
         {dataError ? (
           <Card className="border-red-200 bg-red-50">
