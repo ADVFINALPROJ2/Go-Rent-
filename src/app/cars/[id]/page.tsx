@@ -285,13 +285,11 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             </CardContent>
           </Card>
         )}
-        {isSupabaseConfigured ? (
-          <MessageOwnerForm
-            carId={car.id}
-            ownerId={car.owner_id}
-            carTitle={car.title}
-          />
-        ) : null}
+        <MessageOwnerForm
+          carId={car.id}
+          ownerId={car.owner_id}
+          carTitle={car.title}
+        />
       </aside>
     </div>
   );
