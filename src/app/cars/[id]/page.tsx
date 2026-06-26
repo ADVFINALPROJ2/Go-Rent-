@@ -1,13 +1,16 @@
 import { ShieldCheck, Fuel, Compass, Sparkles, MapPin, CarFront } from "lucide-react";
 import { notFound } from "next/navigation";
+import { and, eq } from "drizzle-orm";
 
 import { PageHeading } from "@/components/page-heading";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BookingRequestForm } from "@/components/bookings/booking-request-form";
 import { MessageOwnerForm } from "@/components/messages/message-owner-form";
 import { ReviewsSection } from "@/components/reviews/reviews-section";
+import { db } from "@/db/client";
+import { bookings } from "@/db/schema";
+import { getCurrentUser } from "@/lib/auth/session";
 import { fetchAvailableCarById } from "@/lib/cars/queries";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type CarDetailsPageProps = {
   params: Promise<{ id: string }>;
@@ -23,76 +26,35 @@ function formatCurrency(amount: number) {
 export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
   const { id } = await params;
 
-  let car = null;
-  let isSupabaseConfigured = true;
-
-  try {
-    car = await fetchAvailableCarById(id);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message.includes("Supabase is not configured")) {
-      isSupabaseConfigured = false;
-    }
-  }
-
-  // Fallback demo data if Supabase is not configured (to allow UI rendering and testing)
-  if (!isSupabaseConfigured) {
-    car = {
-      id: id,
-      owner_id: "demo-owner-123",
-      title: "Tesla Model 3 (Demo)",
-      description: "A premium electric sedan with excellent range and autopilot capabilities. This is a local demo preview because Supabase keys are not set.",
-      make: "Tesla",
-      model: "Model 3",
-      year: 2023,
-      location: "San Francisco, CA",
-      daily_rate: 99,
-      status: "available",
-      image_urls: [],
-      seats: 5,
-      transmission: "Automatic",
-      fuel_type: "Electric",
-      owner: {
-        id: "demo-owner-123",
-        full_name: "Alex Johnson (Demo Host)",
-        avatar_url: null,
-        location: "San Francisco, CA",
-      },
-    };
-  }
+  const car = await fetchAvailableCarById(id);
 
   if (!car) {
     return notFound();
   }
 
   // Fetch current user and booking info to check if they can leave a review
-  let user = null;
+  let user: Awaited<ReturnType<typeof getCurrentUser>> = null;
   let hasCompletedBooking = false;
   let bookingId = "";
   let renterId = "";
   let ownerId = car.owner_id;
 
-  const supabase = await createSupabaseServerClient();
-  if (supabase) {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    user = authUser;
+  user = await getCurrentUser();
 
-    if (user) {
-      // Check if user has a completed booking for this car
-      const { data: bookings } = await supabase
-        .from("bookings")
-        .select("id, renter_id, owner_id")
-        .eq("car_id", id)
-        .eq("renter_id", user.id)
-        .eq("status", "completed")
-        .limit(1);
+  if (user) {
+    const completedBooking = db.query.bookings.findFirst({
+      where: and(
+        eq(bookings.carId, id),
+        eq(bookings.renterId, user.id),
+        eq(bookings.status, "completed"),
+      ),
+    }).sync();
 
-      if (bookings && bookings.length > 0) {
-        hasCompletedBooking = true;
-        bookingId = bookings[0].id;
-        renterId = bookings[0].renter_id;
-        ownerId = bookings[0].owner_id;
-      }
+    if (completedBooking) {
+      hasCompletedBooking = true;
+      bookingId = completedBooking.id;
+      renterId = completedBooking.renterId;
+      ownerId = completedBooking.ownerId;
     }
   }
 
@@ -100,12 +62,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
   let reviewDisabled = false;
   let reviewDisabledReason = "";
 
-  if (!isSupabaseConfigured) {
-    // If Supabase is not configured, run ReviewForm in demo mode with preview IDs
-    reviewDisabled = false;
-    bookingId = "preview-booking-id";
-    renterId = "preview-renter-id";
-  } else if (!user) {
+  if (!user) {
     reviewDisabled = true;
     reviewDisabledReason = "Please log in to submit a review for this vehicle.";
   } else if (user.id === car.owner_id) {
@@ -122,7 +79,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
     <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_390px] lg:px-8">
       <section className="space-y-8">
         {/* Car Image Area */}
-        <div className="group relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-xl shadow-sky-950/10">
+        <div className="group relative aspect-[16/9] w-full overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100 shadow-2xl shadow-sky-950/15 dark:border-zinc-800 dark:bg-zinc-900">
           {carImageUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
@@ -135,8 +92,8 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
               <div className="absolute inset-0 bg-[linear-gradient(135deg,#e0f2fe,#f8fafc_60%,#dbeafe)]" />
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                 <CarFront className="mb-3 size-16 text-primary/45" aria-hidden="true" />
-                <h3 className="text-lg font-bold text-slate-800">{car.make} {car.model}</h3>
-                <p className="mt-1 max-w-md text-sm text-slate-500">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{car.make} {car.model}</h3>
+                <p className="mt-1 max-w-md text-sm text-slate-500 dark:text-zinc-400">
                   Vehicle image gallery will load here once photos are uploaded.
                 </p>
               </div>
@@ -151,14 +108,14 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         {/* Header/Title Info */}
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/50 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/50 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-200">
               <ShieldCheck className="size-3.5" />
               Verified Listing
             </span>
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-slate-700">
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-slate-700 dark:bg-zinc-800 dark:text-zinc-200">
               {car.status}
             </span>
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:bg-zinc-800 dark:text-zinc-200">
               Year {car.year}
             </span>
           </div>
@@ -168,18 +125,18 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             description={car.description || "No description provided."}
           />
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <MapPin className="size-5 text-primary" aria-hidden="true" />
               <div>
-                <p className="text-xs font-semibold uppercase text-slate-500">Pickup area</p>
-                <p className="text-sm font-bold text-slate-950">{car.location}</p>
+                <p className="text-xs font-semibold uppercase text-slate-500 dark:text-zinc-500">Pickup area</p>
+                <p className="text-sm font-bold text-slate-950 dark:text-white">{car.location}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <Sparkles className="size-5 text-primary" aria-hidden="true" />
               <div>
-                <p className="text-xs font-semibold uppercase text-slate-500">Price per day</p>
-                <p className="text-sm font-bold text-slate-950">{formatCurrency(car.daily_rate)}</p>
+                <p className="text-xs font-semibold uppercase text-slate-500 dark:text-zinc-500">Price per day</p>
+                <p className="text-sm font-bold text-slate-950 dark:text-white">{formatCurrency(car.daily_rate)}</p>
               </div>
             </div>
           </div>
@@ -187,9 +144,9 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
 
         {/* Specifications Grid */}
         <div className="space-y-4">
-          <h3 className="text-lg font-bold text-slate-950">Vehicle Specifications</h3>
+          <h3 className="text-lg font-black text-slate-950 dark:text-white">Vehicle Specifications</h3>
           <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border border-slate-200/60 bg-white shadow-sm">
+            <Card className="border border-slate-200/60 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                   <Compass className="size-4 text-blue-500" />
@@ -197,11 +154,11 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-base font-bold text-slate-800">{car.transmission || "Automatic"}</p>
+                <p className="text-base font-bold text-slate-800 dark:text-white">{car.transmission || "Automatic"}</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-slate-200/60 bg-white shadow-sm">
+            <Card className="border border-slate-200/60 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                   <ShieldCheck className="size-4 text-blue-500" />
@@ -209,11 +166,11 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-base font-bold text-slate-800">{car.seats ? `${car.seats} Seats` : "5 Seats"}</p>
+                <p className="text-base font-bold text-slate-800 dark:text-white">{car.seats ? `${car.seats} Seats` : "5 Seats"}</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-slate-200/60 bg-white shadow-sm">
+            <Card className="border border-slate-200/60 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                   <Fuel className="size-4 text-blue-500" />
@@ -221,7 +178,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-base font-bold text-slate-800">{car.fuel_type || "Gasoline"}</p>
+                <p className="text-base font-bold text-slate-800 dark:text-white">{car.fuel_type || "Gasoline"}</p>
               </CardContent>
             </Card>
           </div>
@@ -229,7 +186,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
 
         {/* Host Info */}
         {car.owner && (
-          <Card className="border border-sky-100 bg-sky-50/50">
+          <Card className="border border-sky-100 bg-sky-50/50 dark:border-sky-900 dark:bg-sky-950/20">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-bold">Hosted by {car.owner.full_name}</CardTitle>
               <CardDescription>Based in {car.owner.location || "Unknown location"}</CardDescription>
@@ -238,7 +195,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         )}
 
         {/* Reviews Section */}
-        <hr className="border-slate-200" />
+        <hr className="border-slate-200 dark:border-zinc-800" />
         <ReviewsSection
           carId={car.id}
           reviewForm={{
@@ -253,45 +210,27 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
 
       {/* Sidebar - Request Booking Form */}
       <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start">
-        <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+        <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
           <CardHeader>
             <CardTitle className="text-3xl text-primary">
               {formatCurrency(car.daily_rate)}
-              <span className="text-sm font-medium text-slate-500">/day</span>
+              <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">/day</span>
             </CardTitle>
             <CardDescription>
               Request your dates and the owner can approve or decline the booking.
             </CardDescription>
           </CardHeader>
         </Card>
-        {isSupabaseConfigured ? (
-          <BookingRequestForm
-            carId={car.id}
-            ownerId={car.owner_id}
-            dailyRate={Number(car.daily_rate)}
-          />
-        ) : (
-          <Card className="border-amber-200 bg-amber-50/20">
-            <CardHeader>
-              <CardTitle className="text-base">Rental Booking (Demo Mode)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-slate-500">
-                Booking forms and database transactions require Supabase.
-              </p>
-              <div className="rounded-lg border border-dashed border-amber-300 bg-amber-50/50 p-3 text-xs text-amber-800">
-                Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env file to enable live booking.
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        {isSupabaseConfigured ? (
-          <MessageOwnerForm
-            carId={car.id}
-            ownerId={car.owner_id}
-            carTitle={car.title}
-          />
-        ) : null}
+        <BookingRequestForm
+          carId={car.id}
+          ownerId={car.owner_id}
+          dailyRate={Number(car.daily_rate)}
+        />
+        <MessageOwnerForm
+          carId={car.id}
+          ownerId={car.owner_id}
+          carTitle={car.title}
+        />
       </aside>
     </div>
   );

@@ -112,7 +112,7 @@ export default function ProfilePage() {
   /* ---- Profile display ---- */
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+      <div className="rounded-2xl border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-[linear-gradient(135deg,#111113,#0f172a)] sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <PageHeading
             eyebrow="Profile"
@@ -128,9 +128,9 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <Card className="overflow-hidden bg-white shadow-xl shadow-sky-950/10">
+      <Card className="overflow-hidden bg-white shadow-xl shadow-sky-950/10 dark:bg-zinc-950">
         {/* Gradient banner */}
-        <div className="h-28 bg-gradient-to-r from-sky-600 via-sky-400 to-blue-100" />
+        <div className="h-28 bg-gradient-to-r from-sky-600 via-sky-400 to-blue-100 dark:from-sky-950 dark:via-sky-700 dark:to-zinc-900" />
 
         <CardContent className="relative px-6 pb-8 pt-16">
           {/* Avatar */}

@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createCar, updateCar, uploadCarImage } from "@/lib/actions/cars";
-import type { Database } from "@/lib/supabase/types";
+import type { Database } from "@/lib/local-types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -203,9 +203,9 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
   }
 
   return (
-    <Card className="w-full border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+    <Card className="w-full border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
       <CardHeader>
-        <div className="mb-2 flex size-12 items-center justify-center rounded-lg bg-sky-50 text-primary">
+        <div className="mb-2 flex size-12 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
           <ImagePlus className="size-6" aria-hidden="true" />
         </div>
         <CardTitle>{mode === "create" ? "Add new car" : "Edit listing"}</CardTitle>
@@ -332,7 +332,7 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-sky-200 bg-sky-50/40 px-4 py-8 text-sm text-slate-500 transition-colors hover:border-primary/40 hover:bg-sky-50"
+                  className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sky-200 bg-sky-50/40 px-4 py-8 text-sm text-slate-500 transition-colors hover:border-primary/40 hover:bg-sky-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
                 >
                   <Upload className="size-6" aria-hidden="true" />
                   <span>Click to upload an image</span>
@@ -366,7 +366,7 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
             {/* Preview */}
             {imagePreview && (
               <div className="relative mt-1 w-fit">
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-xl border dark:border-zinc-800">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imagePreview}
@@ -476,3 +476,4 @@ function FieldError({ message }: { message: string }) {
     </p>
   );
 }
+

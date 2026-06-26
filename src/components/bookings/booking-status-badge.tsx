@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { BookingStatus } from "@/lib/supabase/types";
+import type { BookingStatus } from "@/lib/local-types";
 
 type BadgeVariant = "warning" | "info" | "destructive" | "success" | "muted";
 
@@ -25,3 +25,4 @@ export function BookingStatusBadge({ status, className }: BookingStatusBadgeProp
     </Badge>
   );
 }
+

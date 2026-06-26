@@ -1,7 +1,11 @@
 "use server";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { ProfileRole } from "@/lib/supabase/types";
+import { eq } from "drizzle-orm";
+
+import { db } from "@/db/client";
+import { profiles, users } from "@/db/schema";
+import type { UserRole } from "@/db/schema";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export type ProfileData = {
   id: string;
@@ -11,7 +15,7 @@ export type ProfileData = {
   phone: string | null;
   location: string | null;
   bio: string | null;
-  role: ProfileRole;
+  role: UserRole;
   created_at: string;
   updated_at: string;
 };
@@ -27,64 +31,51 @@ export type UpdateProfileResult = {
   error?: string;
 };
 
-/**
- * Fetch the currently authenticated user's profile.
- * Combines auth.getUser() data (email) with the profiles table row.
- * If no profile row exists yet, creates one using the auth metadata.
- */
+function mapProfileData(input: {
+  user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
+  profile: typeof profiles.$inferSelect;
+}): ProfileData {
+  return {
+    id: input.user.id,
+    email: input.user.email,
+    full_name: input.profile.fullName,
+    avatar_url: null,
+    phone: input.profile.phone,
+    location: input.profile.location,
+    bio: input.profile.bio,
+    role: input.user.role,
+    created_at: input.profile.createdAt,
+    updated_at: input.profile.updatedAt,
+  };
+}
+
 export async function getProfile(): Promise<ProfileResult> {
-  const supabase = await createSupabaseServerClient();
+  const user = await getCurrentUser();
 
-  if (!supabase) {
-    return { success: false, error: "Supabase client not configured." };
-  }
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  if (!user || user.status !== "active") {
     return {
       success: false,
       error: "NOT_AUTHENTICATED",
     };
   }
 
-  // Try to fetch existing profile
-  const { data: existingProfile, error: profileError } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  let profile = db.query.profiles.findFirst({
+    where: eq(profiles.userId, user.id),
+  }).sync();
 
-  let profile = existingProfile;
+  if (!profile) {
+    const profileId = crypto.randomUUID();
+    const fallbackName = user.email.split("@")[0] ?? null;
 
-  // If profile doesn't exist, create one from auth metadata
-  if (profileError && profileError.code === "PGRST116") {
-    const fullName =
-      user.user_metadata?.full_name ??
-      user.email?.split("@")[0] ??
-      null;
+    db.insert(profiles).values({
+      id: profileId,
+      userId: user.id,
+      fullName: fallbackName,
+    }).run();
 
-    const { data: newProfile, error: insertError } = await supabase
-      .from("profiles")
-      .insert({
-        id: user.id,
-        full_name: fullName,
-        avatar_url: user.user_metadata?.avatar_url ?? null,
-        role: "renter" as ProfileRole,
-      })
-      .select("*")
-      .single();
-
-    if (insertError) {
-      return { success: false, error: insertError.message };
-    }
-
-    profile = newProfile;
-  } else if (profileError) {
-    return { success: false, error: profileError.message };
+    profile = db.query.profiles.findFirst({
+      where: eq(profiles.userId, user.id),
+    }).sync();
   }
 
   if (!profile) {
@@ -93,64 +84,56 @@ export async function getProfile(): Promise<ProfileResult> {
 
   return {
     success: true,
-    data: {
-      ...profile,
-      email: user.email ?? "",
-    },
+    data: mapProfileData({ user, profile }),
   };
 }
 
-/**
- * Update the authenticated user's profile fields.
- * Accepts FormData from the edit form.
- * Validates that full_name is provided.
- */
 export async function updateProfile(
   formData: FormData,
 ): Promise<UpdateProfileResult> {
-  const supabase = await createSupabaseServerClient();
+  const user = await getCurrentUser();
 
-  if (!supabase) {
-    return { success: false, error: "Supabase client not configured." };
-  }
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  if (!user || user.status !== "active") {
     return {
       success: false,
       error: "You must be logged in to update your profile.",
     };
   }
 
-  const full_name = (formData.get("full_name") as string)?.trim() || null;
+  const fullName = (formData.get("full_name") as string)?.trim() || null;
   const phone = (formData.get("phone") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
   const bio = (formData.get("bio") as string)?.trim() || null;
   const roleRaw = formData.get("role") as string;
 
-  // --- Validation ---
-  if (!full_name) {
+  if (!fullName) {
     return { success: false, error: "Full name is required." };
   }
 
-  // Validate role
-  const validRoles: ProfileRole[] = ["renter", "owner"];
-  const role: ProfileRole = validRoles.includes(roleRaw as ProfileRole)
-    ? (roleRaw as ProfileRole)
-    : "renter";
+  const role: Extract<UserRole, "renter" | "owner"> =
+    roleRaw === "owner" ? "owner" : "renter";
+  const updatedAt = new Date().toISOString();
 
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ full_name, phone, location, bio, role })
-    .eq("id", user.id);
+  db.transaction((tx) => {
+    tx.update(profiles)
+      .set({
+        fullName,
+        phone,
+        location,
+        bio,
+        updatedAt,
+      })
+      .where(eq(profiles.userId, user.id))
+      .run();
 
-  if (updateError) {
-    return { success: false, error: updateError.message };
-  }
+    tx.update(users)
+      .set({
+        role,
+        updatedAt,
+      })
+      .where(eq(users.id, user.id))
+      .run();
+  });
 
   return { success: true };
 }

@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerLocalUser } from "@/app/auth/actions";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase/client";
-import type { ProfileRole } from "@/lib/supabase/types";
+import type { UserRole } from "@/db/schema";
 
-type RegisterRole = Extract<ProfileRole, "renter" | "owner">;
+type RegisterRole = Extract<UserRole, "renter" | "owner">;
 
 type FormErrors = {
   fullName?: string;
@@ -96,67 +96,34 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!supabase) {
-      setMessage({
-        type: "error",
-        text: "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
-    const { data, error } = await supabase.auth.signUp({
+    const result = await registerLocalUser({
+      fullName: normalizedName,
       email: normalizedEmail,
       password,
-      options: {
-        data: {
-          full_name: normalizedName,
-          role,
-        },
-      },
+      role,
     });
 
-    if (error) {
+    if (!result.success) {
       setIsSubmitting(false);
-      setMessage({ type: "error", text: error.message });
-      return;
-    }
-
-    if (data.session && data.user) {
-      const { error: profileError } = await supabase.from("profiles").upsert({
-        id: data.user.id,
-        full_name: normalizedName,
-        role,
+      setMessage({
+        type: "error",
+        text: result.error ?? "Could not create account.",
       });
-
-      if (profileError) {
-        setIsSubmitting(false);
-        setMessage({
-          type: "error",
-          text: `Account created, but profile details could not be saved: ${profileError.message}`,
-        });
-        return;
-      }
-
-      setMessage({ type: "success", text: "Account created. Redirecting..." });
-      router.push(role === "owner" ? "/owner/dashboard" : "/renter/dashboard");
-      router.refresh();
       return;
     }
 
-    setIsSubmitting(false);
-    setMessage({
-      type: "success",
-      text: "Account created. Check your email to confirm your account, then log in.",
-    });
+    setMessage({ type: "success", text: "Account created. Redirecting..." });
+    router.push(result.redirectTo ?? "/renter/dashboard");
+    router.refresh();
   }
 
   return (
-    <section className="bg-[linear-gradient(180deg,#ffffff_0%,#eef8ff_100%)]">
+    <section className="bg-[linear-gradient(180deg,#ffffff_0%,#eef8ff_100%)] dark:bg-[linear-gradient(180deg,#09090b_0%,#0f172a_100%)]">
       <div className="mx-auto grid min-h-[calc(100vh-9rem)] max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="flex items-center">
-          <Card className="w-full border-sky-100 shadow-2xl shadow-sky-950/10">
+          <Card className="w-full border-sky-100 bg-white shadow-2xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
             <CardHeader className="space-y-2">
               <div className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <UserPlus className="size-5" aria-hidden="true" />
@@ -170,8 +137,8 @@ export default function RegisterPage() {
                   <div
                     className={
                       message.type === "error"
-                        ? "rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-                        : "rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary"
+                        ? "rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                        : "rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary"
                     }
                     role="status"
                   >
@@ -262,8 +229,8 @@ export default function RegisterPage() {
                     {(["renter", "owner"] as const).map((option) => (
                       <button
                         className={cn(
-                          "rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50",
-                          role === option && "border-primary bg-sky-50 text-accent-foreground ring-2 ring-sky-100",
+                          "rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800",
+                          role === option && "border-primary bg-sky-50 text-accent-foreground ring-2 ring-sky-100 dark:bg-sky-950/50 dark:ring-sky-900",
                         )}
                         key={option}
                         type="button"
@@ -281,7 +248,7 @@ export default function RegisterPage() {
                   </div>
                 </fieldset>
 
-                <Button className="w-full" type="submit" disabled={isSubmitting}>
+                <Button className="h-11 w-full" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
                   {isSubmitting ? "Creating account..." : "Create account"}
                 </Button>
@@ -302,10 +269,10 @@ export default function RegisterPage() {
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
               Start with GoRent
             </p>
-            <h1 className="text-4xl font-bold leading-tight text-slate-950 sm:text-6xl">
+            <h1 className="text-4xl font-black leading-tight text-slate-950 dark:text-white sm:text-6xl">
               Your journey starts with the right account.
             </h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-slate-600">
+            <p className="mt-5 max-w-lg text-base leading-7 text-slate-600 dark:text-zinc-300">
               Register once, then rent cars for everyday trips or list your own vehicle for local
               renters.
             </p>
@@ -313,11 +280,11 @@ export default function RegisterPage() {
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {[
-              ["Verified profiles", "Profile records connect to Supabase Auth."],
+              ["Verified profiles", "Profile records connect to local auth."],
               ["Owner ready", "Save your role for future listing workflows."],
               ["Simple access", "Responsive forms for mobile and desktop."],
             ].map(([title, description]) => (
-              <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm" key={title}>
+              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950" key={title}>
                 <ShieldCheck className="mb-4 size-6 text-primary" aria-hidden="true" />
                 <h2 className="text-sm font-semibold">{title}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
@@ -325,7 +292,7 @@ export default function RegisterPage() {
             ))}
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-sky-950/10">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
             <div className="grid items-center gap-6 p-6 sm:grid-cols-[1fr_160px]">
               <div>
                 <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
@@ -337,7 +304,7 @@ export default function RegisterPage() {
                   The same sign-up flow keeps both sides of the marketplace ready for Day 2 auth.
                 </p>
               </div>
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-slate-950 text-primary">
+              <div className="relative aspect-square overflow-hidden rounded-xl bg-slate-950 text-primary">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=600&q=80"

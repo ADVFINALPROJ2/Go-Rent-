@@ -1,147 +1,207 @@
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/types";
+"use server";
 
-type CarInsert = Database["public"]["Tables"]["cars"]["Insert"];
-type CarUpdate = Database["public"]["Tables"]["cars"]["Update"];
-type CarRow = Database["public"]["Tables"]["cars"]["Row"];
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+import { desc, eq } from "drizzle-orm";
 
-function getClient(): SupabaseClient<Database> {
-  const supabase = createSupabaseBrowserClient();
-  if (!supabase) {
-    throw new Error(
-      "Supabase client could not be created. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-    );
+import { db } from "@/db/client";
+import { cars } from "@/db/schema";
+import type { CarStatus } from "@/db/schema";
+import { requireUser } from "@/lib/auth/session";
+import {
+  mapCarToLegacy,
+  type LegacyCarInsert,
+  type LegacyCarRow,
+  type LegacyCarUpdate,
+} from "@/lib/cars/mappers";
+
+const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+
+function assertOwner(user: Awaited<ReturnType<typeof requireUser>>) {
+  if (!user) {
+    throw new Error("You must be logged in.");
   }
-  return supabase;
+
+  if (user.role !== "owner" && user.role !== "admin") {
+    throw new Error("Only owners can manage car listings.");
+  }
+
+  return user;
 }
 
-// ---------------------------------------------------------------------------
-// Image upload
-// ---------------------------------------------------------------------------
+function normalizeStatus(status: LegacyCarInsert["status"] | undefined): CarStatus {
+  return status ?? "available";
+}
 
-/**
- * Uploads a car image to the `car-images` storage bucket.
- * Files are stored under `{userId}/{uuid}-{filename}` to satisfy the RLS
- * policy that scopes writes to the owner's folder.
- *
- * @returns The public URL of the uploaded image.
- */
+function buildCarValues(data: LegacyCarInsert | LegacyCarUpdate) {
+  return {
+    title: String(data.title ?? "").trim(),
+    make: String(data.make ?? "").trim(),
+    model: String(data.model ?? "").trim(),
+    year: Number(data.year),
+    dailyRate: Number(data.daily_rate),
+    location: String(data.location ?? "").trim(),
+    description: data.description?.trim() || null,
+    status: normalizeStatus(data.status),
+    imageUrl: data.image_urls?.[0] ?? null,
+    seats: typeof data.seats === "number" ? data.seats : null,
+    transmission: data.transmission?.trim() || null,
+    fuelType: data.fuel_type?.trim() || null,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function validateCarValues(values: ReturnType<typeof buildCarValues>) {
+  if (!values.title || values.title.length < 3) {
+    throw new Error("Title must be at least 3 characters.");
+  }
+
+  if (!values.make) {
+    throw new Error("Make is required.");
+  }
+
+  if (!values.model) {
+    throw new Error("Model is required.");
+  }
+
+  if (!values.year || values.year < 1980) {
+    throw new Error("Enter a valid vehicle year.");
+  }
+
+  if (!values.dailyRate || values.dailyRate <= 0) {
+    throw new Error("Price per day must be greater than 0.");
+  }
+
+  if (!values.location) {
+    throw new Error("Location is required.");
+  }
+}
+
 export async function uploadCarImage(
   file: File,
   userId: string,
 ): Promise<string> {
-  const supabase = getClient();
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${userId}/${crypto.randomUUID()}.${fileExt}`;
+  const user = assertOwner(await requireUser());
 
-  const { error } = await supabase.storage
-    .from("car-images")
-    .upload(fileName, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
-
-  if (error) {
-    throw new Error(`Image upload failed: ${error.message}`);
+  if (user.role !== "admin" && user.id !== userId) {
+    throw new Error("You can only upload images for your own listings.");
   }
 
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("car-images").getPublicUrl(fileName);
-
-  return publicUrl;
-}
-
-// ---------------------------------------------------------------------------
-// CRUD
-// ---------------------------------------------------------------------------
-
-/** Insert a new car listing. */
-export async function createCar(
-  data: CarInsert,
-): Promise<CarRow> {
-  const supabase = getClient();
-
-  const { data: car, error } = await supabase
-    .from("cars")
-    .insert(data)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to create car: ${error.message}`);
+  if (!allowedImageTypes.has(file.type)) {
+    throw new Error("Upload a JPG, PNG, WebP, or GIF image.");
   }
 
-  return car;
+  const extension = path.extname(file.name).toLowerCase() || ".jpg";
+  const uploadDirectory = path.join(process.cwd(), "public", "uploads", user.id);
+  const filename = `${crypto.randomUUID()}${extension}`;
+  const destination = path.join(uploadDirectory, filename);
+
+  await mkdir(uploadDirectory, { recursive: true });
+  await writeFile(destination, Buffer.from(await file.arrayBuffer()));
+
+  return `/uploads/${user.id}/${filename}`;
 }
 
-/** Update an existing car listing. */
+export async function createCar(data: LegacyCarInsert): Promise<LegacyCarRow> {
+  const user = assertOwner(await requireUser());
+
+  if (user.role !== "admin" && data.owner_id !== user.id) {
+    throw new Error("You can only create listings for your own account.");
+  }
+
+  const values = buildCarValues(data);
+  validateCarValues(values);
+
+  const id = data.id ?? crypto.randomUUID();
+  db.insert(cars)
+    .values({
+      id,
+      ownerId: data.owner_id,
+      ...values,
+    })
+    .run();
+
+  const car = db.query.cars.findFirst({
+    where: eq(cars.id, id),
+  }).sync();
+
+  if (!car) {
+    throw new Error("Failed to create car.");
+  }
+
+  return mapCarToLegacy(car);
+}
+
 export async function updateCar(
   carId: string,
-  data: CarUpdate,
-): Promise<CarRow> {
-  const supabase = getClient();
+  data: LegacyCarUpdate,
+): Promise<LegacyCarRow> {
+  const user = assertOwner(await requireUser());
+  const existing = db.query.cars.findFirst({
+    where: eq(cars.id, carId),
+  }).sync();
 
-  const { data: car, error } = await supabase
-    .from("cars")
-    .update(data)
-    .eq("id", carId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to update car: ${error.message}`);
+  if (!existing) {
+    throw new Error("Car not found.");
   }
 
-  return car;
-}
-
-/** Fetch all cars belonging to a specific owner, newest first. */
-export async function getOwnerCars(ownerId: string): Promise<CarRow[]> {
-  const supabase = getClient();
-
-  const { data, error } = await supabase
-    .from("cars")
-    .select("*")
-    .eq("owner_id", ownerId)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    throw new Error(`Failed to fetch owner cars: ${error.message}`);
+  if (user.role !== "admin" && existing.ownerId !== user.id) {
+    throw new Error("You can only update your own listings.");
   }
 
-  return data;
-}
+  const values = buildCarValues(data);
+  validateCarValues(values);
 
-/** Fetch a single car by its ID. */
-export async function getCarById(carId: string): Promise<CarRow | null> {
-  const supabase = getClient();
+  db.update(cars).set(values).where(eq(cars.id, carId)).run();
 
-  const { data, error } = await supabase
-    .from("cars")
-    .select("*")
-    .eq("id", carId)
-    .single();
+  const updated = db.query.cars.findFirst({
+    where: eq(cars.id, carId),
+  }).sync();
 
-  if (error) {
-    // PGRST116 = "no rows returned" — not really an error for us.
-    if (error.code === "PGRST116") return null;
-    throw new Error(`Failed to fetch car: ${error.message}`);
+  if (!updated) {
+    throw new Error("Failed to update car.");
   }
 
-  return data;
+  return mapCarToLegacy(updated);
 }
 
-/** Toggle a car's status between available and unavailable. */
+export async function getOwnerCars(ownerId: string): Promise<LegacyCarRow[]> {
+  const user = assertOwner(await requireUser());
+
+  if (user.role !== "admin" && user.id !== ownerId) {
+    throw new Error("You can only view your own listings.");
+  }
+
+  const rows = db.query.cars.findMany({
+    where: eq(cars.ownerId, ownerId),
+    orderBy: desc(cars.createdAt),
+  }).sync();
+
+  return rows.map(mapCarToLegacy);
+}
+
+export async function getCarById(carId: string): Promise<LegacyCarRow | null> {
+  const car = db.query.cars.findFirst({
+    where: eq(cars.id, carId),
+  }).sync();
+
+  return car ? mapCarToLegacy(car) : null;
+}
+
 export async function toggleCarStatus(
   carId: string,
   currentStatus: string,
-): Promise<CarRow> {
+): Promise<LegacyCarRow> {
   const newStatus = currentStatus === "available" ? "unavailable" : "available";
-  return updateCar(carId, { status: newStatus as CarRow["status"] });
+  const existing = await getCarById(carId);
+
+  if (!existing) {
+    throw new Error("Car not found.");
+  }
+
+  return updateCar(carId, {
+    ...existing,
+    status: newStatus,
+  });
 }

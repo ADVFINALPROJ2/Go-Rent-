@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { submitReview } from "@/lib/actions/reviews";
 import { cn } from "@/lib/utils";
 
 type ReviewFormProps = {
@@ -91,80 +91,19 @@ export function ReviewForm({
       return;
     }
 
-    // Check UUID format roughly or if placeholder booking
-    const isPlaceholder = 
-      bookingId.startsWith("preview-") || 
-      carId.startsWith("preview-") || 
-      renterId.startsWith("preview-") || 
-      ownerId.startsWith("preview-");
-
-    if (isPlaceholder) {
-      setIsSubmitting(true);
-      // Simulate database insertion delay for testing placeholder data
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      setIsSubmitting(false);
-      
-      // Let the user know the review validated successfully, but database insert is bypassed
-      setStatus({
-        type: "success",
-        message: "Demo Mode Success: Review validated successfully! (Database insert bypassed for preview/placeholder IDs).",
-      });
-      
-      // Reset form
-      setRating(0);
-      setComment("");
-      if (onSuccess) onSuccess();
-      return;
-    }
-
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) {
-      setStatus({
-        type: "error",
-        message: "Supabase client not configured. Add Supabase environment variables to submit reviews.",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      // Check auth state
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
-
-      if (authError || !user) {
-        setIsSubmitting(false);
-        setStatus({
-          type: "error",
-          message: "You must be logged in to submit a review.",
-        });
-        return;
-      }
-
-      // Perform insertion
-      const { error: insertError } = await supabase.from("reviews").insert({
-        booking_id: bookingId,
-        car_id: carId,
-        renter_id: renterId,
-        owner_id: ownerId,
-        rating: rating,
-        comment: comment.trim(),
+      await submitReview({
+        bookingId,
+        carId,
+        renterId,
+        ownerId,
+        rating,
+        comment,
       });
 
       setIsSubmitting(false);
-
-      if (insertError) {
-        setStatus({
-          type: "error",
-          message: `Failed to submit review: ${insertError.message}`,
-        });
-        return;
-      }
-
-      // Successful submission
       setStatus({
         type: "success",
         message: "Thank you! Your review has been submitted successfully.",

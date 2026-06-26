@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { sendMessage } from "@/lib/actions/messages";
 
 type MessageOwnerFormProps = {
   carId: string;
@@ -45,59 +45,26 @@ export function MessageOwnerForm({
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
+    setIsSubmitting(true);
 
-    if (!supabase) {
+    try {
+      await sendMessage({
+        receiverId: ownerId,
+        carId,
+        bookingId: null,
+        body: trimmedBody,
+      });
+    } catch (error) {
+      setIsSubmitting(false);
       setStatus({
         type: "error",
         message:
-          "Supabase is not configured. Add the public Supabase URL and anon key to send messages.",
+          error instanceof Error ? error.message : "Unable to send message.",
       });
       return;
     }
-
-    setIsSubmitting(true);
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setIsSubmitting(false);
-      setStatus({
-        type: "error",
-        message: "Please log in before messaging this owner.",
-      });
-      return;
-    }
-
-    if (user.id === ownerId) {
-      setIsSubmitting(false);
-      setStatus({
-        type: "error",
-        message: "You cannot send a message to yourself.",
-      });
-      return;
-    }
-
-    const { error } = await supabase.from("messages").insert({
-      sender_id: user.id,
-      receiver_id: ownerId,
-      car_id: carId,
-      booking_id: null,
-      body: trimmedBody,
-    });
 
     setIsSubmitting(false);
-
-    if (error) {
-      setStatus({
-        type: "error",
-        message: `Unable to send message: ${error.message}`,
-      });
-      return;
-    }
 
     setBody("");
     setStatus({
@@ -107,9 +74,9 @@ export function MessageOwnerForm({
   }
 
   return (
-    <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+    <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
       <CardHeader>
-        <div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-sky-50 text-primary">
+        <div className="mb-2 flex size-10 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
           <MessageSquare className="size-5" aria-hidden="true" />
         </div>
         <CardTitle className="text-base">Message owner</CardTitle>

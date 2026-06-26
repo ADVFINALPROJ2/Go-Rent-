@@ -20,23 +20,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { BookingStatus, Database } from "@/lib/supabase/types";
+import {
+  cancelRenterBooking,
+  getRenterBookings,
+  type RenterBookingSummary,
+} from "@/lib/actions/bookings";
 
-type CarRow = Database["public"]["Tables"]["cars"]["Row"];
-
-type RenterBooking = {
-  id: string;
-  carId?: string;
-  renterId?: string;
-  ownerId?: string;
-  carTitle: string;
-  startDate: string;
-  endDate: string;
-  status: BookingStatus;
-  totalPrice: number;
-  message: string | null;
-};
+type RenterBooking = RenterBookingSummary;
 
 const activity = [
   {
@@ -73,69 +63,14 @@ export default function RenterDashboardPage() {
     setSuccess("");
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      if (!supabase) {
-        throw new Error(
-          "Supabase client is not configured. Check your environment variables.",
-        );
-      }
-
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw new Error(userError.message);
-      }
-
-      if (!user) {
+      const bookingRows = await getRenterBookings();
+      setBookings(bookingRows);
+    } catch (err) {
+      if (err instanceof Error && err.message === "NOT_AUTHENTICATED") {
         router.push("/login");
         return;
       }
 
-      const { data: bookingRows, error: bookingsError } = await supabase
-        .from("bookings")
-        .select(
-          "id, car_id, owner_id, renter_id, start_date, end_date, total_price, status, message, created_at",
-        )
-        .eq("renter_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (bookingsError) {
-        throw new Error(bookingsError.message);
-      }
-
-      const carIds = [...new Set((bookingRows ?? []).map((booking) => booking.car_id))];
-      const carsResult =
-        carIds.length > 0
-          ? await supabase
-              .from("cars")
-              .select("id, title")
-              .in("id", carIds)
-          : { data: [] as CarRow[], error: null };
-
-      if (carsResult.error) {
-        throw new Error(carsResult.error.message);
-      }
-
-      const carMap = new Map((carsResult.data ?? []).map((car) => [car.id, car]));
-
-      const mappedBookings: RenterBooking[] = (bookingRows ?? []).map((booking) => ({
-        id: booking.id,
-        carId: booking.car_id,
-        ownerId: booking.owner_id,
-        renterId: booking.renter_id,
-        carTitle: carMap.get(booking.car_id)?.title ?? "Unknown Vehicle",
-        startDate: booking.start_date,
-        endDate: booking.end_date,
-        status: booking.status as BookingStatus,
-        totalPrice: Number(booking.total_price),
-        message: booking.message,
-      }));
-
-      setBookings(mappedBookings);
-    } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load bookings.");
     } finally {
       setLoading(false);
@@ -159,38 +94,7 @@ export default function RenterDashboardPage() {
     setSuccess("");
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      if (!supabase) {
-        throw new Error(
-          "Supabase client is not configured. Check your environment variables.",
-        );
-      }
-
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw new Error(userError.message);
-      }
-
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-
-      const { error: updateError } = await supabase
-        .from("bookings")
-        .update({ status: "cancelled", updated_at: new Date().toISOString() })
-        .eq("id", booking.id)
-        .eq("renter_id", user.id)
-        .eq("status", "pending");
-
-      if (updateError) {
-        throw new Error(updateError.message);
-      }
-
+      await cancelRenterBooking(booking.id);
       setSuccess("Booking cancelled successfully.");
       await loadBookings();
     } catch (err) {
@@ -238,7 +142,7 @@ export default function RenterDashboardPage() {
         {!loading && !error && (
           <>
             {/* Pending requests */}
-            <Card className="bg-white">
+            <Card className="bg-white dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Pending Requests</CardTitle>
                 <CardDescription>
@@ -281,7 +185,7 @@ export default function RenterDashboardPage() {
             </Card>
 
             {/* Approved / Active bookings */}
-            <Card className="bg-white">
+            <Card className="bg-white dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Approved Bookings</CardTitle>
                 <CardDescription>
@@ -311,7 +215,7 @@ export default function RenterDashboardPage() {
             </Card>
 
             {/* Past bookings */}
-            <Card className="bg-white">
+            <Card className="bg-white dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Past Bookings</CardTitle>
                 <CardDescription>

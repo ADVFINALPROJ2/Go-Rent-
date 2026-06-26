@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 :root {
-  --radius: 0.5rem;
-  --background: #f8fbff;
+  --radius: 0.75rem;
+  --background: #f7fafc;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
@@ -19,6 +21,27 @@
   --destructive: #b42318;
   --border: #dbe7f1;
   --input: #dbe7f1;
+  --ring: #38bdf8;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f8fafc;
+  --card: #111113;
+  --card-foreground: #f8fafc;
+  --popover: #111113;
+  --popover-foreground: #f8fafc;
+  --primary: #0ea5e9;
+  --primary-foreground: #f8fafc;
+  --secondary: #082f49;
+  --secondary-foreground: #e0f2fe;
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  --accent: #0c4a6e;
+  --accent-foreground: #e0f2fe;
+  --destructive: #f87171;
+  --border: #27272a;
+  --input: #3f3f46;
   --ring: #38bdf8;
 }
 
@@ -55,10 +78,18 @@
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 32rem),
-    linear-gradient(180deg, #ffffff 0%, var(--background) 42rem);
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.14), transparent 30rem),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 28rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--card) 88%, transparent) 0%, var(--background) 42rem);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 30rem),
+    radial-gradient(circle at top right, rgba(15, 23, 42, 0.85), transparent 26rem),
+    linear-gradient(180deg, #09090b 0%, #0f172a 48rem, #09090b 100%);
 }
 
 a,

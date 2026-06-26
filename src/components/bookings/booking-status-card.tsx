@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ReviewForm } from "@/components/reviews/review-form";
-import type { BookingStatus } from "@/lib/supabase/types";
+import type { BookingStatus } from "@/lib/local-types";
 import { cn } from "@/lib/utils";
 
 type BookingStatusCardProps = {
@@ -116,7 +116,7 @@ export function BookingStatusCard({
         </div>
 
         {(renterName || renterEmail || message) && (
-          <div className="rounded-md border bg-muted/30 p-3 text-sm">
+        <div className="rounded-xl border bg-muted/30 p-3 text-sm dark:border-zinc-800">
             {renterName && (
               <p className="font-medium text-foreground">Renter: {renterName}</p>
             )}
@@ -163,7 +163,7 @@ export function BookingStatusCard({
                     setHasReviewed(true);
                     setIsReviewOpen(false);
                   }}
-                  className="border-0 bg-slate-50/50 p-0 shadow-none dark:bg-slate-900/50"
+                  className="border-0 bg-slate-50/50 p-0 shadow-none dark:bg-zinc-900/50"
                 />
               </div>
             )}
@@ -171,7 +171,7 @@ export function BookingStatusCard({
         )}
 
         {hasReviewed && (
-          <div className="flex items-center gap-1.5 border-t pt-3 text-xs font-semibold text-green-600 dark:text-green-400">
+          <div className="flex items-center gap-1.5 border-t pt-3 text-xs font-semibold text-green-600 dark:border-zinc-800 dark:text-green-400">
             ✓ Review submitted successfully!
           </div>
         )}
@@ -179,3 +179,4 @@ export function BookingStatusCard({
     </Card>
   );
 }
+

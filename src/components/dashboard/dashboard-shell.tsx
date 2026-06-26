@@ -36,7 +36,7 @@ export function DashboardShell({
 }: DashboardShellProps) {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+      <div className="rounded-2xl border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-[linear-gradient(135deg,#111113,#0f172a)] sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <PageHeading eyebrow={eyebrow} title={title} description={description} />
           {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
@@ -45,7 +45,7 @@ export function DashboardShell({
 
       {sidebar ? (
         <div className="grid gap-6 lg:grid-cols-[240px_1fr] lg:items-start">
-          <aside className="rounded-lg border bg-card p-3">{sidebar}</aside>
+          <aside className="rounded-xl border bg-card p-3">{sidebar}</aside>
           <div className="min-w-0">{children}</div>
         </div>
       ) : (
@@ -65,7 +65,7 @@ export function DashboardStatGrid({
   return (
     <section className={cn("grid gap-4 md:grid-cols-3", className)}>
       {stats.map((stat) => (
-        <Card className="bg-white" key={stat.label}>
+        <Card className="bg-white transition-transform hover:-translate-y-1 dark:bg-zinc-950" key={stat.label}>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="text-base">{stat.label}</CardTitle>
@@ -73,12 +73,12 @@ export function DashboardStatGrid({
                 <CardDescription className="mt-1">{stat.description}</CardDescription>
               ) : null}
             </div>
-            <div className="flex size-10 items-center justify-center rounded-lg bg-sky-50 text-primary">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
               {stat.icon}
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-slate-950">{stat.value}</p>
+            <p className="text-3xl font-black text-slate-950 dark:text-white">{stat.value}</p>
           </CardContent>
         </Card>
       ))}
@@ -100,9 +100,9 @@ export function DashboardEmptyState({
   className?: string;
 }) {
   return (
-    <Card className={cn("border-dashed border-sky-200 bg-sky-50/40", className)}>
+    <Card className={cn("border-dashed border-sky-200 bg-sky-50/40 dark:border-zinc-700 dark:bg-zinc-900/50", className)}>
       <CardContent className="flex flex-col items-center gap-4 px-6 py-12 text-center">
-        <div className="flex size-14 items-center justify-center rounded-lg bg-white text-primary shadow-sm">
+        <div className="flex size-14 items-center justify-center rounded-xl bg-white text-primary shadow-sm dark:bg-zinc-950">
           {icon}
         </div>
         <div>

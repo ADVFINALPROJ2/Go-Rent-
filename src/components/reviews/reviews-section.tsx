@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, Loader2, MessageSquareText, Star } from "lucide-react";
+import { Loader2, MessageSquareText, Star } from "lucide-react";
 
 import { ReviewForm } from "@/components/reviews/review-form";
 import { AlertBanner } from "@/components/ui/alert-banner";
@@ -13,20 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/types";
+import {
+  getCarReviews,
+  type ReviewWithProfile,
+} from "@/lib/actions/reviews";
 import { cn } from "@/lib/utils";
-
-type ReviewRow = Database["public"]["Tables"]["reviews"]["Row"];
-type ProfileRow = Pick<
-  Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "avatar_url"
->;
-
-type ReviewWithProfile = ReviewRow & {
-  reviewerName: string;
-  reviewerAvatarUrl: string | null;
-};
 
 type ReviewFormConfig = {
   bookingId: string;
@@ -47,10 +38,6 @@ function formatReviewDate(value: string) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(value));
-}
-
-function getReviewerFallback(renterId: string) {
-  return renterId ? `Renter ${renterId.slice(0, 8)}` : "Verified renter";
 }
 
 function RatingStars({
@@ -82,63 +69,23 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<ReviewWithProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [setupMessage, setSetupMessage] = useState<string | null>(null);
 
   const loadReviews = useCallback(async () => {
-    const supabase = createSupabaseBrowserClient();
-
-    if (!supabase) {
-      setReviews([]);
-      setError(null);
-      setSetupMessage(
-        "Supabase is not configured, so live reviews cannot be loaded in this environment.",
-      );
-      setIsLoading(false);
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
-    setSetupMessage(null);
 
-    const { data, error: reviewsError } = await supabase
-      .from("reviews")
-      .select("id, booking_id, car_id, renter_id, owner_id, rating, comment, created_at")
-      .eq("car_id", carId)
-      .order("created_at", { ascending: false });
-
-    if (reviewsError) {
+    try {
+      setReviews(await getCarReviews(carId));
+    } catch (err) {
       setReviews([]);
-      setError(`Reviews could not be loaded: ${reviewsError.message}`);
+      setError(
+        err instanceof Error
+          ? `Reviews could not be loaded: ${err.message}`
+          : "Reviews could not be loaded.",
+      );
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const reviewRows = data ?? [];
-    const renterIds = Array.from(new Set(reviewRows.map((review) => review.renter_id)));
-    let profileMap = new Map<string, ProfileRow>();
-
-    if (renterIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", renterIds);
-
-      profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
-    }
-
-    setReviews(
-      reviewRows.map((review) => {
-        const profile = profileMap.get(review.renter_id);
-
-        return {
-          ...review,
-          reviewerName: profile?.full_name || getReviewerFallback(review.renter_id),
-          reviewerAvatarUrl: profile?.avatar_url ?? null,
-        };
-      }),
-    );
-    setIsLoading(false);
   }, [carId]);
 
   useEffect(() => {
@@ -162,22 +109,22 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
     <div id="reviews-section" className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h3 className="text-xl font-bold text-slate-950">Reviews & Ratings</h3>
-          <p className="text-sm text-slate-500">
+          <h3 className="text-xl font-black text-slate-950 dark:text-white">Reviews & Ratings</h3>
+          <p className="text-sm text-slate-500 dark:text-zinc-400">
             Read feedback from previous renters or submit your own.
           </p>
         </div>
 
-        <Card className="border-sky-100 bg-sky-50/70 shadow-sm sm:min-w-56">
+        <Card className="border-sky-100 bg-sky-50/70 shadow-sm dark:border-sky-900 dark:bg-sky-950/30 sm:min-w-56">
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex size-11 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-white text-amber-500 shadow-sm dark:bg-zinc-950">
               <Star className="size-5 fill-amber-400 stroke-amber-400" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-950">
+              <p className="text-2xl font-bold text-slate-950 dark:text-white">
                 {reviews.length > 0 ? averageRating.toFixed(1) : "No"}
               </p>
-              <p className="text-xs font-medium text-slate-500">
+              <p className="text-xs font-medium text-slate-500 dark:text-zinc-400">
                 {reviews.length === 0
                   ? "reviews yet"
                   : `${reviews.length} review${reviews.length === 1 ? "" : "s"}`}
@@ -186,13 +133,6 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
           </CardContent>
         </Card>
       </div>
-
-      {setupMessage && (
-        <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50/70 p-3.5 text-sm text-amber-800">
-          <AlertCircle className="size-5 shrink-0 text-amber-600" aria-hidden="true" />
-          <span>{setupMessage}</span>
-        </div>
-      )}
 
       {error && (
         <div className="space-y-3">
@@ -204,8 +144,8 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
       )}
 
       {isLoading ? (
-        <Card className="border-slate-200 bg-white shadow-sm">
-          <CardContent className="flex items-center gap-3 p-5 text-sm text-slate-500">
+        <Card className="border-slate-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+          <CardContent className="flex items-center gap-3 p-5 text-sm text-slate-500 dark:text-zinc-400">
             <Loader2 className="size-4 animate-spin text-primary" aria-hidden="true" />
             Loading reviews...
           </CardContent>
@@ -213,14 +153,14 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
       ) : null}
 
       {!isLoading && !error && reviews.length === 0 ? (
-        <Card className="border-dashed border-slate-200 bg-white/80 shadow-sm">
+        <Card className="border-dashed border-slate-200 bg-white/80 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <CardContent className="flex items-start gap-3 p-5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sky-50 text-primary">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
               <MessageSquareText className="size-5" aria-hidden="true" />
             </div>
             <div>
-              <p className="font-semibold text-slate-900">No reviews yet</p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="font-semibold text-slate-900 dark:text-white">No reviews yet</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">
                 Completed renters can leave the first review for this car.
               </p>
             </div>
@@ -230,20 +170,20 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
 
       {!isLoading && !error && reviews.length > 0 ? (
         <div className="space-y-3">
-          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             <RatingStars rating={averageRating} size="md" />
-            <span className="text-sm font-semibold text-slate-800">
+            <span className="text-sm font-semibold text-slate-800 dark:text-white">
               {averageRating.toFixed(1)} average from {reviews.length} review
               {reviews.length === 1 ? "" : "s"}
             </span>
           </div>
 
           {reviews.map((review) => (
-            <Card key={review.id} className="border-slate-200 bg-white shadow-sm">
+            <Card key={review.id} className="border-slate-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <CardHeader className="space-y-2 pb-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-sm font-bold text-primary">
+                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-sm font-bold text-primary dark:bg-sky-950">
                       {review.reviewerAvatarUrl ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
@@ -256,7 +196,7 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
                       )}
                     </div>
                     <div>
-                      <CardTitle className="text-base text-slate-950">
+                      <CardTitle className="text-base text-slate-950 dark:text-white">
                         {review.reviewerName}
                       </CardTitle>
                       <CardDescription>{formatReviewDate(review.created_at)}</CardDescription>
@@ -266,7 +206,7 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-6 text-slate-600">
+                <p className="text-sm leading-6 text-slate-600 dark:text-zinc-300">
                   {review.comment || "This renter left a rating without a written comment."}
                 </p>
               </CardContent>

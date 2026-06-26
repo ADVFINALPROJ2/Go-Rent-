@@ -1,24 +1,16 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
-
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { ProfileRole } from "@/lib/supabase/types";
+import type { SessionUser } from "@/lib/auth/session";
 
 type RouterLike = {
   push: (href: string) => void;
 };
 
-type SupabaseBrowserClient = NonNullable<
-  ReturnType<typeof createSupabaseBrowserClient>
->;
-
 type OwnerSession = {
-  supabase: SupabaseBrowserClient;
-  user: User;
+  user: SessionUser;
 };
 
-function dashboardForRole(role: ProfileRole | null | undefined) {
+function dashboardForRole(role: SessionUser["role"] | null | undefined) {
   if (role === "admin") {
     return "/admin/dashboard";
   }
@@ -33,42 +25,26 @@ function dashboardForRole(role: ProfileRole | null | undefined) {
 export async function requireOwnerSession(
   router: RouterLike,
 ): Promise<OwnerSession | null> {
-  const supabase = createSupabaseBrowserClient();
+  const response = await fetch("/api/auth/me", {
+    cache: "no-store",
+    credentials: "include",
+  });
 
-  if (!supabase) {
-    throw new Error(
-      "Supabase client is not configured. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-    );
+  if (!response.ok) {
+    throw new Error("Could not verify your session.");
   }
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    throw new Error(userError.message);
-  }
+  const { user } = (await response.json()) as { user: SessionUser | null };
 
   if (!user) {
     router.push("/login");
     return null;
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role, account_status")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profileError) {
-    throw new Error(profileError.message);
-  }
-
-  if (profile?.role !== "owner" || profile.account_status !== "active") {
-    router.push(dashboardForRole(profile?.role));
+  if (user.role !== "owner" || user.status !== "active") {
+    router.push(dashboardForRole(user.role));
     return null;
   }
 
-  return { supabase, user };
+  return { user };
 }
