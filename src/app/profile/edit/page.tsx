@@ -143,7 +143,7 @@ export default function EditProfilePage() {
 
   return (
     <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
-      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+      <div className="rounded-2xl border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-[linear-gradient(135deg,#111113,#0f172a)] sm:p-7">
         <PageHeading
           eyebrow="Edit Profile"
           title="Update your account details."
@@ -151,9 +151,9 @@ export default function EditProfilePage() {
         />
       </div>
 
-      <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+      <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
         <CardHeader>
-          <div className="flex size-12 items-center justify-center rounded-lg bg-sky-50 text-primary">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
             <UserRound className="size-6" aria-hidden="true" />
           </div>
           <CardTitle>Profile details</CardTitle>

@@ -142,7 +142,7 @@ export default function RenterDashboardPage() {
         {!loading && !error && (
           <>
             {/* Pending requests */}
-            <Card className="bg-white">
+            <Card className="bg-white dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Pending Requests</CardTitle>
                 <CardDescription>
@@ -185,7 +185,7 @@ export default function RenterDashboardPage() {
             </Card>
 
             {/* Approved / Active bookings */}
-            <Card className="bg-white">
+            <Card className="bg-white dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Approved Bookings</CardTitle>
                 <CardDescription>
@@ -215,7 +215,7 @@ export default function RenterDashboardPage() {
             </Card>
 
             {/* Past bookings */}
-            <Card className="bg-white">
+            <Card className="bg-white dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Past Bookings</CardTitle>
                 <CardDescription>

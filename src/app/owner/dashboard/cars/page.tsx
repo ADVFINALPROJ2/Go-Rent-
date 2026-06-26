@@ -103,7 +103,7 @@ export default function OwnerCarsPage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="rounded-lg border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 sm:p-7">
+      <div className="rounded-2xl border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-[linear-gradient(135deg,#111113,#0f172a)] sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <PageHeading
             eyebrow="My cars"
@@ -128,8 +128,8 @@ export default function OwnerCarsPage() {
 
       {/* Empty state */}
       {cars.length === 0 && !error && (
-        <Card className="flex flex-col items-center justify-center border-dashed border-sky-200 bg-sky-50/40 py-16 text-center">
-          <div className="flex size-14 items-center justify-center rounded-lg bg-white text-primary shadow-sm">
+        <Card className="flex flex-col items-center justify-center border-dashed border-sky-200 bg-sky-50/40 py-16 text-center dark:border-zinc-700 dark:bg-zinc-900/50">
+          <div className="flex size-14 items-center justify-center rounded-xl bg-white text-primary shadow-sm dark:bg-zinc-950">
             <Car className="size-7" aria-hidden="true" />
           </div>
           <CardHeader>

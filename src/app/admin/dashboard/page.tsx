@@ -147,10 +147,10 @@ function UsersTable({ users }: { users: UserRecord[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200">
+    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-zinc-800">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+          <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-zinc-900 dark:text-zinc-400">
             <tr>
               <th className="px-4 py-3 font-semibold">User</th>
               <th className="px-4 py-3 font-semibold">Email</th>
@@ -160,16 +160,16 @@ function UsersTable({ users }: { users: UserRecord[] }) {
               <th className="px-4 py-3 font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-slate-100 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
             {users.map((user) => (
               <tr key={user.id} className="align-top">
                 <td className="px-4 py-3">
-                  <p className="font-semibold text-slate-950">
+                  <p className="font-semibold text-slate-950 dark:text-white">
                     {user.full_name || "Unnamed user"}
                   </p>
                   <p className="mt-1 max-w-44 truncate text-xs text-slate-500">{user.id}</p>
                 </td>
-                <td className="px-4 py-3 text-slate-600">
+                <td className="px-4 py-3 text-slate-600 dark:text-zinc-300">
                   {user.email || "No email recorded"}
                 </td>
                 <td className="px-4 py-3">
@@ -180,7 +180,7 @@ function UsersTable({ users }: { users: UserRecord[] }) {
                     {user.account_status}
                   </StatusBadge>
                 </td>
-                <td className="px-4 py-3 text-slate-600">{formatDate(user.created_at)}</td>
+                <td className="px-4 py-3 text-slate-600 dark:text-zinc-300">{formatDate(user.created_at)}</td>
                 <td className="px-4 py-3">
                   <Button size="sm" variant="outline" disabled>
                     View user
@@ -207,10 +207,10 @@ function ListingsTable({ listings }: { listings: ListingRecord[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200">
+    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-zinc-800">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[820px] text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+          <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-zinc-900 dark:text-zinc-400">
             <tr>
               <th className="px-4 py-3 font-semibold">Listing</th>
               <th className="px-4 py-3 font-semibold">Owner</th>
@@ -221,18 +221,18 @@ function ListingsTable({ listings }: { listings: ListingRecord[] }) {
               <th className="px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-slate-100 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
             {listings.map((listing) => (
               <tr key={listing.id} className="align-top">
                 <td className="px-4 py-3">
-                  <p className="font-semibold text-slate-950">
+                  <p className="font-semibold text-slate-950 dark:text-white">
                     {listing.make} {listing.model}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">{listing.title}</p>
                 </td>
-                <td className="px-4 py-3 text-slate-600">{listing.ownerName}</td>
-                <td className="px-4 py-3 text-slate-600">{listing.location}</td>
-                <td className="px-4 py-3 font-semibold text-slate-950">
+                <td className="px-4 py-3 text-slate-600 dark:text-zinc-300">{listing.ownerName}</td>
+                <td className="px-4 py-3 text-slate-600 dark:text-zinc-300">{listing.location}</td>
+                <td className="px-4 py-3 font-semibold text-slate-950 dark:text-white">
                   {formatCurrency(Number(listing.daily_rate))}
                 </td>
                 <td className="px-4 py-3">
@@ -240,7 +240,7 @@ function ListingsTable({ listings }: { listings: ListingRecord[] }) {
                     {listing.status}
                   </StatusBadge>
                 </td>
-                <td className="px-4 py-3 text-slate-600">{formatDate(listing.created_at)}</td>
+                <td className="px-4 py-3 text-slate-600 dark:text-zinc-300">{formatDate(listing.created_at)}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" asChild>
@@ -362,7 +362,7 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-6">
         <DashboardStatGrid stats={metrics} />
 
-        <Card className="bg-white shadow-sm">
+        <Card className="bg-white shadow-sm dark:bg-zinc-950">
           <CardHeader>
             <CardTitle>User management</CardTitle>
             <CardDescription>
@@ -374,7 +374,7 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white shadow-sm">
+        <Card className="bg-white shadow-sm dark:bg-zinc-950">
           <CardHeader>
             <CardTitle>Listing management</CardTitle>
             <CardDescription>

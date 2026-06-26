@@ -177,7 +177,7 @@ export default function OwnerDashboardPage() {
 
         {!loading && !error && (
           <>
-            <Card>
+            <Card className="dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Incoming Requests</CardTitle>
                 <CardDescription>
@@ -230,7 +230,7 @@ export default function OwnerDashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Approved Bookings</CardTitle>
                 <CardDescription>
@@ -270,7 +270,7 @@ export default function OwnerDashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="dark:bg-zinc-950">
               <CardHeader>
                 <CardTitle>Past Bookings</CardTitle>
                 <CardDescription>

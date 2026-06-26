@@ -283,7 +283,7 @@ export function MessagesClient() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-      <Card className="overflow-hidden bg-white">
+      <Card className="overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader>
           <CardTitle>Conversations</CardTitle>
           <CardDescription>
@@ -297,8 +297,8 @@ export function MessagesClient() {
             return (
               <button
                 className={cn(
-                  "rounded-lg border p-3 text-left transition-colors hover:border-sky-200 hover:bg-sky-50",
-                  isSelected && "border-primary bg-sky-50",
+                  "rounded-xl border p-3 text-left transition-colors hover:border-sky-200 hover:bg-sky-50 dark:border-zinc-800 dark:hover:bg-zinc-900",
+                  isSelected && "border-primary bg-sky-50 dark:bg-sky-950/40",
                 )}
                 key={conversation.key}
                 onClick={() => {
@@ -335,10 +335,10 @@ export function MessagesClient() {
         </CardContent>
       </Card>
 
-      <Card className="min-w-0 bg-white">
+      <Card className="min-w-0 bg-white dark:bg-zinc-950">
         {selectedConversation ? (
           <>
-            <CardHeader className="border-b">
+            <CardHeader className="border-b dark:border-zinc-800">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <CardTitle>{selectedConversation.otherUserName}</CardTitle>
@@ -390,7 +390,7 @@ export function MessagesClient() {
                           "max-w-[82%] rounded-lg px-4 py-3 text-sm shadow-sm",
                           isSent
                             ? "bg-primary text-primary-foreground"
-                            : "border bg-muted/40 text-foreground",
+                            : "border bg-muted/40 text-foreground dark:border-zinc-800",
                         )}
                       >
                         <p className="whitespace-pre-wrap">{message.body}</p>
@@ -410,7 +410,7 @@ export function MessagesClient() {
                 })}
               </div>
 
-              <div className="grid gap-3 border-t pt-4">
+              <div className="grid gap-3 border-t pt-4 dark:border-zinc-800">
                 <Textarea
                   value={replyBody}
                   onChange={(event) => setReplyBody(event.target.value)}
