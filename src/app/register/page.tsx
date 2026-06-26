@@ -129,7 +129,9 @@ export default function RegisterPage() {
                 <UserPlus className="size-5" aria-hidden="true" />
               </div>
               <CardTitle className="text-2xl">Create your account</CardTitle>
-              <CardDescription>Join as a renter or start listing cars as an owner.</CardDescription>
+              <CardDescription>
+                Join as a renter or start listing cars as an Addis owner.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form className="grid gap-5" onSubmit={handleSubmit} noValidate>
@@ -151,7 +153,7 @@ export default function RegisterPage() {
                   <Input
                     id="fullName"
                     name="fullName"
-                    placeholder="Alex Johnson"
+                    placeholder="Dagi Tesfaye"
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
                     aria-invalid={Boolean(errors.fullName)}
@@ -169,7 +171,7 @@ export default function RegisterPage() {
                   <Input
                     id="email"
                     name="email"
-                    placeholder="alex@example.com"
+                    placeholder="dagi@example.com"
                     type="email"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
@@ -240,8 +242,8 @@ export default function RegisterPage() {
                         <span className="block font-medium capitalize">{option}</span>
                         <span className="mt-1 block text-sm text-muted-foreground">
                           {option === "renter"
-                            ? "Browse cars and request bookings."
-                            : "List vehicles and manage requests."}
+                            ? "Browse Addis cars and request bookings."
+                            : "List vehicles and manage local requests."}
                         </span>
                       </button>
                     ))}
@@ -270,19 +272,19 @@ export default function RegisterPage() {
               Start with GoRent
             </p>
             <h1 className="text-4xl font-black leading-tight text-slate-950 dark:text-white sm:text-6xl">
-              Your journey starts with the right account.
+              Your Addis rental journey starts with the right account.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-slate-600 dark:text-zinc-300">
               Register once, then rent cars for everyday trips or list your own vehicle for local
-              renters.
+              renters across Addis Ababa.
             </p>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {[
-              ["Verified profiles", "Profile records connect to local auth."],
+              ["Verified local owners", "Profiles help renters choose trusted Addis hosts."],
               ["Owner ready", "Save your role for future listing workflows."],
-              ["Simple access", "Responsive forms for mobile and desktop."],
+              ["Transparent Birr pricing", "Local prices stay clear for mobile and desktop."],
             ].map(([title, description]) => (
               <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950" key={title}>
                 <ShieldCheck className="mb-4 size-6 text-primary" aria-hidden="true" />

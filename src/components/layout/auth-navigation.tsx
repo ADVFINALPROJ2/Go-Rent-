@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LogIn, LogOut, UserCircle, UserPlus } from "lucide-react";
+import { LogIn, LogOut, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -9,17 +9,26 @@ import { Button } from "@/components/ui/button";
 import { logoutLocalUser } from "@/app/auth/actions";
 import { authNavigation } from "@/lib/routes";
 import type { SessionUser } from "@/lib/auth/session";
+import { cn } from "@/lib/utils";
 
-export function AuthNavigation() {
+type NavigationUser = SessionUser & {
+  fullName?: string | null;
+};
+
+type AuthNavigationProps = {
+  className?: string;
+};
+
+export function AuthNavigation({ className }: AuthNavigationProps) {
   const router = useRouter();
-  const [user, setUser] = useState<SessionUser | null>(null);
+  const [user, setUser] = useState<NavigationUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((response) => response.json())
-      .then((data: { user: SessionUser | null }) => {
+      .then((data: { user: NavigationUser | null }) => {
         setUser(data.user);
       })
       .catch(() => setUser(null))
@@ -36,16 +45,39 @@ export function AuthNavigation() {
   }
 
   if (isLoading) {
-    return <div className="h-9 w-36" aria-hidden="true" />;
+    return <div className={cn("h-9 w-36", className)} aria-hidden="true" />;
   }
 
   if (user) {
+    const dashboardHref =
+      user.role === "admin"
+        ? "/admin/dashboard"
+        : user.role === "owner"
+          ? "/owner/dashboard"
+          : "/renter/dashboard";
+    const displayName = user.fullName || user.email;
+    const initials = displayName
+      .split(/[ @]/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("");
+
     return (
-      <div className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-          <Link href={user.role === "admin" ? "/admin/dashboard" : user.role === "owner" ? "/owner/dashboard" : "/renter/dashboard"}>
-            <UserCircle aria-hidden="true" />
-            <span className="capitalize">{user.role}</span>
+      <div className={cn("flex items-center gap-2", className)}>
+        <Button asChild variant="ghost" size="sm" className="h-auto gap-2 px-2 py-1.5">
+          <Link href={dashboardHref}>
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-xs font-black text-primary dark:bg-sky-950">
+              {initials || "GR"}
+            </span>
+            <span className="hidden text-left leading-tight sm:block">
+              <span className="block max-w-28 truncate text-xs font-bold text-slate-950 dark:text-white">
+                {displayName}
+              </span>
+              <span className="block text-[0.68rem] font-semibold capitalize text-slate-500 dark:text-zinc-400">
+                {user.role}
+              </span>
+            </span>
           </Link>
         </Button>
         <Button
@@ -63,7 +95,7 @@ export function AuthNavigation() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn("flex items-center gap-2", className)}>
       <Button asChild variant="ghost" size="sm">
         <Link href={authNavigation[0].href}>
           <LogIn aria-hidden="true" />

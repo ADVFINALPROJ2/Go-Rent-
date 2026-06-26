@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { CarCard } from "@/components/cars/car-card";
 import { fetchAvailableCars, type CarRow } from "@/lib/cars/queries";
+import { ADDIS_AREAS } from "@/lib/utils";
 
 type AppliedFilters = {
   location: string;
@@ -131,16 +132,16 @@ export function BrowseCarsClient() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="size-5 text-primary" aria-hidden="true" />
-            Find a car
+            Find a car in Addis
           </CardTitle>
           <CardDescription>
-            Filter available listings by location and daily price range.
+            Filter available listings by Addis pickup area and price in Birr.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form className="grid gap-3 lg:grid-cols-[1fr_160px_160px_auto]" onSubmit={handleFilterSubmit}>
             <label className="grid gap-2 text-sm font-medium" htmlFor="location-search">
-              Location
+              Addis pickup area
               <div className="relative">
                 <Search
                   className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -149,7 +150,7 @@ export function BrowseCarsClient() {
                 <Input
                   id="location-search"
                   className="h-11 pl-9"
-                  placeholder="Search by city or area"
+                  placeholder="Bole, Piassa, CMC..."
                   value={location}
                   onChange={(event) => setLocation(event.target.value)}
                 />
@@ -157,12 +158,12 @@ export function BrowseCarsClient() {
             </label>
 
             <label className="grid gap-2 text-sm font-medium" htmlFor="min-price">
-              Min price
+              Min price in Birr
               <Input
                 id="min-price"
                 className="h-11"
                 min="0"
-                placeholder="0"
+                placeholder="1800"
                 type="number"
                 value={minPrice}
                 onChange={(event) => setMinPrice(event.target.value)}
@@ -170,12 +171,12 @@ export function BrowseCarsClient() {
             </label>
 
             <label className="grid gap-2 text-sm font-medium" htmlFor="max-price">
-              Max price
+              Max price in Birr
               <Input
                 id="max-price"
                 className="h-11"
                 min="0"
-                placeholder="150"
+                placeholder="7500"
                 type="number"
                 value={maxPrice}
                 onChange={(event) => setMaxPrice(event.target.value)}
@@ -199,6 +200,18 @@ export function BrowseCarsClient() {
               ) : null}
             </div>
           </form>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {ADDIS_AREAS.slice(0, 8).map((area) => (
+              <button
+                className="rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-bold text-primary transition-colors hover:bg-sky-100 dark:border-sky-900 dark:bg-sky-950/50 dark:hover:bg-sky-950"
+                key={area}
+                type="button"
+                onClick={() => setLocation(area)}
+              >
+                {area}
+              </button>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
@@ -206,7 +219,7 @@ export function BrowseCarsClient() {
         <div>
           <h2 className="text-2xl font-black text-slate-950 dark:text-white">Available listings</h2>
           <p className="text-sm text-slate-500 dark:text-zinc-400">
-            Browse cars from local owners and open a card to view details.
+            Browse cars from verified local owners and open a card to view details.
           </p>
         </div>
         {!isLoading && !error ? (
@@ -260,7 +273,7 @@ export function BrowseCarsClient() {
               <CardTitle>{resultsLabel}</CardTitle>
               <CardDescription className="mt-2">
                 {hasActiveFilters
-                  ? "Try a different location or price range."
+                  ? "Try a different Addis area or Birr price range."
                   : "Check back soon for new listings from local owners."}
               </CardDescription>
             </div>

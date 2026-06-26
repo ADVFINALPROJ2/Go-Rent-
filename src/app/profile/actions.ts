@@ -31,6 +31,8 @@ export type UpdateProfileResult = {
   error?: string;
 };
 
+const ethiopianPhonePattern = /^(\+251\s?9\d{2}\s?\d{3}\s?\d{3}|09\d{8})$/;
+
 function mapProfileData(input: {
   user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
   profile: typeof profiles.$inferSelect;
@@ -108,6 +110,13 @@ export async function updateProfile(
 
   if (!fullName) {
     return { success: false, error: "Full name is required." };
+  }
+
+  if (phone && !ethiopianPhonePattern.test(phone)) {
+    return {
+      success: false,
+      error: "Phone format must be +251 9XX XXX XXX or 09XX XXX XXX.",
+    };
   }
 
   const role: Extract<UserRole, "renter" | "owner"> =

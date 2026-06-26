@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { CalendarDays, DollarSign } from "lucide-react";
+import { Banknote, CalendarDays } from "lucide-react";
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { ReviewForm } from "@/components/reviews/review-form";
 import type { BookingStatus } from "@/lib/local-types";
-import { cn } from "@/lib/utils";
+import { cn, formatBirr } from "@/lib/utils";
 
 type BookingStatusCardProps = {
   bookingId?: string;
@@ -33,13 +33,6 @@ type BookingStatusCardProps = {
   renterEmail?: string | null;
   message?: string | null;
 };
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-}
 
 function formatDateRange(startDate: string, endDate: string) {
   const options: Intl.DateTimeFormatOptions = {
@@ -110,8 +103,8 @@ export function BookingStatusCard({
             {formatDateRange(startDate, endDate)}
           </p>
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <DollarSign className="size-4 shrink-0" aria-hidden="true" />
-            {formatCurrency(totalPrice)}
+            <Banknote className="size-4 shrink-0" aria-hidden="true" />
+            {formatBirr(totalPrice, "ETB")}
           </p>
         </div>
 

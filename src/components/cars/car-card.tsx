@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { Database } from "@/lib/local-types";
+import { formatBirr } from "@/lib/utils";
 
 type CarRow = Database["public"]["Tables"]["cars"]["Row"];
 type CarCardStatus = CarRow["status"];
@@ -43,13 +44,6 @@ const STATUS_VARIANTS: Record<
   rented: "warning",
   archived: "muted",
 };
-
-function formatDailyRate(rate: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(Number(rate));
-}
 
 function StatusBadge({ status }: { status: CarCardStatus }) {
   return (
@@ -113,7 +107,7 @@ export function CarCard({
         ) : null}
         <div className="absolute bottom-3 left-3 rounded-xl bg-white/95 px-3 py-2 shadow-sm backdrop-blur dark:bg-zinc-950/90">
           <p className="text-base font-bold text-primary">
-            {formatDailyRate(dailyRate)}
+            {formatBirr(dailyRate)}
             <span className="text-xs font-medium text-slate-500 dark:text-zinc-400">/day</span>
           </p>
         </div>

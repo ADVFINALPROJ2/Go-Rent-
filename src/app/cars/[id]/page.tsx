@@ -11,17 +11,11 @@ import { db } from "@/db/client";
 import { bookings } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { fetchAvailableCarById } from "@/lib/cars/queries";
+import { formatBirr } from "@/lib/utils";
 
 type CarDetailsPageProps = {
   params: Promise<{ id: string }>;
 };
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-}
 
 export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
   const { id } = await params;
@@ -120,7 +114,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             </span>
           </div>
           <PageHeading
-            eyebrow={`Daily rate: ${formatCurrency(car.daily_rate)}`}
+            eyebrow={`Daily rate: ${formatBirr(car.daily_rate, "ETB")}`}
             title={car.title}
             description={car.description || "No description provided."}
           />
@@ -128,15 +122,15 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
             <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <MapPin className="size-5 text-primary" aria-hidden="true" />
               <div>
-                <p className="text-xs font-semibold uppercase text-slate-500 dark:text-zinc-500">Pickup area</p>
+                <p className="text-xs font-semibold uppercase text-slate-500 dark:text-zinc-500">Addis pickup area</p>
                 <p className="text-sm font-bold text-slate-950 dark:text-white">{car.location}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <Sparkles className="size-5 text-primary" aria-hidden="true" />
               <div>
-                <p className="text-xs font-semibold uppercase text-slate-500 dark:text-zinc-500">Price per day</p>
-                <p className="text-sm font-bold text-slate-950 dark:text-white">{formatCurrency(car.daily_rate)}</p>
+                <p className="text-xs font-semibold uppercase text-slate-500 dark:text-zinc-500">Price in Birr</p>
+                <p className="text-sm font-bold text-slate-950 dark:text-white">{formatBirr(car.daily_rate, "day")}</p>
               </div>
             </div>
           </div>
@@ -189,7 +183,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
           <Card className="border border-sky-100 bg-sky-50/50 dark:border-sky-900 dark:bg-sky-950/20">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-bold">Hosted by {car.owner.full_name}</CardTitle>
-              <CardDescription>Based in {car.owner.location || "Unknown location"}</CardDescription>
+              <CardDescription>Based in {car.owner.location || "Addis Ababa"}</CardDescription>
             </CardHeader>
           </Card>
         )}
@@ -213,7 +207,7 @@ export default async function CarDetailsPage({ params }: CarDetailsPageProps) {
         <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
           <CardHeader>
             <CardTitle className="text-3xl text-primary">
-              {formatCurrency(car.daily_rate)}
+              {formatBirr(car.daily_rate)}
               <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">/day</span>
             </CardTitle>
             <CardDescription>

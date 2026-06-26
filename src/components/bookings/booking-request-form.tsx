@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createBookingRequest } from "@/lib/actions/bookings";
+import { formatBirr } from "@/lib/utils";
 
 type BookingRequestFormProps = {
   carId: string;
@@ -45,6 +46,7 @@ function validateDates(startDate: string, endDate: string) {
 export function BookingRequestForm({
   carId,
   ownerId,
+  dailyRate,
 }: BookingRequestFormProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -99,7 +101,9 @@ export function BookingRequestForm({
     <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
       <CardHeader>
         <CardTitle>Request this rental</CardTitle>
-        <CardDescription>Choose your dates and send a note to the owner.</CardDescription>
+        <CardDescription>
+          Choose your dates and send a note to the owner. Daily rate: {formatBirr(dailyRate, "day")}.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="grid gap-4" onSubmit={handleSubmit}>
@@ -131,7 +135,7 @@ export function BookingRequestForm({
               id="booking-message"
               value={message}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder="Share pickup details or anything the owner should know."
+              placeholder="Share pickup details, preferred Addis handover area, or anything the owner should know."
               disabled={isSubmitting}
             />
           </div>

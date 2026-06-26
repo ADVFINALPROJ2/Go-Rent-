@@ -33,7 +33,7 @@ import {
 } from "@/db/schema";
 import type { AccountStatus, CarStatus, UserRole } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
-import { cn } from "@/lib/utils";
+import { cn, formatBirr } from "@/lib/utils";
 
 type UserRecord = {
   id: string;
@@ -83,13 +83,6 @@ function formatDate(value: string) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(value));
-}
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
 }
 
 function StatusBadge({
@@ -270,7 +263,7 @@ function ListingsTable({ listings }: { listings: ListingRecord[] }) {
                 <td className="px-4 py-3 text-slate-600 dark:text-zinc-300">{listing.ownerName}</td>
                 <td className="px-4 py-3 text-slate-600 dark:text-zinc-300">{listing.location}</td>
                 <td className="px-4 py-3 font-semibold text-slate-950 dark:text-white">
-                  {formatCurrency(Number(listing.daily_rate))}
+                  {formatBirr(Number(listing.daily_rate), "day")}
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge className={carStatusStyles[listing.status]}>
@@ -402,8 +395,8 @@ export default async function AdminDashboardPage() {
   return (
     <DashboardShell
       eyebrow="Admin dashboard"
-      title="Monitor users, listings, and platform quality."
-      description="Admins can review account health, listing status, and pending marketplace activity from one workspace."
+      title="Monitor Addis users, listings, and platform quality."
+      description="Admins can review account health, local listing status, and pending marketplace activity from one workspace."
     >
       <div className="grid gap-6">
         <section aria-labelledby="admin-overview-heading" className="grid gap-4">

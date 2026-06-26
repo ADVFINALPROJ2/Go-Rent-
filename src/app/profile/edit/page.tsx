@@ -177,7 +177,7 @@ export default function EditProfilePage() {
               <Input
                 id="full_name"
                 name="full_name"
-                placeholder="Alex Johnson"
+                placeholder="Dagi Tesfaye"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
@@ -189,10 +189,15 @@ export default function EditProfilePage() {
               <Input
                 id="phone"
                 name="phone"
-                placeholder="+254 700 000 000"
+                placeholder="+251 911 234 567"
+                pattern="(\+251\s?9[0-9]{2}\s?[0-9]{3}\s?[0-9]{3}|09[0-9]{8})"
+                title="Format: +251 9XX XXX XXX or 09XX XXX XXX"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                Format: +251 9XX XXX XXX or 09XX XXX XXX
+              </p>
             </div>
 
             {/* Location */}
@@ -201,7 +206,7 @@ export default function EditProfilePage() {
               <Input
                 id="location"
                 name="location"
-                placeholder="Nairobi, Kenya"
+                placeholder="Bole, Addis Ababa"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
               />

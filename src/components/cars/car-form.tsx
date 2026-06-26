@@ -24,6 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { createCar, updateCar, uploadCarImage } from "@/lib/actions/cars";
 import type { Database } from "@/lib/local-types";
+import { ADDIS_AREAS } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -81,7 +82,7 @@ function validate(fd: FormData): FormErrors {
   }
 
   const rate = Number(fd.get("daily_rate"));
-  if (!rate || rate <= 0) errors.daily_rate = "Price per day must be greater than 0.";
+  if (!rate || rate <= 0) errors.daily_rate = "Price per day in Birr must be greater than 0.";
 
   if (!(fd.get("location") as string)?.trim()) errors.location = "Location is required.";
 
@@ -211,8 +212,8 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
         <CardTitle>{mode === "create" ? "Add new car" : "Edit listing"}</CardTitle>
         <CardDescription>
           {mode === "create"
-            ? "Fill in the details below to list your vehicle on GoRent."
-            : "Update the details of your existing listing."}
+            ? "List your vehicle for Addis renters with a daily price in Ethiopian Birr."
+            : "Update your Addis pickup area, Birr pricing, and listing details."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -233,7 +234,7 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
             <Input
               id="title"
               name="title"
-              placeholder="e.g. 2022 Toyota Corolla — City Sedan"
+              placeholder="e.g. 2022 Toyota Corolla - Bole City Sedan"
               defaultValue={defaultValues?.title}
               aria-invalid={!!errors.title}
             />
@@ -283,17 +284,18 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
           {/* ---- Price / Location row ---- */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="daily_rate">Price per day ($) *</Label>
+              <Label htmlFor="daily_rate">Price per day (ETB) *</Label>
               <Input
                 id="daily_rate"
                 name="daily_rate"
                 type="number"
-                step="0.01"
-                min="0.01"
-                placeholder="48.00"
+                step="50"
+                min="1"
+                placeholder="2500"
                 defaultValue={defaultValues?.daily_rate}
                 aria-invalid={!!errors.daily_rate}
               />
+              <p className="text-xs text-muted-foreground">Use Ethiopian Birr, for example Br 2,500/day.</p>
               {errors.daily_rate && <FieldError message={errors.daily_rate} />}
             </div>
             <div className="grid gap-2">
@@ -301,10 +303,19 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
               <Input
                 id="location"
                 name="location"
-                placeholder="Nairobi West"
+                list="addis-areas"
+                placeholder="Bole"
                 defaultValue={defaultValues?.location}
                 aria-invalid={!!errors.location}
               />
+              <datalist id="addis-areas">
+                {ADDIS_AREAS.map((area) => (
+                  <option key={area} value={area} />
+                ))}
+              </datalist>
+              <p className="text-xs text-muted-foreground">
+                Suggested Addis areas: Bole, Kazanchis, Piassa, Megenagna, CMC, Ayat, Jemo.
+              </p>
               {errors.location && <FieldError message={errors.location} />}
             </div>
           </div>
@@ -315,7 +326,7 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
             <Textarea
               id="description"
               name="description"
-              placeholder="Tell renters about the car — condition, features, rules…"
+              placeholder="Tell Addis renters about the car - condition, features, pickup rules..."
               rows={4}
               defaultValue={defaultValues?.description ?? ""}
               aria-invalid={!!errors.description}

@@ -91,11 +91,11 @@ export default function LoginPage() {
               Welcome back
             </p>
             <h1 className="text-4xl font-black leading-tight text-slate-950 dark:text-white sm:text-6xl">
-              Pick up where your next drive begins.
+              Pick up where your next Addis drive begins.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-slate-600 dark:text-zinc-300">
-              Access saved rentals, manage requests, and keep your GoRent plans moving from one
-              clean dashboard.
+              Access saved rentals, manage requests, and keep your Addis Ababa GoRent plans
+              moving from one clean dashboard.
             </p>
           </div>
 
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 <div>
                   <Car className="mb-4 size-14 text-primary" aria-hidden="true" />
                   <p className="max-w-sm text-2xl font-semibold">
-                    A sharper way to rent, list, and stay in control.
+                    A sharper way to rent, list, and stay in control across Addis.
                   </p>
                 </div>
               </div>
@@ -167,7 +167,7 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     name="email"
-                    placeholder="alex@example.com"
+                    placeholder="dagi@example.com"
                     type="email"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}

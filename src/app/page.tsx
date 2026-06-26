@@ -1,10 +1,11 @@
 import {
   ArrowRight,
-  CalendarCheck,
+  Banknote,
   Car,
   CarFront,
   CheckCircle2,
   Clock3,
+  Headphones,
   MapPin,
   MessageSquare,
   Search,
@@ -23,9 +24,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ADDIS_AREAS, formatBirr } from "@/lib/utils";
 
 const heroCarImage =
-  "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80";
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=80";
 
 const categories = [
   {
@@ -34,62 +36,94 @@ const categories = [
       "https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=700&q=80",
   },
   {
+    name: "Airport SUVs",
+    image:
+      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=700&q=80",
+  },
+  {
     name: "Electric rides",
     image:
       "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=700&q=80",
   },
   {
-    name: "Weekend SUVs",
-    image:
-      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=700&q=80",
-  },
-  {
     name: "Premium cars",
     image:
-      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=700&q=80",
   },
 ];
 
 const benefits = [
   {
     title: "Verified local owners",
-    description: "Review profiles, listings, and completed trips before you request a rental.",
+    description: "Rent from Addis Ababa owners with profiles, reviews, and local pickup details.",
     icon: ShieldCheck,
   },
   {
-    title: "Request first, pay later",
-    description: "Send dates and a note, then wait for the owner to approve the booking.",
-    icon: CalendarCheck,
+    title: "Transparent Birr pricing",
+    description: "Daily prices are shown in Ethiopian Birr before you send a booking request.",
+    icon: Banknote,
   },
   {
-    title: "Built-in messages",
-    description: "Keep pickup details, owner replies, and rental updates in one place.",
+    title: "Direct owner messaging",
+    description: "Coordinate pickup, handover, and trip questions without leaving GoRent.",
     icon: MessageSquare,
+  },
+  {
+    title: "Addis pickup areas",
+    description: "Search Bole, Piassa, CMC, Ayat, Lebu, Merkato, and more local areas.",
+    icon: MapPin,
   },
 ];
 
 const fleetPreview = [
   {
-    name: "Tesla Model 3",
-    type: "Electric sedan",
-    price: "$99/day",
+    name: "Toyota Corolla",
+    type: "City sedan in Bole",
+    price: formatBirr(2500, "day"),
     image:
-      "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&w=700&q=80",
   },
   {
     name: "Toyota RAV4",
-    type: "City SUV",
-    price: "$72/day",
+    type: "SUV pickup in CMC",
+    price: formatBirr(3800, "day"),
     image:
       "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=700&q=80",
   },
   {
-    name: "Volkswagen Golf",
-    type: "Compact hatch",
-    price: "$48/day",
+    name: "Hyundai Elantra",
+    type: "Sedan near Kazanchis",
+    price: formatBirr(2200, "day"),
     image:
-      "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=700&q=80",
   },
+];
+
+const howItWorks = [
+  {
+    title: "Search by Addis area",
+    description: "Choose Bole for airport pickup, CMC for east-side trips, or any local area.",
+  },
+  {
+    title: "Request dates in Birr",
+    description: "Send your rental dates and message the owner with your pickup needs.",
+  },
+  {
+    title: "Meet, hand over, drive",
+    description: "Coordinate directly with the owner and track the booking from your dashboard.",
+  },
+];
+
+const searchHighlights = [
+  { label: "Pickup area", value: "Bole, CMC, Piassa...", icon: MapPin },
+  { label: "Daily budget", value: "price in Birr", icon: Banknote },
+  { label: "Owner chat", value: "Confirm handover", icon: Clock3 },
+];
+
+const contactItems = [
+  { title: "Local support", description: "Bole, Addis Ababa", icon: Headphones },
+  { title: "Call format", description: "+251 911 234 567", icon: MapPin },
+  { title: "Community", description: "Verified local owners", icon: ShieldCheck },
 ];
 
 export default function HomePage() {
@@ -102,14 +136,15 @@ export default function HomePage() {
             <div className="max-w-2xl space-y-5">
               <span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-semibold text-primary dark:border-sky-900 dark:bg-sky-950/60">
                 <Sparkles className="size-4" aria-hidden="true" />
-                Local rentals, owner approved
+                Peer-to-peer car rental in Addis Ababa
               </span>
               <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-slate-950 dark:text-white sm:text-6xl lg:text-7xl">
-                Find Your Perfect Rental Car
+                Find cars across Addis Ababa
               </h1>
               <p className="max-w-xl text-lg leading-8 text-slate-600 dark:text-zinc-300">
-                Browse verified cars from nearby owners, request your dates, message directly,
-                and track every booking from one polished GoRent dashboard.
+                Book trusted cars in Ethiopian Birr from verified local owners. Search by
+                neighborhood, message directly, and manage every rental in one clean GoRent
+                dashboard.
               </p>
             </div>
 
@@ -127,9 +162,9 @@ export default function HomePage() {
 
             <div className="grid max-w-xl gap-3 sm:grid-cols-3">
               {[
-                ["3", "demo roles"],
-                ["Live", "SQLite data"],
-                ["Fast", "local booking"],
+                ["17", "Addis pickup areas"],
+                ["Br", "Transparent pricing"],
+                ["Local", "owner community"],
               ].map(([value, label]) => (
                 <div
                   className="rounded-xl border border-slate-200 bg-white/85 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70"
@@ -148,7 +183,7 @@ export default function HomePage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={heroCarImage}
-                  alt="Premium rental car in a showroom"
+                  alt="Premium rental car in Addis Ababa"
                   className="size-full object-cover opacity-90"
                 />
               </div>
@@ -156,12 +191,12 @@ export default function HomePage() {
               <div className="absolute bottom-0 left-0 right-0 p-5 text-white sm:p-7">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                   <div>
-                    <p className="text-sm font-semibold text-sky-200">Featured rental</p>
-                    <p className="mt-1 text-3xl font-black">Premium city pickup</p>
+                    <p className="text-sm font-semibold text-sky-200">Featured local pickup</p>
+                    <p className="mt-1 text-3xl font-black">Bole to anywhere</p>
                   </div>
                   <div className="rounded-xl bg-white px-4 py-3 text-slate-950 shadow-lg">
                     <p className="text-xs font-bold uppercase text-slate-500">From</p>
-                    <p className="text-xl font-black text-primary">$48/day</p>
+                    <p className="text-xl font-black text-primary">{formatBirr(1800, "day")}</p>
                   </div>
                 </div>
               </div>
@@ -173,22 +208,18 @@ export default function HomePage() {
       <section className="mx-auto -mt-7 max-w-6xl px-4 sm:px-6 lg:px-8">
         <Card className="relative z-10 border-sky-100 bg-white shadow-2xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-900">
           <CardContent className="grid gap-3 p-4 sm:grid-cols-[1fr_1fr_1fr_auto] sm:p-5">
-            {[
-              ["Location", "Search nearby cars", MapPin],
-              ["Dates", "Request any range", CalendarCheck],
-              ["Pickup", "Coordinate with owner", Clock3],
-            ].map(([label, value, Icon]) => (
+            {searchHighlights.map((item) => (
               <div
                 className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 dark:bg-zinc-950"
-                key={label as string}
+                key={item.label}
               >
-                <Icon className="size-5 text-primary" aria-hidden="true" />
+                <item.icon className="size-5 text-primary" aria-hidden="true" />
                 <div>
                   <p className="text-xs font-bold uppercase text-slate-500 dark:text-zinc-500">
-                    {label as string}
+                    {item.label}
                   </p>
                   <p className="text-sm font-bold text-slate-950 dark:text-white">
-                    {value as string}
+                    {item.value}
                   </p>
                 </div>
               </div>
@@ -247,12 +278,12 @@ export default function HomePage() {
             <div>
               <p className="text-sm font-bold uppercase tracking-wide text-primary">Popular cars</p>
               <h2 className="mt-2 text-4xl font-black tracking-tight text-slate-950 dark:text-white">
-                Trend vehicles
+                Local owners, local prices
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-slate-600 dark:text-zinc-400">
-              These preview cards mirror the marketplace style. Live cars are loaded from the
-              local SQLite database on the Browse page.
+              Preview the marketplace feel, then open Browse for live SQLite listings with
+              searchable Addis pickup areas.
             </p>
           </div>
 
@@ -290,8 +321,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-4 md:grid-cols-3">
+      <section id="how-it-works" className="mx-auto max-w-7xl scroll-mt-28 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">How it works</p>
+            <h2 className="mt-2 text-4xl font-black tracking-tight text-slate-950 dark:text-white">
+              Book trusted cars in Ethiopian Birr
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-zinc-400">
+              GoRent keeps the flow simple for Addis renters and owners: search locally, request
+              clearly, and keep communication on-platform.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {howItWorks.map((item, index) => (
+              <Card className="bg-white/90 dark:bg-zinc-950" key={item.title}>
+                <CardHeader>
+                  <div className="flex size-10 items-center justify-center rounded-full bg-sky-50 text-sm font-black text-primary dark:bg-sky-950">
+                    {index + 1}
+                  </div>
+                  <CardTitle className="text-lg">{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>{item.description}</CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="grid gap-4 md:grid-cols-4">
           {benefits.map((item) => (
             <Card
               className="bg-white/90 transition-transform hover:-translate-y-1 dark:bg-zinc-950"
@@ -311,18 +372,75 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-slate-950 py-16 text-white">
+      <section className="bg-slate-50 py-16 dark:bg-zinc-900/45">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">Addis pickup map</p>
+            <h2 className="mt-2 text-4xl font-black tracking-tight text-slate-950 dark:text-white">
+              Cars all over Addis
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-zinc-400">
+              Browse listings around Bole, Kazanchis, Piassa, Megenagna, Mexico, Sar Bet, CMC,
+              Ayat, Gerji, Summit, Lebu, Kality, Arat Kilo, Lideta, Jemo, Gulele, and Merkato.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {ADDIS_AREAS.map((area) => (
+              <Link
+                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-primary dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
+                href={`/browse?location=${encodeURIComponent(area)}`}
+                key={area}
+              >
+                {area}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="reviews" className="mx-auto max-w-7xl scroll-mt-28 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mb-8 text-center">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">Reviews</p>
+          <h2 className="mt-2 text-4xl font-black tracking-tight text-slate-950 dark:text-white">
+            Loved by the local renter/owner community
+          </h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ["Booked from Bole for a weekend trip. Handover took five minutes.", "Hanna T.", "Bole"],
+            ["Transparent Birr pricing made it easy to compare owners.", "Samuel G.", "Megenagna"],
+            ["Messaging the owner before pickup saved so much time.", "Mekdes A.", "CMC"],
+          ].map(([quote, name, area]) => (
+            <Card className="bg-white dark:bg-zinc-950" key={name}>
+              <CardHeader>
+                <div className="flex text-amber-400">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Star className="size-4 fill-current" key={index} aria-hidden="true" />
+                  ))}
+                </div>
+                <CardDescription className="text-base leading-7">&ldquo;{quote}&rdquo;</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm font-bold text-slate-950 dark:text-white">{name}</p>
+                <p className="text-xs text-slate-500 dark:text-zinc-400">{area}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section id="become-owner" className="scroll-mt-28 bg-slate-950 py-16 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
           <div>
             <p className="inline-flex items-center gap-2 text-sm font-bold uppercase text-sky-300">
               <CarFront className="size-4" aria-hidden="true" />
-              Ready for final demo
+              Become an owner
             </p>
             <h2 className="mt-3 max-w-2xl text-4xl font-black leading-tight">
-              Rent nearby or turn your parked vehicle into a polished listing.
+              Turn your parked vehicle into daily income across Addis Ababa.
             </h2>
             <div className="mt-5 grid max-w-2xl gap-2 text-sm text-slate-300 sm:grid-cols-3">
-              {["Local auth", "Booking workflow", "Messages and reviews"].map((item) => (
+              {["Owner approval controls", "Direct renter messages", "Birr daily rates"].map((item) => (
                 <span className="flex items-center gap-2" key={item}>
                   <CheckCircle2 className="size-4 text-sky-300" aria-hidden="true" />
                   {item}
@@ -343,13 +461,33 @@ export default function HomePage() {
               variant="outline"
               className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white dark:bg-white/10"
             >
-              <Link href="/browse">
+              <Link href="/owner/dashboard">
                 <Car aria-hidden="true" />
-                Explore cars
+                Owner dashboard
               </Link>
             </Button>
           </div>
         </div>
+      </section>
+
+      <section id="contact" className="mx-auto max-w-7xl scroll-mt-28 px-4 py-16 sm:px-6 lg:px-8">
+        <Card className="border-sky-100 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+          <CardContent className="grid gap-6 p-6 md:grid-cols-3 md:p-8">
+            {contactItems.map((item) => (
+              <div className="flex items-start gap-3" key={item.title}>
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
+                  <item.icon className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-950 dark:text-white">{item.title}</p>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

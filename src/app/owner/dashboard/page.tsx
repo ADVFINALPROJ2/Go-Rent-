@@ -26,15 +26,9 @@ import {
   type OwnerBookingSummary,
 } from "@/lib/actions/bookings";
 import { requireOwnerSession } from "@/lib/auth/role-guards";
+import { formatBirr } from "@/lib/utils";
 
 type OwnerBooking = OwnerBookingSummary;
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-}
 
 export default function OwnerDashboardPage() {
   const router = useRouter();
@@ -122,7 +116,7 @@ export default function OwnerDashboardPage() {
     },
     {
       label: "Completed revenue",
-      value: formatCurrency(
+      value: formatBirr(
         bookings
           .filter((booking) => booking.status === "completed")
           .reduce((sum, booking) => sum + booking.totalPrice, 0),
@@ -141,8 +135,8 @@ export default function OwnerDashboardPage() {
   return (
     <DashboardShell
       eyebrow="Owner dashboard"
-      title="Manage vehicles and rental requests."
-      description="Owners can review booking requests, approve or decline them, and track rentals from this area."
+      title="Manage vehicles and Addis rental requests."
+      description="Owners can review local booking requests, approve or decline them, and track rentals priced in Ethiopian Birr."
       actions={
         <>
           <Button asChild variant="outline">

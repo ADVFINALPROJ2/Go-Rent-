@@ -1,12 +1,10 @@
 export const mainNavigation = [
   { href: "/", label: "Home" },
-  { href: "/browse", label: "Browse Cars" },
-  { href: "/owner/dashboard", label: "Owner Dashboard" },
-  { href: "/owner/dashboard/cars", label: "My Cars" },
-  { href: "/renter/dashboard", label: "Renter Dashboard" },
-  { href: "/admin/dashboard", label: "Admin Dashboard" },
-  { href: "/messages", label: "Messages" },
-  { href: "/profile", label: "Profile" },
+  { href: "/browse", label: "Cars" },
+  { href: "/#how-it-works", label: "How It Works" },
+  { href: "/#become-owner", label: "Become an Owner" },
+  { href: "/#reviews", label: "Reviews" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export const authNavigation = [
