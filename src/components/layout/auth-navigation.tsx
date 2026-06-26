@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LogIn, LogOut, UserPlus } from "lucide-react";
+import { LogIn, LogOut, UserCircle, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -42,6 +42,12 @@ export function AuthNavigation() {
   if (user) {
     return (
       <div className="flex items-center gap-2">
+        <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+          <Link href={user.role === "admin" ? "/admin/dashboard" : user.role === "owner" ? "/owner/dashboard" : "/renter/dashboard"}>
+            <UserCircle aria-hidden="true" />
+            <span className="capitalize">{user.role}</span>
+          </Link>
+        </Button>
         <Button
           variant="outline"
           size="sm"
