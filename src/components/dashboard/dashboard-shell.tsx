@@ -55,9 +55,15 @@ export function DashboardShell({
   );
 }
 
-export function DashboardStatGrid({ stats }: { stats: DashboardStat[] }) {
+export function DashboardStatGrid({
+  stats,
+  className,
+}: {
+  stats: DashboardStat[];
+  className?: string;
+}) {
   return (
-    <section className="grid gap-4 md:grid-cols-3">
+    <section className={cn("grid gap-4 md:grid-cols-3", className)}>
       {stats.map((stat) => (
         <Card className="bg-white" key={stat.label}>
           <CardHeader className="flex flex-row items-center justify-between">

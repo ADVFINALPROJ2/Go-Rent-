@@ -1,10 +1,12 @@
 import {
+  Activity,
   AlertTriangle,
   Ban,
   Car,
   Clock,
   Eye,
   ShieldCheck,
+  Trash2,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -158,6 +160,26 @@ function UnauthorizedState({ isDisabled = false }: { isDisabled?: boolean }) {
   );
 }
 
+function RecentActivitySection() {
+  return (
+    <Card className="bg-white shadow-sm">
+      <CardHeader>
+        <CardTitle>Recent activity</CardTitle>
+        <CardDescription>
+          Platform events such as signups, listing changes, and booking updates will appear here.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <DashboardEmptyState
+          icon={<Activity className="size-7" aria-hidden="true" />}
+          title="No recent activity"
+          description="Activity feed integration is pending. Admin actions and marketplace events will be summarized here later."
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
 function UsersTable({ users }: { users: UserRecord[] }) {
   if (users.length === 0) {
     return (
@@ -180,7 +202,7 @@ function UsersTable({ users }: { users: UserRecord[] }) {
               <th className="px-4 py-3 font-semibold">Role</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Joined</th>
-              <th className="px-4 py-3 font-semibold">Action</th>
+              <th className="px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
@@ -205,9 +227,24 @@ function UsersTable({ users }: { users: UserRecord[] }) {
                 </td>
                 <td className="px-4 py-3 text-slate-600">{formatDate(user.created_at)}</td>
                 <td className="px-4 py-3">
-                  <Button size="sm" variant="outline" disabled>
-                    View user
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" disabled title="User detail view coming soon">
+                      <Eye aria-hidden="true" />
+                      View
+                    </Button>
+                    <Button size="sm" variant="outline" disabled title="Disable user coming soon">
+                      <Ban aria-hidden="true" />
+                      Disable
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      title="Delete user coming soon"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -272,8 +309,17 @@ function ListingsTable({ listings }: { listings: ListingRecord[] }) {
                         View
                       </Link>
                     </Button>
-                    <Button size="sm" variant="outline" disabled>
+                    <Button size="sm" variant="outline" disabled title="Disable listing coming soon">
                       Disable
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      title="Delete listing coming soon"
+                    >
+                      <Trash2 aria-hidden="true" />
+                      Delete
                     </Button>
                   </div>
                 </td>
@@ -423,7 +469,20 @@ export default async function AdminDashboardPage() {
       description="Admins can review account health, listing status, and pending marketplace activity from one workspace."
     >
       <div className="grid gap-6">
-        <DashboardStatGrid stats={metrics} />
+        <section aria-labelledby="admin-overview-heading" className="grid gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-950" id="admin-overview-heading">
+              Overview
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Live counts from Supabase profiles, cars, and bookings.
+            </p>
+          </div>
+          <DashboardStatGrid
+            className="sm:grid-cols-2 xl:grid-cols-5"
+            stats={metrics}
+          />
+        </section>
 
         {dataError ? (
           <Card className="border-red-200 bg-red-50">
@@ -466,6 +525,8 @@ export default async function AdminDashboardPage() {
             <ListingsTable listings={listings} />
           </CardContent>
         </Card>
+
+        <RecentActivitySection />
       </div>
     </DashboardShell>
   );
