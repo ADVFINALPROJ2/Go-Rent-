@@ -74,9 +74,9 @@ export function MessageOwnerForm({
   }
 
   return (
-    <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+    <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
       <CardHeader>
-        <div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-sky-50 text-primary">
+        <div className="mb-2 flex size-10 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
           <MessageSquare className="size-5" aria-hidden="true" />
         </div>
         <CardTitle className="text-base">Message owner</CardTitle>

@@ -96,7 +96,7 @@ export function BookingRequestForm({
   }
 
   return (
-    <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+    <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
       <CardHeader>
         <CardTitle>Request this rental</CardTitle>
         <CardDescription>Choose your dates and send a note to the owner.</CardDescription>
@@ -140,8 +140,8 @@ export function BookingRequestForm({
             <p
               className={
                 status.type === "success"
-                  ? "rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700"
-                  : "rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                  ? "rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-300"
+                  : "rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
               }
               role={status.type === "error" ? "alert" : "status"}
             >
@@ -149,7 +149,7 @@ export function BookingRequestForm({
             </p>
           ) : null}
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button className="h-11" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Submit request"}
           </Button>
         </form>

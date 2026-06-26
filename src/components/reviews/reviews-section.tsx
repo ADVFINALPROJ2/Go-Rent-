@@ -109,22 +109,22 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
     <div id="reviews-section" className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h3 className="text-xl font-bold text-slate-950">Reviews & Ratings</h3>
-          <p className="text-sm text-slate-500">
+          <h3 className="text-xl font-black text-slate-950 dark:text-white">Reviews & Ratings</h3>
+          <p className="text-sm text-slate-500 dark:text-zinc-400">
             Read feedback from previous renters or submit your own.
           </p>
         </div>
 
-        <Card className="border-sky-100 bg-sky-50/70 shadow-sm sm:min-w-56">
+        <Card className="border-sky-100 bg-sky-50/70 shadow-sm dark:border-sky-900 dark:bg-sky-950/30 sm:min-w-56">
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex size-11 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-white text-amber-500 shadow-sm dark:bg-zinc-950">
               <Star className="size-5 fill-amber-400 stroke-amber-400" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-950">
+              <p className="text-2xl font-bold text-slate-950 dark:text-white">
                 {reviews.length > 0 ? averageRating.toFixed(1) : "No"}
               </p>
-              <p className="text-xs font-medium text-slate-500">
+              <p className="text-xs font-medium text-slate-500 dark:text-zinc-400">
                 {reviews.length === 0
                   ? "reviews yet"
                   : `${reviews.length} review${reviews.length === 1 ? "" : "s"}`}
@@ -144,8 +144,8 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
       )}
 
       {isLoading ? (
-        <Card className="border-slate-200 bg-white shadow-sm">
-          <CardContent className="flex items-center gap-3 p-5 text-sm text-slate-500">
+        <Card className="border-slate-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+          <CardContent className="flex items-center gap-3 p-5 text-sm text-slate-500 dark:text-zinc-400">
             <Loader2 className="size-4 animate-spin text-primary" aria-hidden="true" />
             Loading reviews...
           </CardContent>
@@ -153,14 +153,14 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
       ) : null}
 
       {!isLoading && !error && reviews.length === 0 ? (
-        <Card className="border-dashed border-slate-200 bg-white/80 shadow-sm">
+        <Card className="border-dashed border-slate-200 bg-white/80 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <CardContent className="flex items-start gap-3 p-5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sky-50 text-primary">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
               <MessageSquareText className="size-5" aria-hidden="true" />
             </div>
             <div>
-              <p className="font-semibold text-slate-900">No reviews yet</p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="font-semibold text-slate-900 dark:text-white">No reviews yet</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">
                 Completed renters can leave the first review for this car.
               </p>
             </div>
@@ -170,20 +170,20 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
 
       {!isLoading && !error && reviews.length > 0 ? (
         <div className="space-y-3">
-          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             <RatingStars rating={averageRating} size="md" />
-            <span className="text-sm font-semibold text-slate-800">
+            <span className="text-sm font-semibold text-slate-800 dark:text-white">
               {averageRating.toFixed(1)} average from {reviews.length} review
               {reviews.length === 1 ? "" : "s"}
             </span>
           </div>
 
           {reviews.map((review) => (
-            <Card key={review.id} className="border-slate-200 bg-white shadow-sm">
+            <Card key={review.id} className="border-slate-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <CardHeader className="space-y-2 pb-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-sm font-bold text-primary">
+                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-sm font-bold text-primary dark:bg-sky-950">
                       {review.reviewerAvatarUrl ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
@@ -196,7 +196,7 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
                       )}
                     </div>
                     <div>
-                      <CardTitle className="text-base text-slate-950">
+                      <CardTitle className="text-base text-slate-950 dark:text-white">
                         {review.reviewerName}
                       </CardTitle>
                       <CardDescription>{formatReviewDate(review.created_at)}</CardDescription>
@@ -206,7 +206,7 @@ export function ReviewsSection({ carId, reviewForm }: ReviewsSectionProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-6 text-slate-600">
+                <p className="text-sm leading-6 text-slate-600 dark:text-zinc-300">
                   {review.comment || "This renter left a rating without a written comment."}
                 </p>
               </CardContent>
