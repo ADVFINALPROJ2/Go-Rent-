@@ -2,9 +2,9 @@ import { CarFront, Search } from "lucide-react";
 import Link from "next/link";
 
 import { AuthNavigation } from "@/components/layout/auth-navigation";
+import { MainNavigation } from "@/components/layout/main-navigation";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { mainNavigation } from "@/lib/routes";
 
 export function SiteHeader() {
   return (
@@ -19,17 +19,7 @@ export function SiteHeader() {
               Go<span className="text-primary">Rent</span>
             </span>
           </Link>
-          <nav className="hidden items-center gap-1 text-sm font-medium lg:flex" aria-label="Main">
-            {mainNavigation.map((item) => (
-              <Link
-                className="whitespace-nowrap rounded-lg px-3 py-2 text-slate-600 transition-colors hover:bg-sky-50 hover:text-primary dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-sky-300"
-                href={item.href}
-                key={item.href}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <MainNavigation />
           <div className="flex items-center gap-2">
             <Link
               className="hidden size-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:bg-sky-50 hover:text-primary dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 sm:flex"
