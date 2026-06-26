@@ -127,7 +127,7 @@ export function BrowseCarsClient() {
 
   return (
     <div className="space-y-8">
-      <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10">
+      <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="size-5 text-primary" aria-hidden="true" />
@@ -138,10 +138,7 @@ export function BrowseCarsClient() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            className="grid gap-3 lg:grid-cols-[1fr_160px_160px_auto]"
-            onSubmit={handleFilterSubmit}
-          >
+          <form className="grid gap-3 lg:grid-cols-[1fr_160px_160px_auto]" onSubmit={handleFilterSubmit}>
             <label className="grid gap-2 text-sm font-medium" htmlFor="location-search">
               Location
               <div className="relative">
@@ -207,13 +204,13 @@ export function BrowseCarsClient() {
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-950">Available listings</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-2xl font-black text-slate-950 dark:text-white">Available listings</h2>
+          <p className="text-sm text-slate-500 dark:text-zinc-400">
             Browse cars from local owners and open a card to view details.
           </p>
         </div>
         {!isLoading && !error ? (
-          <p className="w-fit rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-sm font-semibold text-primary">
+          <p className="w-fit rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-sm font-semibold text-primary dark:border-sky-900 dark:bg-sky-950">
             {cars.length} {cars.length === 1 ? "car" : "cars"} shown
           </p>
         ) : null}
@@ -254,9 +251,9 @@ export function BrowseCarsClient() {
           </CardContent>
         </Card>
       ) : cars.length === 0 ? (
-        <Card className="border-dashed border-sky-200 py-12 text-center">
+        <Card className="border-dashed border-sky-200 py-12 text-center dark:border-zinc-700">
           <CardContent className="flex flex-col items-center gap-4">
-            <div className="flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
               <Car className="size-7" aria-hidden="true" />
             </div>
             <div>
