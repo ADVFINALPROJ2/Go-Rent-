@@ -4,6 +4,8 @@ import {
   Car,
   Clock,
   Eye,
+  Home,
+  LogOut,
   ShieldCheck,
   Trash2,
   Users,
@@ -31,6 +33,7 @@ import {
   cars as carsTable,
   users as usersTable,
 } from "@/db/schema";
+import { logoutLocalUser } from "@/app/auth/actions";
 import type { AccountStatus, CarStatus, UserRole } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { cn, formatBirr } from "@/lib/utils";
@@ -147,6 +150,32 @@ function RecentActivitySection() {
         />
       </CardContent>
     </Card>
+  );
+}
+
+function AdminDashboardActions() {
+  async function logoutAction() {
+    "use server";
+
+    await logoutLocalUser();
+    redirect("/login");
+  }
+
+  return (
+    <>
+      <Button asChild variant="outline">
+        <Link href="/">
+          <Home aria-hidden="true" />
+          View site
+        </Link>
+      </Button>
+      <form action={logoutAction}>
+        <Button type="submit" variant="outline">
+          <LogOut aria-hidden="true" />
+          Logout
+        </Button>
+      </form>
+    </>
   );
 }
 
@@ -397,6 +426,7 @@ export default async function AdminDashboardPage() {
       eyebrow="Admin dashboard"
       title="Monitor Addis users, listings, and platform quality."
       description="Admins can review account health, local listing status, and pending marketplace activity from one workspace."
+      actions={<AdminDashboardActions />}
     >
       <div className="grid gap-6">
         <section aria-labelledby="admin-overview-heading" className="grid gap-4">
