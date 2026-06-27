@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { PageHeading } from "@/components/page-heading";
 import {
@@ -24,6 +25,7 @@ type DashboardStat = {
   value: string;
   icon: ReactNode;
   description?: string;
+  href?: string;
 };
 
 export function DashboardShell({
@@ -64,8 +66,9 @@ export function DashboardStatGrid({
 }) {
   return (
     <section className={cn("grid gap-4 md:grid-cols-3", className)}>
-      {stats.map((stat) => (
-        <Card className="bg-white transition-transform hover:-translate-y-1 dark:bg-zinc-950" key={stat.label}>
+      {stats.map((stat) => {
+        const card = (
+          <Card className="h-full bg-white transition-transform hover:-translate-y-1 dark:bg-zinc-950">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="text-base">{stat.label}</CardTitle>
@@ -81,7 +84,20 @@ export function DashboardStatGrid({
             <p className="text-3xl font-black text-slate-950 dark:text-white">{stat.value}</p>
           </CardContent>
         </Card>
-      ))}
+        );
+
+        return stat.href ? (
+          <Link
+            className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            href={stat.href}
+            key={stat.label}
+          >
+            {card}
+          </Link>
+        ) : (
+          <div key={stat.label}>{card}</div>
+        );
+      })}
     </section>
   );
 }
