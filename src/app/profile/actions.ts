@@ -6,6 +6,7 @@ import { db } from "@/db/client";
 import { profiles, users } from "@/db/schema";
 import type { UserRole } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
+import { validateProfileUpdate } from "@/lib/profile/validation";
 
 export type ProfileData = {
   id: string;
@@ -16,6 +17,7 @@ export type ProfileData = {
   location: string | null;
   bio: string | null;
   role: UserRole;
+  account_status: "active" | "disabled";
   created_at: string;
   updated_at: string;
 };
@@ -31,8 +33,6 @@ export type UpdateProfileResult = {
   error?: string;
 };
 
-const ethiopianPhonePattern = /^(\+251\s?9\d{2}\s?\d{3}\s?\d{3}|09\d{8})$/;
-
 function mapProfileData(input: {
   user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
   profile: typeof profiles.$inferSelect;
@@ -41,11 +41,12 @@ function mapProfileData(input: {
     id: input.user.id,
     email: input.user.email,
     full_name: input.profile.fullName,
-    avatar_url: null,
+    avatar_url: input.profile.avatarUrl,
     phone: input.profile.phone,
     location: input.profile.location,
     bio: input.profile.bio,
     role: input.user.role,
+    account_status: input.user.status,
     created_at: input.profile.createdAt,
     updated_at: input.profile.updatedAt,
   };
@@ -106,21 +107,21 @@ export async function updateProfile(
   const phone = (formData.get("phone") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
   const bio = (formData.get("bio") as string)?.trim() || null;
+  const avatarUrl = (formData.get("avatar_url") as string)?.trim() || null;
   const roleRaw = formData.get("role") as string;
 
-  if (!fullName) {
-    return { success: false, error: "Full name is required." };
+  const validationError = validateProfileUpdate({
+    fullName,
+    phone,
+    location,
+    bio,
+    avatarUrl,
+  });
+
+  if (validationError) {
+    return { success: false, error: validationError };
   }
 
-  if (phone && !ethiopianPhonePattern.test(phone)) {
-    return {
-      success: false,
-      error: "Phone format must be +251 9XX XXX XXX or 09XX XXX XXX.",
-    };
-  }
-
-  const role: Extract<UserRole, "renter" | "owner"> =
-    roleRaw === "owner" ? "owner" : "renter";
   const updatedAt = new Date().toISOString();
 
   db.transaction((tx) => {
@@ -130,18 +131,24 @@ export async function updateProfile(
         phone,
         location,
         bio,
+        avatarUrl,
         updatedAt,
       })
       .where(eq(profiles.userId, user.id))
       .run();
 
-    tx.update(users)
-      .set({
-        role,
-        updatedAt,
-      })
-      .where(eq(users.id, user.id))
-      .run();
+    if (user.role !== "admin") {
+      const nextRole: Extract<UserRole, "renter" | "owner"> =
+        roleRaw === "owner" ? "owner" : "renter";
+
+      tx.update(users)
+        .set({
+          role: nextRole,
+          updatedAt,
+        })
+        .where(eq(users.id, user.id))
+        .run();
+    }
   });
 
   return { success: true };
