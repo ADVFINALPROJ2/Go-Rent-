@@ -24,7 +24,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ADDIS_AREAS, formatBirr } from "@/lib/utils";
+import { AddisPickupMap } from "@/components/home/addis-pickup-map";
+import { formatBirr } from "@/lib/utils";
 
 const heroCarImage =
   "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=80";
@@ -384,17 +385,7 @@ export default function HomePage() {
               Ayat, Gerji, Summit, Lebu, Kality, Arat Kilo, Lideta, Jemo, Gulele, and Merkato.
             </p>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {ADDIS_AREAS.map((area) => (
-              <Link
-                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-primary dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
-                href={`/browse?location=${encodeURIComponent(area)}`}
-                key={area}
-              >
-                {area}
-              </Link>
-            ))}
-          </div>
+          <AddisPickupMap />
         </div>
       </section>
 
