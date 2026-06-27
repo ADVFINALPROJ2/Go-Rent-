@@ -28,7 +28,7 @@ type SessionPayload = {
 
 export function getRoleRedirect(role: UserRole) {
   if (role === "admin") {
-    return "/admin/dashboard";
+    return "/admin";
   }
 
   if (role === "owner") {

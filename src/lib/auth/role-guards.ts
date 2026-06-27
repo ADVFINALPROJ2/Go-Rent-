@@ -12,7 +12,7 @@ type OwnerSession = {
 
 function dashboardForRole(role: SessionUser["role"] | null | undefined) {
   if (role === "admin") {
-    return "/admin/dashboard";
+    return "/admin";
   }
 
   if (role === "owner") {

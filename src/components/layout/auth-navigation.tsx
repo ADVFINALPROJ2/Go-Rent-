@@ -68,7 +68,7 @@ export function AuthNavigation({ className }: AuthNavigationProps) {
   if (user) {
     const dashboardHref =
       user.role === "admin"
-        ? "/admin/dashboard"
+        ? "/admin"
         : user.role === "owner"
           ? "/owner/dashboard"
           : "/renter/dashboard";

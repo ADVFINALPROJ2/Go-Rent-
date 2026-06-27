@@ -35,7 +35,6 @@ const footerGroups = [
       { href: "/contact", label: "Safety" },
       { href: "/contact", label: "Terms" },
       { href: "/contact", label: "Privacy" },
-      { href: "/admin/dashboard", label: "Admin" },
     ],
   },
 ];

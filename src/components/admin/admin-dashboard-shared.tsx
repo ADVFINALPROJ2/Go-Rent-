@@ -3,22 +3,18 @@ import {
   CalendarDays,
   Car,
   Eye,
-  Home,
-  LogOut,
   ShieldCheck,
   Trash2,
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import {
   deleteAdminListing,
   deleteAdminUser,
   updateAdminListingStatus,
   updateAdminUserStatus,
-} from "@/app/admin/dashboard/actions";
-import { logoutLocalUser } from "@/app/auth/actions";
+} from "@/app/admin/actions";
 import {
   DashboardEmptyState,
   DashboardShell,
@@ -91,7 +87,7 @@ export function UnauthorizedState({ isDisabled = false }: { isDisabled?: boolean
       description="This area is reserved for active GoRent administrators."
       actions={
         <Button asChild variant="outline">
-          <Link href="/">Return home</Link>
+          <Link href="/admin/login">Admin login</Link>
         </Button>
       }
     >
@@ -111,32 +107,6 @@ export function UnauthorizedState({ isDisabled = false }: { isDisabled?: boolean
         }
       />
     </DashboardShell>
-  );
-}
-
-export function AdminDashboardActions() {
-  async function logoutAction() {
-    "use server";
-
-    await logoutLocalUser();
-    redirect("/login");
-  }
-
-  return (
-    <>
-      <Button asChild variant="outline">
-        <Link href="/">
-          <Home aria-hidden="true" />
-          View site
-        </Link>
-      </Button>
-      <form action={logoutAction}>
-        <Button type="submit" variant="outline">
-          <LogOut aria-hidden="true" />
-          Logout
-        </Button>
-      </form>
-    </>
   );
 }
 
@@ -197,7 +167,7 @@ export function UsersTable({
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" asChild>
-                      <Link href={`/admin/dashboard/users/${user.id}`}>
+                      <Link href={`/admin/users/${user.id}`}>
                         <Eye aria-hidden="true" />
                         View
                       </Link>

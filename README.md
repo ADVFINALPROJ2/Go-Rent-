@@ -40,6 +40,8 @@ All seeded users use the password `Password123!`.
 - Admin: `admin@gorent.test`
 - Owner: `owner@gorent.test`
 - Renter: `renter@gorent.test`
+- Admin dashboard: [http://localhost:3000/admin](http://localhost:3000/admin)
+- Admin login: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
 ## Available Scripts
 
@@ -80,7 +82,8 @@ npm run db:studio
 - `/profile` Profile
 - `/profile/edit` Edit Profile
 - `/messages` Messages
-- `/admin/dashboard` Admin Dashboard
+- `/admin` Admin portal dashboard
+- `/admin/login` Admin-only portal login
 
 ## Database Notes
 
