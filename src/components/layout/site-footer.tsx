@@ -54,7 +54,7 @@ export function SiteFooter() {
           <div className="grid gap-3 text-sm text-slate-400">
             <p className="flex items-center gap-2">
               <MapPin className="size-4 text-sky-400" aria-hidden="true" />
-              Bole, Addis Ababa
+              BITS College, Addis Ababa
             </p>
             <p className="flex items-center gap-2">
               <Phone className="size-4 text-sky-400" aria-hidden="true" />

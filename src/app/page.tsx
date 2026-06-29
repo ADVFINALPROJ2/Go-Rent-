@@ -122,7 +122,7 @@ const searchHighlights = [
 ];
 
 const contactItems = [
-  { title: "Local support", description: "Bole, Addis Ababa", icon: Headphones },
+  { title: "Local support", description: "BITS College, Addis Ababa", icon: Headphones },
   { title: "Call format", description: "+251 911 234 567", icon: MapPin },
   { title: "Community", description: "Verified local owners", icon: ShieldCheck },
 ];
