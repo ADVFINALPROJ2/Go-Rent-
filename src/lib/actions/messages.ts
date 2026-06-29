@@ -151,3 +151,88 @@ export async function markMessagesRead(messageIds: string[]) {
 
   return readAt;
 }
+
+export type ConversationSummary = {
+  key: string;
+  otherUserId: string;
+  otherUserName: string;
+  carId: string | null;
+  carTitle: string | null;
+  carImageUrl: string | null;
+  lastMessageBody: string;
+  lastMessageCreatedAt: string;
+  unreadCount: number;
+};
+
+export type MessageSummaryResult = {
+  authenticated: boolean;
+  unreadCount: number;
+  conversations: ConversationSummary[];
+};
+
+export async function getMessageSummary(): Promise<MessageSummaryResult> {
+  const user = await requireUser();
+
+  if (!user) {
+    return {
+      authenticated: false,
+      unreadCount: 0,
+      conversations: [],
+    };
+  }
+
+  try {
+    const result = await getUserMessages();
+
+    const conversationMap = new Map<string, MessageWithContext[]>();
+
+    result.messages.forEach((message) => {
+      const key = `${message.otherUserId}:${message.car_id ?? "general"}`;
+      const existing = conversationMap.get(key) ?? [];
+      existing.push(message);
+      conversationMap.set(key, existing);
+    });
+
+    const conversations = Array.from(conversationMap.entries())
+      .map(([key, conversationMessages]) => {
+        const sortedMessages = [...conversationMessages].sort(
+          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+        );
+        const lastMessage = sortedMessages[sortedMessages.length - 1];
+
+        return {
+          key,
+          otherUserId: lastMessage.otherUserId,
+          otherUserName: lastMessage.otherUserName,
+          carId: lastMessage.car_id,
+          carTitle: lastMessage.carTitle,
+          carImageUrl: lastMessage.carImageUrl,
+          lastMessageBody: lastMessage.body,
+          lastMessageCreatedAt: lastMessage.created_at,
+          unreadCount: sortedMessages.filter(
+            (m) => m.receiver_id === user.id && !m.read_at,
+          ).length,
+        };
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.lastMessageCreatedAt).getTime() -
+          new Date(a.lastMessageCreatedAt).getTime(),
+      );
+
+    const totalUnread = conversations.reduce((acc, conv) => acc + conv.unreadCount, 0);
+
+    return {
+      authenticated: true,
+      unreadCount: totalUnread,
+      conversations,
+    };
+  } catch {
+    return {
+      authenticated: false,
+      unreadCount: 0,
+      conversations: [],
+    };
+  }
+}
+
