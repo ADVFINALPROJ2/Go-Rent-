@@ -62,19 +62,25 @@ export function FloatingMessageWidget() {
 
   // Fetch summary on load and path change
   useEffect(() => {
-    void fetchSummary();
+    queueMicrotask(() => {
+      void fetchSummary();
+    });
   }, [pathname, fetchSummary]);
 
   // Fetch when widget is opened
   useEffect(() => {
     if (isOpen) {
-      void fetchSummary();
+      queueMicrotask(() => {
+        void fetchSummary();
+      });
     }
   }, [isOpen, fetchSummary]);
 
   // Close widget on route change
   useEffect(() => {
-    setIsOpen(false);
+    queueMicrotask(() => {
+      setIsOpen(false);
+    });
   }, [pathname]);
 
   // Click outside to close
