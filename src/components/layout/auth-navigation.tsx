@@ -1,19 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LogIn, LogOut, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { logoutLocalUser } from "@/app/auth/actions";
 import { authNavigation } from "@/lib/routes";
-import type { SessionUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
-
-type NavigationUser = SessionUser & {
-  fullName?: string | null;
-};
+import { useCurrentUser } from "@/components/layout/use-current-user";
 
 type AuthNavigationProps = {
   className?: string;
@@ -21,41 +17,12 @@ type AuthNavigationProps = {
 
 export function AuthNavigation({ className }: AuthNavigationProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const [user, setUser] = useState<NavigationUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    fetch("/api/auth/me", { cache: "no-store" })
-      .then((response) => response.json())
-      .then((data: { user: NavigationUser | null }) => {
-        if (isCurrent) {
-          setUser(data.user);
-        }
-      })
-      .catch(() => {
-        if (isCurrent) {
-          setUser(null);
-        }
-      })
-      .finally(() => {
-        if (isCurrent) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [pathname]);
+  const { user, isLoading } = useCurrentUser();
 
   async function handleLogout() {
     setIsSigningOut(true);
     await logoutLocalUser();
-    setUser(null);
     router.push("/login");
     router.refresh();
     setIsSigningOut(false);

@@ -1,8 +1,10 @@
 import { ArrowRight, CheckCircle2, Flame, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCurrentUser } from "@/lib/auth/session";
 
 const ownerBenefits = [
   "Set your own daily price in Ethiopian Birr",
@@ -29,7 +31,17 @@ const ownerSteps = [
   },
 ];
 
-export default function BecomeAnOwnerPage() {
+export default async function BecomeAnOwnerPage() {
+  const user = await getCurrentUser();
+
+  if (user?.role === "owner") {
+    redirect("/owner/dashboard");
+  }
+
+  if (user?.role === "admin") {
+    redirect("/admin");
+  }
+
   return (
     <main className="bg-white text-slate-950 dark:bg-zinc-950 dark:text-white">
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:items-center lg:px-8">

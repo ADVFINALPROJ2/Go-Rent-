@@ -1,7 +1,11 @@
+"use client";
+
+import type { ProfileRole } from "@/lib/local-types";
 import { Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
+import { useCurrentUser } from "@/components/layout/use-current-user";
 
 const footerGroups = [
   {
@@ -9,7 +13,7 @@ const footerGroups = [
     links: [
       { href: "/browse", label: "Cars" },
       { href: "/how-it-works", label: "How It Works" },
-      { href: "/become-an-owner", label: "Become an Owner" },
+      { href: "/become-an-owner", label: "Become an Owner", hideForRoles: ["owner", "admin"] as ProfileRole[] },
       { href: "/reviews", label: "Reviews" },
     ],
   },
@@ -41,6 +45,8 @@ const footerGroups = [
 ];
 
 export function SiteFooter() {
+  const { user } = useCurrentUser();
+
   return (
     <footer className="border-t border-slate-900 bg-slate-950 text-white dark:border-zinc-800">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.25fr_2fr] lg:px-8">
@@ -73,13 +79,21 @@ export function SiteFooter() {
                 {group.title}
               </h2>
               <ul className="mt-4 grid gap-3 text-sm text-slate-400">
-                {group.links.map((link) => (
-                  <li key={`${group.title}-${link.label}`}>
-                    <Link className="transition-colors hover:text-sky-300" href={link.href}>
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {group.links
+                  .filter((link) => {
+                    if (!link.hideForRoles?.length || !user) {
+                      return true;
+                    }
+
+                    return !link.hideForRoles.includes(user.role);
+                  })
+                  .map((link) => (
+                    <li key={`${group.title}-${link.label}`}>
+                      <Link className="transition-colors hover:text-sky-300" href={link.href}>
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
           ))}
