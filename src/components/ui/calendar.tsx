@@ -89,7 +89,7 @@ export function Calendar({
   };
 
   return (
-    <div className={cn("w-64 p-3 bg-white dark:bg-zinc-950", className)}>
+    <div className={cn("w-full max-w-[280px] p-3 bg-white dark:bg-zinc-950", className)}>
       <div className="flex items-center justify-between mb-4">
         <button
           type="button"
