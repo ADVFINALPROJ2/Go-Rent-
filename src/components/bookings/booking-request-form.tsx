@@ -131,13 +131,15 @@ export function BookingRequestForm({
 
           <div className="grid gap-2">
             <Label htmlFor="booking-end-date">End date</Label>
-            <Input
+            <RentalDatePicker
               id="booking-end-date"
-              type="date"
               value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
+              onChange={(val) => setEndDate(val)}
+              minDate={startDate || todayStr}
               disabled={isSubmitting}
+              placeholder="Select drop-off date"
             />
+
           </div>
 
           <div className="grid gap-2">
