@@ -76,6 +76,8 @@ export const cars = sqliteTable(
     make: text("make").notNull(),
     model: text("model").notNull(),
     year: integer("year").notNull(),
+    category: text("category"),
+    mileage: integer("mileage"),
     dailyRate: real("daily_rate").notNull(),
     location: text("location").notNull(),
     description: text("description"),
