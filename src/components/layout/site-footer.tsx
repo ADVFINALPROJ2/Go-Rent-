@@ -25,7 +25,6 @@ const footerGroups = [
   {
     title: "Support",
     links: [
-      { href: "/messages", label: "Messages" },
       { href: "/profile", label: "Profile" },
       { href: "/renter/dashboard", label: "Renter Dashboard" },
       { href: "/owner/dashboard", label: "Owner Dashboard" },
