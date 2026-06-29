@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useMemo, type FormEvent } from "react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RentalDatePicker } from "@/components/bookings/rental-date-picker";
 import { createBookingRequest } from "@/lib/actions/bookings";
 import { formatBirr } from "@/lib/utils";
 
@@ -54,6 +55,14 @@ export function BookingRequestForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<FormStatus>(null);
 
+  const todayStr = useMemo(() => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, []);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus(null);
@@ -80,8 +89,8 @@ export function BookingRequestForm({
         type: "error",
         message:
           error instanceof Error
-            ? error.message
-            : "Unable to submit booking request.",
+              ? error.message
+              : "Unable to submit booking request.",
       });
       return;
     }
@@ -108,25 +117,37 @@ export function BookingRequestForm({
       <CardContent>
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <div className="grid gap-2">
-            <Label htmlFor="booking-start-date">Start date</Label>
-            <Input
+            <Label htmlFor="booking-start-date">Pick-up date</Label>
+            <RentalDatePicker
               id="booking-start-date"
-              type="date"
               value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
+              onChange={(val) => {
+                setStartDate(val);
+                if (endDate && val > endDate) {
+                  setEndDate("");
+                }
+              }}
+              minDate={todayStr}
               disabled={isSubmitting}
+              placeholder="Select pick-up date"
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="booking-end-date">End date</Label>
-            <Input
+            <Label htmlFor="booking-end-date">Drop-off date</Label>
+            <RentalDatePicker
               id="booking-end-date"
-              type="date"
               value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
+              onChange={(val) => setEndDate(val)}
+              minDate={startDate || todayStr}
               disabled={isSubmitting}
+              placeholder="Select drop-off date"
             />
+            {startDate && endDate && endDate < startDate && (
+              <p className="text-xs text-destructive" role="alert">
+                Drop-off date must be on or after the pick-up date.
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -140,21 +161,55 @@ export function BookingRequestForm({
             />
           </div>
 
+          {startDate && endDate && endDate >= startDate && (() => {
+            const startTime = new Date(`${startDate}T00:00:00`).getTime();
+            const endTime = new Date(`${endDate}T00:00:00`).getTime();
+            const days = Math.floor((endTime - startTime) / (1000 * 60 * 60 * 24)) + 1;
+            const total = Math.max(days, 1) * dailyRate;
+            return (
+              <div className="rounded-lg border border-sky-200/60 bg-sky-50/50 p-3 dark:border-zinc-700 dark:bg-zinc-900/50">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-600 dark:text-zinc-400">
+                    {formatBirr(dailyRate)} × {days} {days === 1 ? "day" : "days"}
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-zinc-100">
+                    {formatBirr(total)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-slate-500 dark:text-zinc-500">
+                  Estimated total • final price set by the owner
+                </p>
+              </div>
+            );
+          })()}
+
           {status ? (
-            <p
+            <div
               className={
                 status.type === "success"
-                  ? "rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-300"
-                  : "rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                  ? "flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-300"
+                  : "flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
               }
               role={status.type === "error" ? "alert" : "status"}
             >
-              {status.message}
-            </p>
+              {status.type === "success" ? (
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              ) : (
+                <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              )}
+              <span>{status.message}</span>
+            </div>
           ) : null}
 
           <Button className="h-11" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit request"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                Submitting…
+              </>
+            ) : (
+              "Submit request"
+            )}
           </Button>
         </form>
       </CardContent>
