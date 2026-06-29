@@ -1,29 +1,11 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+export { ADDIS_AREAS } from "@/lib/car-options";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-export const ADDIS_AREAS = [
-  "Bole",
-  "Kazanchis",
-  "Piassa",
-  "Megenagna",
-  "Mexico",
-  "Sar Bet",
-  "CMC",
-  "Ayat",
-  "Gerji",
-  "Summit",
-  "Lebu",
-  "Kality",
-  "Arat Kilo",
-  "Lideta",
-  "Jemo",
-  "Gulele",
-  "Merkato",
-];
 
 export function formatBirr(amount: number, suffix?: "day" | "ETB") {
   const formatted = new Intl.NumberFormat("en-US", {
