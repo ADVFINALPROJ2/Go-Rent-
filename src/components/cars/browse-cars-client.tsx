@@ -22,7 +22,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NativeSelect } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ADDIS_AREAS,
   CAR_CATEGORIES,
@@ -272,40 +278,48 @@ export function BrowseCarsClient() {
 
           <div className="grid gap-2">
             <Label htmlFor="area-filter">Area</Label>
-            <NativeSelect
-              id="area-filter"
+            <Select
               value={area}
-              onChange={(event) => {
-                setArea(event.target.value);
+              onValueChange={(value) => {
+                setArea(value);
                 resetPage();
               }}
             >
-              <option value={ALL_VALUE}>Any area</option>
-              {ADDIS_AREAS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </NativeSelect>
+              <SelectTrigger id="area-filter">
+                <SelectValue placeholder="Any area" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_VALUE}>Any area</SelectItem>
+                {ADDIS_AREAS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="category-filter">Category</Label>
-            <NativeSelect
-              id="category-filter"
+            <Select
               value={category}
-              onChange={(event) => {
-                setCategory(event.target.value);
+              onValueChange={(value) => {
+                setCategory(value);
                 resetPage();
               }}
             >
-              <option value={ALL_VALUE}>All Categories</option>
-              {CAR_CATEGORIES.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </NativeSelect>
+              <SelectTrigger id="category-filter">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_VALUE}>All Categories</SelectItem>
+                {CAR_CATEGORIES.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
@@ -349,39 +363,47 @@ export function BrowseCarsClient() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             <div className="grid gap-2">
               <Label htmlFor="transmission-filter">Transmission</Label>
-              <NativeSelect
-                id="transmission-filter"
+              <Select
                 value={transmission}
-                onChange={(event) => {
-                  setTransmission(event.target.value);
+                onValueChange={(value) => {
+                  setTransmission(value);
                   resetPage();
                 }}
               >
-                <option value={ALL_VALUE}>Any</option>
-                {TRANSMISSION_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </NativeSelect>
+                <SelectTrigger id="transmission-filter">
+                  <SelectValue placeholder="Any" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_VALUE}>Any</SelectItem>
+                  {TRANSMISSION_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="fuel-filter">Fuel</Label>
-              <NativeSelect
-                id="fuel-filter"
+              <Select
                 value={fuel}
-                onChange={(event) => {
-                  setFuel(event.target.value);
+                onValueChange={(value) => {
+                  setFuel(value);
                   resetPage();
                 }}
               >
-                <option value={ALL_VALUE}>Any</option>
-                {FUEL_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </NativeSelect>
+                <SelectTrigger id="fuel-filter">
+                  <SelectValue placeholder="Any" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_VALUE}>Any</SelectItem>
+                  {FUEL_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -418,21 +440,24 @@ export function BrowseCarsClient() {
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <NativeSelect
-              aria-label="Sort cars"
-              className="sm:w-52"
+            <Select
               value={sort}
-              onChange={(event) => {
-                setSort(event.target.value as SortOption);
+              onValueChange={(value) => {
+                setSort(value as SortOption);
                 resetPage();
               }}
             >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </NativeSelect>
+              <SelectTrigger aria-label="Sort cars" className="sm:w-52">
+                <SelectValue placeholder="Recommended" />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <div className="grid grid-cols-2 rounded-md border border-input bg-background p-1">
               <Button
                 aria-label="Grid view"
