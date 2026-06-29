@@ -117,20 +117,24 @@ export function BookingRequestForm({
       <CardContent>
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <div className="grid gap-2">
-            <Label htmlFor="booking-start-date">Start date</Label>
+            <Label htmlFor="booking-start-date">Pick-up date</Label>
             <RentalDatePicker
               id="booking-start-date"
               value={startDate}
-              onChange={(val) => setStartDate(val)}
+              onChange={(val) => {
+                setStartDate(val);
+                if (endDate && val > endDate) {
+                  setEndDate("");
+                }
+              }}
               minDate={todayStr}
               disabled={isSubmitting}
               placeholder="Select pick-up date"
             />
           </div>
 
-
           <div className="grid gap-2">
-            <Label htmlFor="booking-end-date">End date</Label>
+            <Label htmlFor="booking-end-date">Drop-off date</Label>
             <RentalDatePicker
               id="booking-end-date"
               value={endDate}
@@ -139,7 +143,11 @@ export function BookingRequestForm({
               disabled={isSubmitting}
               placeholder="Select drop-off date"
             />
-
+            {startDate && endDate && endDate < startDate && (
+              <p className="text-xs text-destructive" role="alert">
+                Drop-off date must be on or after the pick-up date.
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
