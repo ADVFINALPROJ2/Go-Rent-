@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, type FormEvent } from "react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -184,20 +185,32 @@ export function BookingRequestForm({
           })()}
 
           {status ? (
-            <p
+            <div
               className={
                 status.type === "success"
-                  ? "rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-300"
-                  : "rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                  ? "flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-300"
+                  : "flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
               }
               role={status.type === "error" ? "alert" : "status"}
             >
-              {status.message}
-            </p>
+              {status.type === "success" ? (
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              ) : (
+                <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              )}
+              <span>{status.message}</span>
+            </div>
           ) : null}
 
           <Button className="h-11" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit request"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                Submitting…
+              </>
+            ) : (
+              "Submit request"
+            )}
           </Button>
         </form>
       </CardContent>
