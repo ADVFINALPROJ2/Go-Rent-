@@ -92,7 +92,17 @@ export function BrowseCarsClient() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [search, setSearch] = React.useState("");
-  const [area, setArea] = React.useState(ALL_VALUE);
+  const [area, setArea] = React.useState(() => {
+    if (typeof window === "undefined") {
+      return ALL_VALUE;
+    }
+
+    const locationParam = new URLSearchParams(window.location.search).get("location");
+
+    return locationParam && ADDIS_AREAS.includes(locationParam as (typeof ADDIS_AREAS)[number])
+      ? locationParam
+      : ALL_VALUE;
+  });
   const [category, setCategory] = React.useState(ALL_VALUE);
   const [minPrice, setMinPrice] = React.useState("");
   const [maxPrice, setMaxPrice] = React.useState("");
@@ -102,14 +112,6 @@ export function BrowseCarsClient() {
   const [sort, setSort] = React.useState<SortOption>("Recommended");
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
   const [page, setPage] = React.useState(1);
-
-  React.useEffect(() => {
-    const locationParam = new URLSearchParams(window.location.search).get("location");
-
-    if (locationParam && ADDIS_AREAS.includes(locationParam as (typeof ADDIS_AREAS)[number])) {
-      setArea(locationParam);
-    }
-  }, []);
 
   React.useEffect(() => {
     let isCurrent = true;
@@ -143,9 +145,9 @@ export function BrowseCarsClient() {
     };
   }, []);
 
-  React.useEffect(() => {
+  function resetPage() {
     setPage(1);
-  }, [search, area, category, minPrice, maxPrice, transmission, fuel, minSeats, sort]);
+  }
 
   const priceError = React.useMemo(() => {
     const nextMinPrice = toOptionalNumber(minPrice);
@@ -234,6 +236,7 @@ export function BrowseCarsClient() {
     setFuel(ALL_VALUE);
     setMinSeats("");
     setSort("Recommended");
+    setPage(1);
   }
 
   return (
@@ -259,7 +262,10 @@ export function BrowseCarsClient() {
                 className="pl-9"
                 placeholder="Make or model"
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  resetPage();
+                }}
               />
             </div>
           </div>
@@ -269,7 +275,10 @@ export function BrowseCarsClient() {
             <NativeSelect
               id="area-filter"
               value={area}
-              onChange={(event) => setArea(event.target.value)}
+              onChange={(event) => {
+                setArea(event.target.value);
+                resetPage();
+              }}
             >
               <option value={ALL_VALUE}>Any area</option>
               {ADDIS_AREAS.map((option) => (
@@ -285,7 +294,10 @@ export function BrowseCarsClient() {
             <NativeSelect
               id="category-filter"
               value={category}
-              onChange={(event) => setCategory(event.target.value)}
+              onChange={(event) => {
+                setCategory(event.target.value);
+                resetPage();
+              }}
             >
               <option value={ALL_VALUE}>All Categories</option>
               {CAR_CATEGORIES.map((option) => (
@@ -305,7 +317,10 @@ export function BrowseCarsClient() {
                 placeholder="1500"
                 type="number"
                 value={minPrice}
-                onChange={(event) => setMinPrice(event.target.value)}
+                onChange={(event) => {
+                  setMinPrice(event.target.value);
+                  resetPage();
+                }}
               />
             </div>
             <div className="grid gap-2">
@@ -316,7 +331,10 @@ export function BrowseCarsClient() {
                 placeholder="7500"
                 type="number"
                 value={maxPrice}
-                onChange={(event) => setMaxPrice(event.target.value)}
+                onChange={(event) => {
+                  setMaxPrice(event.target.value);
+                  resetPage();
+                }}
               />
             </div>
           </div>
@@ -334,7 +352,10 @@ export function BrowseCarsClient() {
               <NativeSelect
                 id="transmission-filter"
                 value={transmission}
-                onChange={(event) => setTransmission(event.target.value)}
+                onChange={(event) => {
+                  setTransmission(event.target.value);
+                  resetPage();
+                }}
               >
                 <option value={ALL_VALUE}>Any</option>
                 {TRANSMISSION_OPTIONS.map((option) => (
@@ -349,7 +370,10 @@ export function BrowseCarsClient() {
               <NativeSelect
                 id="fuel-filter"
                 value={fuel}
-                onChange={(event) => setFuel(event.target.value)}
+                onChange={(event) => {
+                  setFuel(event.target.value);
+                  resetPage();
+                }}
               >
                 <option value={ALL_VALUE}>Any</option>
                 {FUEL_OPTIONS.map((option) => (
@@ -369,7 +393,10 @@ export function BrowseCarsClient() {
               placeholder="4"
               type="number"
               value={minSeats}
-              onChange={(event) => setMinSeats(event.target.value)}
+              onChange={(event) => {
+                setMinSeats(event.target.value);
+                resetPage();
+              }}
             />
           </div>
 
@@ -395,7 +422,10 @@ export function BrowseCarsClient() {
               aria-label="Sort cars"
               className="sm:w-52"
               value={sort}
-              onChange={(event) => setSort(event.target.value as SortOption)}
+              onChange={(event) => {
+                setSort(event.target.value as SortOption);
+                resetPage();
+              }}
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option} value={option}>
