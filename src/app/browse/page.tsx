@@ -6,19 +6,12 @@ export default function BrowseCarsPage() {
     <div>
       <section className="relative overflow-hidden border-b border-sky-100 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,rgba(14,165,233,0.08))] dark:bg-[linear-gradient(180deg,transparent,rgba(14,165,233,0.12))]" />
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_360px] lg:items-end lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <PageHeading
-            eyebrow="Browse cars"
-            title="Cars for rent across Addis Ababa"
-            description="Explore verified owner listings by pickup area and price in Birr, then open a car page to request your rental."
+            eyebrow="MARKETPLACE"
+            title="Cars for rent in Addis Ababa"
+            description="Filter by area, category, transmission, and price in Birr."
           />
-          <div className="relative rounded-2xl border border-sky-100 bg-white p-5 shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm font-semibold uppercase text-primary">Addis marketplace</p>
-            <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">Available now</p>
-            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-zinc-400">
-              Local SQLite listings are filtered to available cars with transparent Birr pricing.
-            </p>
-          </div>
         </div>
       </section>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
