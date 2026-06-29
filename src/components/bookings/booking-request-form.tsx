@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useMemo, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RentalDatePicker } from "@/components/bookings/rental-date-picker";
 import { createBookingRequest } from "@/lib/actions/bookings";
 import { formatBirr } from "@/lib/utils";
 
@@ -54,6 +55,14 @@ export function BookingRequestForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<FormStatus>(null);
 
+  const todayStr = useMemo(() => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, []);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus(null);
@@ -80,8 +89,8 @@ export function BookingRequestForm({
         type: "error",
         message:
           error instanceof Error
-            ? error.message
-            : "Unable to submit booking request.",
+              ? error.message
+              : "Unable to submit booking request.",
       });
       return;
     }
@@ -109,14 +118,16 @@ export function BookingRequestForm({
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <div className="grid gap-2">
             <Label htmlFor="booking-start-date">Start date</Label>
-            <Input
+            <RentalDatePicker
               id="booking-start-date"
-              type="date"
               value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
+              onChange={(val) => setStartDate(val)}
+              minDate={todayStr}
               disabled={isSubmitting}
+              placeholder="Select pick-up date"
             />
           </div>
+
 
           <div className="grid gap-2">
             <Label htmlFor="booking-end-date">End date</Label>
