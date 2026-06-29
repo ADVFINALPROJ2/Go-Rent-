@@ -85,8 +85,8 @@ function validateCarValues(values: ReturnType<typeof buildCarValues>) {
     throw new Error("Choose a valid car category.");
   }
 
-  if (!values.dailyRate || values.dailyRate <= 0) {
-    throw new Error("Price per day must be greater than 0.");
+  if (!values.dailyRate || values.dailyRate < 1000) {
+    throw new Error("Price per day must be at least 1000.");
   }
 
   if (!values.location || !isAddisArea(values.location)) {

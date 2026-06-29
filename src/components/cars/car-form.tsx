@@ -90,7 +90,9 @@ function validate(fd: FormData): FormErrors {
   }
 
   const rate = Number(fd.get("daily_rate"));
-  if (!rate || rate <= 0) errors.daily_rate = "Price per day in Birr must be greater than 0.";
+  if (!rate || rate < 1000) {
+    errors.daily_rate = "Price per day in Birr must be at least 1000.";
+  }
 
   const category = (fd.get("category") as string)?.trim();
   if (!category || !isCarCategory(category)) {
@@ -373,13 +375,15 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
                 id="daily_rate"
                 name="daily_rate"
                 type="number"
-                step="50"
-                min="1"
+                step="1"
+                min="1000"
                 placeholder="2500"
                 defaultValue={defaultValues?.daily_rate}
                 aria-invalid={!!errors.daily_rate}
               />
-              <p className="text-xs text-muted-foreground">Use Ethiopian Birr, for example Br 2,500/day.</p>
+              <p className="text-xs text-muted-foreground">
+                Use Ethiopian Birr. Minimum daily rate is Br 1,000.
+              </p>
               {errors.daily_rate && <FieldError message={errors.daily_rate} />}
             </div>
             <div className="grid gap-2">
