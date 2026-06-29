@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CarFront, CheckCircle2, Loader2, ShieldCheck, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import {
   Card,
   CardContent,
@@ -125,6 +126,7 @@ export default function RegisterPage() {
         <div className="flex items-center">
           <Card className="w-full border-sky-100 bg-white shadow-2xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
             <CardHeader className="space-y-2">
+              <BrandLogo className="mb-2" compact />
               <div className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <UserPlus className="size-5" aria-hidden="true" />
               </div>

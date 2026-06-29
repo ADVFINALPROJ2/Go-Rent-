@@ -1,5 +1,5 @@
-import { CarFront, MapPin } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
@@ -29,13 +29,16 @@ export function BrandLogo({
       href={href}
       aria-label={`${label}${subtitle ? ` ${subtitle}` : ""}`}
     >
-      <span className="relative grid size-12 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#0ea5e9,#0369a1)] text-white shadow-lg shadow-sky-500/25 ring-1 ring-white/20">
-        <span className="absolute -right-1 -top-1 size-4 rounded-full border-2 border-white bg-emerald-400 shadow-sm" />
-        <span className="absolute inset-1 rounded-[1rem] border border-white/20" />
-        <CarFront className="relative size-6" aria-hidden="true" />
-        <span className="absolute -bottom-1 -left-1 grid size-5 place-items-center rounded-full border-2 border-white bg-slate-950 text-sky-300 shadow-sm">
-          <MapPin className="size-3" aria-hidden="true" />
-        </span>
+      <span className="relative flex h-12 w-24 shrink-0 items-center justify-center">
+        <Image
+          src="/brand/gorent-navbar-logo.png"
+          alt=""
+          width={468}
+          height={246}
+          className="h-full w-auto object-contain drop-shadow-sm"
+          priority
+          aria-hidden="true"
+        />
       </span>
 
       <span className={cn("leading-none", compact && "hidden sm:block")}>

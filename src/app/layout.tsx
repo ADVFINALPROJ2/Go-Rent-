@@ -16,6 +16,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "GoRent",
   description: "Peer-to-peer car rental for owners and renters.",
+  icons: {
+    icon: [
+      {
+        url: "/brand/gorent-app-icon.png",
+        type: "image/png",
+      },
+    ],
+    shortcut: "/brand/gorent-app-icon.png",
+    apple: "/brand/gorent-app-icon.png",
+  },
 };
 
 export default function RootLayout({

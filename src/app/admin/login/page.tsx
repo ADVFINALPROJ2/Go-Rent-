@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AdminLoginForm } from "@/app/admin/login/admin-login-form";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export default async function AdminLoginPage() {
@@ -14,6 +15,7 @@ export default async function AdminLoginPage() {
     <main className="grid min-h-[calc(100vh-4.25rem)] place-items-center px-4 py-12">
       <div className="grid w-full max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
         <section className="hidden rounded-3xl border border-sky-100 bg-[linear-gradient(135deg,#0f172a,#0369a1)] p-8 text-white shadow-2xl shadow-sky-950/20 dark:border-zinc-800 lg:block">
+          <BrandLogo dark href="/admin/login" subtitle="Admin Portal" />
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-200">
             GoRent operations
           </p>
