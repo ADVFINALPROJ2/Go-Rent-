@@ -60,7 +60,7 @@ const benefits = [
     icon: ShieldCheck,
   },
   {
-    title: "Transparent Birr pricing",
+    title: "Transparent pricing",
     description: "Daily prices are shown in Ethiopian Birr before you send a booking request.",
     icon: Banknote,
   },
@@ -106,7 +106,7 @@ const howItWorks = [
     description: "Choose Bole for airport pickup, CMC for east-side trips, or any local area.",
   },
   {
-    title: "Request dates in Birr",
+    title: "Request dates",
     description: "Send your rental dates and message the owner with your pickup needs.",
   },
   {
@@ -137,7 +137,7 @@ export default function HomePage() {
             <div className="max-w-2xl space-y-5">
               <span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-semibold text-primary dark:border-sky-900 dark:bg-sky-950/60">
                 <Sparkles className="size-4" aria-hidden="true" />
-                Peer-to-peer car rental in Addis Ababa
+                Trusted in Addis Ababa
               </span>
               <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-slate-950 dark:text-white sm:text-6xl lg:text-7xl">
                 Find cars across Addis Ababa
@@ -197,7 +197,7 @@ export default function HomePage() {
                   </div>
                   <div className="rounded-xl bg-white px-4 py-3 text-slate-950 shadow-lg">
                     <p className="text-xs font-bold uppercase text-slate-500">From</p>
-                    <p className="text-xl font-black text-primary">{formatBirr(1800, "day")}</p>
+                    <p className="text-xl font-black text-primary">{formatBirr(1000, "day")}</p>
                   </div>
                 </div>
               </div>
@@ -327,7 +327,7 @@ export default function HomePage() {
           <div>
             <p className="text-sm font-bold uppercase tracking-wide text-primary">How it works</p>
             <h2 className="mt-2 text-4xl font-black tracking-tight text-slate-950 dark:text-white">
-              Book trusted cars in Ethiopian Birr
+              Book trusted cars in Ethiopia
             </h2>
             <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-zinc-400">
               GoRent keeps the flow simple for Addis renters and owners: search locally, request
