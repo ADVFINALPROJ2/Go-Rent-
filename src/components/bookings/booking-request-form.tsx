@@ -161,6 +161,28 @@ export function BookingRequestForm({
             />
           </div>
 
+          {startDate && endDate && endDate >= startDate && (() => {
+            const startTime = new Date(`${startDate}T00:00:00`).getTime();
+            const endTime = new Date(`${endDate}T00:00:00`).getTime();
+            const days = Math.floor((endTime - startTime) / (1000 * 60 * 60 * 24)) + 1;
+            const total = Math.max(days, 1) * dailyRate;
+            return (
+              <div className="rounded-lg border border-sky-200/60 bg-sky-50/50 p-3 dark:border-zinc-700 dark:bg-zinc-900/50">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-600 dark:text-zinc-400">
+                    {formatBirr(dailyRate)} × {days} {days === 1 ? "day" : "days"}
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-zinc-100">
+                    {formatBirr(total)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-slate-500 dark:text-zinc-500">
+                  Estimated total • final price set by the owner
+                </p>
+              </div>
+            );
+          })()}
+
           {status ? (
             <p
               className={
