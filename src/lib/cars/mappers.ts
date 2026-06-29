@@ -19,6 +19,8 @@ export function mapCarToLegacy(row: Car): LegacyCarRow {
     make: row.make,
     model: row.model,
     year: row.year,
+    category: row.category,
+    mileage: row.mileage,
     location: row.location,
     daily_rate: row.dailyRate,
     status: row.status,
