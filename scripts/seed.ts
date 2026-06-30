@@ -82,7 +82,7 @@ function seedCars() {
         description:
           "A clean electric crossover with smooth acceleration, premium interior, and excellent Addis city range.",
         imageUrl:
-          "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=1200&q=80",
+          "https://commons.wikimedia.org/wiki/Special:FilePath/2025%20BYD%20Atto%203%20Premium%20front.jpg",
         status: "available",
         seats: 5,
         transmission: "Automatic",
@@ -104,7 +104,7 @@ function seedCars() {
         description:
           "Comfortable SUV with room for bags, errands, and short road trips around Addis Ababa.",
         imageUrl:
-          "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80",
+          "https://commons.wikimedia.org/wiki/Special:FilePath/Toyota%20RAV4%20front%2020071009.jpg",
         status: "available",
         seats: 5,
         transmission: "Automatic",
@@ -126,7 +126,7 @@ function seedCars() {
         description:
           "Fuel-efficient sedan for easy city parking, daily commutes, and local business trips.",
         imageUrl:
-          "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80",
+          "https://commons.wikimedia.org/wiki/Special:FilePath/2021%20Hyundai%20Elantra%20Front%20View%20(United%20States).jpg",
         status: "available",
         seats: 5,
         transmission: "Automatic",
@@ -146,6 +146,8 @@ function seedCars() {
       transmission: "Automatic",
       location: "Bole",
       seats: 5,
+      imageUrl:
+        "https://commons.wikimedia.org/wiki/Special:FilePath/2025%20BYD%20Atto%203%20Premium%20front.jpg",
       updatedAt: now,
     })
     .where(eq(cars.id, "demo-car"))
@@ -159,6 +161,8 @@ function seedCars() {
       transmission: "Automatic",
       location: "CMC",
       seats: 5,
+      imageUrl:
+        "https://commons.wikimedia.org/wiki/Special:FilePath/Toyota%20RAV4%20front%2020071009.jpg",
       updatedAt: now,
     })
     .where(eq(cars.id, "city-suv"))
@@ -172,6 +176,8 @@ function seedCars() {
       transmission: "Automatic",
       location: "Kazanchis",
       seats: 5,
+      imageUrl:
+        "https://commons.wikimedia.org/wiki/Special:FilePath/2021%20Hyundai%20Elantra%20Front%20View%20(United%20States).jpg",
       updatedAt: now,
     })
     .where(eq(cars.id, "compact-hatch"))

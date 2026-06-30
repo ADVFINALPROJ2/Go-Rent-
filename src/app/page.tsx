@@ -82,21 +82,21 @@ const fleetPreview = [
     type: "City sedan in Bole",
     price: formatBirr(2500, "day"),
     image:
-      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&w=700&q=80",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Toyota%20Corolla%20(E210)%20sedan%20IMG%204190.jpg",
   },
   {
     name: "Toyota RAV4",
     type: "SUV pickup in CMC",
     price: formatBirr(3800, "day"),
     image:
-      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=700&q=80",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Toyota%20RAV4%20front%2020071009.jpg",
   },
   {
     name: "Hyundai Elantra",
     type: "Sedan near Kazanchis",
     price: formatBirr(2200, "day"),
     image:
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=700&q=80",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/2021%20Hyundai%20Elantra%20Front%20View%20(United%20States).jpg",
   },
 ];
 
@@ -374,7 +374,7 @@ export default function HomePage() {
       </section>
 
       <section className="bg-slate-50 py-16 dark:bg-zinc-900/45">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:px-8">
           <div>
             <p className="text-sm font-bold uppercase tracking-wide text-primary">Addis pickup map</p>
             <h2 className="mt-2 text-4xl font-black tracking-tight text-slate-950 dark:text-white">
@@ -385,7 +385,7 @@ export default function HomePage() {
               Ayat, Gerji, Summit, Lebu, Kality, Arat Kilo, Lideta, Jemo, Gulele, and Merkato.
             </p>
           </div>
-          <AddisPickupMap />
+          <AddisPickupMap showLocationLinks={false} />
         </div>
       </section>
 
