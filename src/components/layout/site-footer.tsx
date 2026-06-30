@@ -29,9 +29,9 @@ const footerGroups = [
   {
     title: "Support",
     links: [
-      { href: "/profile", label: "Profile" },
-      { href: "/renter/dashboard", label: "Renter Dashboard" },
-      { href: "/owner/dashboard", label: "Owner Dashboard" },
+      { href: "/contact", label: "Help Center" },
+      { href: "/how-it-works", label: "Booking Guide" },
+      { href: "/contact", label: "Report an Issue" },
     ],
   },
   {

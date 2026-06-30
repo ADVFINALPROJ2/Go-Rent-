@@ -1,5 +1,8 @@
 "use server";
 
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db/client";
@@ -33,6 +36,9 @@ export type UpdateProfileResult = {
   error?: string;
 };
 
+const allowedAvatarTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+const maxAvatarSize = 2 * 1024 * 1024;
+
 function mapProfileData(input: {
   user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
   profile: typeof profiles.$inferSelect;
@@ -50,6 +56,30 @@ function mapProfileData(input: {
     created_at: input.profile.createdAt,
     updated_at: input.profile.updatedAt,
   };
+}
+
+async function saveAvatarUpload(file: File, userId: string) {
+  if (file.size === 0) {
+    return null;
+  }
+
+  if (!allowedAvatarTypes.has(file.type)) {
+    throw new Error("Upload a JPG, PNG, WebP, or GIF profile picture.");
+  }
+
+  if (file.size > maxAvatarSize) {
+    throw new Error("Profile picture must be 2 MB or smaller.");
+  }
+
+  const extension = path.extname(file.name).toLowerCase() || ".jpg";
+  const uploadDirectory = path.join(process.cwd(), "public", "uploads", "avatars", userId);
+  const filename = `${crypto.randomUUID()}${extension}`;
+  const destination = path.join(uploadDirectory, filename);
+
+  await mkdir(uploadDirectory, { recursive: true });
+  await writeFile(destination, Buffer.from(await file.arrayBuffer()));
+
+  return `/uploads/avatars/${userId}/${filename}`;
 }
 
 export async function getProfile(): Promise<ProfileResult> {
@@ -108,6 +138,7 @@ export async function updateProfile(
   const location = (formData.get("location") as string)?.trim() || null;
   const bio = (formData.get("bio") as string)?.trim() || null;
   const avatarUrl = (formData.get("avatar_url") as string)?.trim() || null;
+  const avatarFile = formData.get("avatar_file");
   const roleRaw = formData.get("role") as string;
 
   const validationError = validateProfileUpdate({
@@ -123,6 +154,18 @@ export async function updateProfile(
   }
 
   const updatedAt = new Date().toISOString();
+  let nextAvatarUrl = avatarUrl;
+
+  try {
+    if (avatarFile instanceof File && avatarFile.size > 0) {
+      nextAvatarUrl = await saveAvatarUpload(avatarFile, user.id);
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Could not upload profile picture.",
+    };
+  }
 
   db.transaction((tx) => {
     tx.update(profiles)
@@ -131,7 +174,7 @@ export async function updateProfile(
         phone,
         location,
         bio,
-        avatarUrl,
+        avatarUrl: nextAvatarUrl,
         updatedAt,
       })
       .where(eq(profiles.userId, user.id))

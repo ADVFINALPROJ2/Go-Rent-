@@ -113,9 +113,15 @@ export default function ProfilePage() {
 
   const dashboardPath = getDashboardPath(profile.role);
   const formattedLocation = formatAddisLocation(profile.location);
+  const dashboardLabel =
+    profile.role === "admin"
+      ? "Admin Dashboard"
+      : profile.role === "owner"
+        ? "Owner Dashboard"
+        : "Renter Dashboard";
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
       <div className="rounded-2xl border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-[linear-gradient(135deg,#111113,#0f172a)] sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <PageHeading
@@ -127,7 +133,7 @@ export default function ProfilePage() {
             <Button asChild variant="outline">
               <Link href={dashboardPath}>
                 <LayoutDashboard aria-hidden="true" />
-                My Dashboard
+                {dashboardLabel}
               </Link>
             </Button>
             <Button asChild className="shrink-0">
@@ -141,18 +147,19 @@ export default function ProfilePage() {
       </div>
 
       <Card className="overflow-hidden border-sky-100 bg-card shadow-xl shadow-sky-950/10 dark:border-zinc-800">
-        <div className="h-28 bg-gradient-to-r from-sky-600 via-sky-400 to-blue-100 dark:from-sky-950 dark:via-sky-700 dark:to-zinc-900" />
+        <div className="h-36 bg-[linear-gradient(120deg,#0369a1,#38bdf8_48%,#e0f2fe)] dark:bg-[linear-gradient(120deg,#082f49,#075985_52%,#18181b)]" />
 
-        <CardContent className="relative px-4 pb-8 pt-16 sm:px-6">
+        <CardContent className="relative px-4 pb-8 pt-20 sm:px-6">
           <ProfileAvatar
             name={profile.full_name}
             avatarUrl={profile.avatar_url}
-            className="absolute -top-10 left-4 sm:left-6"
+            size="xl"
+            className="absolute -top-16 left-4 sm:left-6"
           />
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 pt-2 sm:pt-0">
-              <h2 className="truncate text-2xl font-semibold text-foreground">
+              <h2 className="truncate text-3xl font-semibold text-foreground">
                 {profile.full_name || "Unnamed user"}
               </h2>
               <p className="mt-1 truncate text-sm text-muted-foreground">{profile.email}</p>

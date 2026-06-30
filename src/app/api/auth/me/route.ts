@@ -20,6 +20,7 @@ export async function GET() {
     user: {
       ...user,
       fullName: profile?.fullName ?? null,
+      avatarUrl: profile?.avatarUrl ?? null,
     },
   });
 }
