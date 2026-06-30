@@ -1,4 +1,5 @@
 FROM node:20-alpine AS base
+RUN apk add --no-cache python3 make g++
 ENV NODE_ENV=production
 WORKDIR /app
 
