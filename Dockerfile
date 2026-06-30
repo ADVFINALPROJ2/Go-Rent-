@@ -9,7 +9,7 @@ RUN npm ci --omit=dev
 
 FROM base AS build
 COPY . .
-RUN npm ci
+RUN NODE_ENV=development npm ci
 RUN npm run build
 
 FROM base AS runner
