@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+const bitsCollegeMapUrl =
+  "https://www.google.com/maps?q=BITS+College,+Addis+Ababa,+Ethiopia&z=16&output=embed";
+
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
 
@@ -78,13 +81,20 @@ export default function ContactPage() {
               ))}
             </div>
 
-            <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center dark:border-zinc-800 dark:bg-zinc-900">
-              <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(#0284c7_1px,transparent_1px)] [background-size:16px_16px]" />
-              <div className="relative">
-                <p className="text-sm font-black">Interactive Addis Ababa Map</p>
-                <p className="mt-2 text-xs text-slate-500 dark:text-zinc-400">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-zinc-800 dark:bg-zinc-900">
+              <div className="border-b border-slate-200 px-4 py-3 dark:border-zinc-800">
+                <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">
                   BITS College, Addis Ababa, Ethiopia
                 </p>
+              </div>
+              <div className="relative h-56">
+                <iframe
+                  title="BITS College, Addis Ababa, Ethiopia"
+                  src={bitsCollegeMapUrl}
+                  className="h-full w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </div>
           </div>

@@ -11,6 +11,10 @@ type PickupLocation = {
   note: string;
 };
 
+type AddisPickupMapProps = {
+  showLocationLinks?: boolean;
+};
+
 const pickupLocations: PickupLocation[] = [
   { area: "Bole", coordinates: [8.9806, 38.7992], note: "Airport and hotel pickups" },
   { area: "Kazanchis", coordinates: [9.0185, 38.7636], note: "Business district access" },
@@ -35,7 +39,7 @@ function browseHref(area: string) {
   return `/browse?location=${encodeURIComponent(area)}`;
 }
 
-export function AddisPickupMap() {
+export function AddisPickupMap({ showLocationLinks = true }: AddisPickupMapProps) {
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
 
@@ -111,18 +115,20 @@ export function AddisPickupMap() {
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3">
-        {pickupLocations.map((location) => (
-          <Link
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-primary dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
-            href={browseHref(location.area)}
-            key={location.area}
-          >
-            <MapPin className="size-4 text-primary" aria-hidden="true" />
-            {location.area}
-          </Link>
-        ))}
-      </div>
+      {showLocationLinks ? (
+        <div className="grid gap-2 sm:grid-cols-3">
+          {pickupLocations.map((location) => (
+            <Link
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-primary dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
+              href={browseHref(location.area)}
+              key={location.area}
+            >
+              <MapPin className="size-4 text-primary" aria-hidden="true" />
+              {location.area}
+            </Link>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
