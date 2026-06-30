@@ -55,6 +55,7 @@ export const profiles = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     fullName: text("full_name"),
+    avatarUrl: text("avatar_url"),
     phone: text("phone"),
     location: text("location"),
     bio: text("bio"),

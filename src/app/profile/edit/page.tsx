@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Save, ArrowLeft, UserRound, LogIn } from "lucide-react";
+import { ArrowLeft, Loader2, LogIn, Save, UserRound } from "lucide-react";
 
+import { ProfileAvatar } from "@/components/profile/profile-avatar";
 import { PageHeading } from "@/components/page-heading";
+import { AlertBanner } from "@/components/ui/alert-banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/ui/select";
-import { AlertBanner } from "@/components/ui/alert-banner";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  ADDIS_ABABA_AREAS,
+  BIO_MAX_LENGTH,
+  ETHIOPIAN_PHONE_HELPER,
+} from "@/lib/profile/constants";
 import { getProfile, updateProfile } from "../actions";
 
 export default function EditProfilePage() {
@@ -26,12 +32,14 @@ export default function EditProfilePage() {
   } | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Form fields
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
-  const [role, setRole] = useState<"renter" | "owner">("renter");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [role, setRole] = useState<"renter" | "owner" | "admin">("renter");
+
+  const previewAvatarUrl = useMemo(() => avatarUrl.trim() || null, [avatarUrl]);
 
   useEffect(() => {
     getProfile().then((result) => {
@@ -40,7 +48,8 @@ export default function EditProfilePage() {
         setPhone(result.data.phone ?? "");
         setLocation(result.data.location ?? "");
         setBio(result.data.bio ?? "");
-        setRole(result.data.role === "owner" ? "owner" : "renter");
+        setAvatarUrl(result.data.avatar_url ?? "");
+        setRole(result.data.role);
       } else {
         const errorMessage = result.error ?? "Could not load profile.";
         setLoadError(errorMessage);
@@ -65,8 +74,7 @@ export default function EditProfilePage() {
     const result = await updateProfile(formData);
 
     if (result.success) {
-      setMessage({ type: "success", text: "Profile updated successfully!" });
-      // Redirect to profile after short delay so user sees the success message
+      setMessage({ type: "success", text: "Profile updated successfully." });
       setTimeout(() => router.push("/profile"), 1200);
     } else {
       setMessage({
@@ -78,24 +86,23 @@ export default function EditProfilePage() {
     setSaving(false);
   }
 
-  /* ---- Loading state ---- */
   if (loading) {
     return (
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <PageHeading
           eyebrow="Edit Profile"
           title="Loading your details…"
-          description="One moment please."
+          description="One moment while we prepare your Addis Ababa profile."
         />
         <Card>
           <CardHeader>
-            <div className="flex size-12 items-center justify-center rounded-md bg-accent text-accent-foreground">
+            <div className="flex size-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
               <UserRound className="size-6" aria-hidden="true" />
             </div>
             <CardTitle>Profile details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="space-y-2">
                 <div className="h-4 w-20 animate-pulse rounded bg-muted" />
                 <div className="h-10 animate-pulse rounded-md bg-muted" />
@@ -142,16 +149,16 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
+    <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
       <div className="rounded-2xl border border-sky-100 bg-[linear-gradient(135deg,#ffffff,#eef8ff)] p-5 shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-[linear-gradient(135deg,#111113,#0f172a)] sm:p-7">
         <PageHeading
           eyebrow="Edit Profile"
-          title="Update your account details."
-          description="Keep your name, contact info, and role up to date so owners and renters can connect with you."
+          title="Update your GoRent profile."
+          description="Keep your contact details and Addis Ababa area current for smoother car sharing."
         />
       </div>
 
-      <Card className="border-sky-100 bg-white shadow-xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
+      <Card className="border-sky-100 bg-card shadow-xl shadow-sky-950/10 dark:border-zinc-800">
         <CardHeader>
           <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-primary dark:bg-sky-950">
             <UserRound className="size-6" aria-hidden="true" />
@@ -159,7 +166,6 @@ export default function EditProfilePage() {
           <CardTitle>Profile details</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Alert banner */}
           {message ? (
             <div className="mb-5">
               <AlertBanner
@@ -170,20 +176,43 @@ export default function EditProfilePage() {
             </div>
           ) : null}
 
-          <form onSubmit={handleSubmit} className="grid gap-5">
-            {/* Full name */}
+          <form onSubmit={handleSubmit} className="grid gap-6">
+            <div className="flex flex-col gap-4 rounded-xl border bg-background p-4 sm:flex-row sm:items-center">
+              <ProfileAvatar
+                name={fullName || null}
+                avatarUrl={previewAvatarUrl}
+                size="lg"
+                className="mx-auto shrink-0 sm:mx-0"
+              />
+              <div className="grid w-full gap-2">
+                <Label htmlFor="avatar_url">Profile picture URL</Label>
+                <Input
+                  id="avatar_url"
+                  name="avatar_url"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://example.com/avatar.jpg"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste a public image link. Leave blank to use your initials avatar.
+                </p>
+              </div>
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="full_name">Full name</Label>
               <Input
                 id="full_name"
                 name="full_name"
+                required
                 placeholder="Dagi Tesfaye"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
             </div>
 
-            {/* Phone */}
             <div className="grid gap-2">
               <Label htmlFor="phone">Phone number</Label>
               <Input
@@ -191,63 +220,77 @@ export default function EditProfilePage() {
                 name="phone"
                 placeholder="+251 911 234 567"
                 pattern="(\+251\s?9[0-9]{2}\s?[0-9]{3}\s?[0-9]{3}|09[0-9]{8})"
-                title="Format: +251 9XX XXX XXX or 09XX XXX XXX"
+                title={ETHIOPIAN_PHONE_HELPER}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
-                Format: +251 9XX XXX XXX or 09XX XXX XXX
-              </p>
+              <p className="text-xs text-muted-foreground">{ETHIOPIAN_PHONE_HELPER}</p>
             </div>
 
-            {/* Location */}
             <div className="grid gap-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
+              <Label htmlFor="location">Addis Ababa area</Label>
+              <NativeSelect
                 id="location"
                 name="location"
-                placeholder="Bole, Addis Ababa"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-              />
+              >
+                <option value="">Select your area</option>
+                {ADDIS_ABABA_AREAS.map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </NativeSelect>
             </div>
 
-            {/* Bio */}
             <div className="grid gap-2">
-              <Label htmlFor="bio">Bio</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="bio">Bio</Label>
+                <span className="text-xs text-muted-foreground">
+                  {bio.length}/{BIO_MAX_LENGTH}
+                </span>
+              </div>
               <Textarea
                 id="bio"
                 name="bio"
-                placeholder="Tell others a little about yourself…"
-                rows={3}
+                placeholder="Tell renters or owners a little about how you use GoRent in Addis Ababa…"
+                rows={4}
+                maxLength={BIO_MAX_LENGTH}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
-                A short description visible on your public profile.
-              </p>
             </div>
 
-            {/* Role */}
             <div className="grid gap-2">
               <Label htmlFor="role">Role</Label>
-              <NativeSelect
-                id="role"
-                name="role"
-                value={role}
-                onChange={(e) =>
-                  setRole(e.target.value as "renter" | "owner")
-                }
-              >
-                <option value="renter">Renter — I want to rent cars</option>
-                <option value="owner">Owner — I list cars for rent</option>
-              </NativeSelect>
-              <p className="text-xs text-muted-foreground">
-                Choose how you primarily use GoRent.
-              </p>
+              {role === "admin" ? (
+                <>
+                  <Input id="role" name="role" value="admin" readOnly disabled />
+                  <p className="text-xs text-muted-foreground">
+                    Admin role is managed by the platform and cannot be changed here.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <NativeSelect
+                    id="role"
+                    name="role"
+                    value={role}
+                    onChange={(e) =>
+                      setRole(e.target.value as "renter" | "owner")
+                    }
+                  >
+                    <option value="renter">Renter — I want to rent cars</option>
+                    <option value="owner">Owner — I list cars for rent</option>
+                  </NativeSelect>
+                  <p className="text-xs text-muted-foreground">
+                    Choose how you primarily use GoRent in Addis Ababa.
+                  </p>
+                </>
+              )}
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
               <Button type="submit" disabled={saving}>
                 {saving ? (

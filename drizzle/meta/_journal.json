@@ -15,6 +15,13 @@
       "when": 1782727263149,
       "tag": "0001_happy_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1782827468210,
+      "tag": "0002_add_profile_avatar",
+      "breakpoints": true
     }
   ]
 }
