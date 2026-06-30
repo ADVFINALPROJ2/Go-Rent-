@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, LogIn, Save, UserRound } from "lucide-react";
+import { ArrowLeft, ImageUp, Loader2, LogIn, Save, UserRound } from "lucide-react";
 
 import { ProfileAvatar } from "@/components/profile/profile-avatar";
 import { PageHeading } from "@/components/page-heading";
@@ -37,9 +37,21 @@ export default function EditProfilePage() {
   const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarFilePreview, setAvatarFilePreview] = useState<string | null>(null);
   const [role, setRole] = useState<"renter" | "owner" | "admin">("renter");
 
-  const previewAvatarUrl = useMemo(() => avatarUrl.trim() || null, [avatarUrl]);
+  const previewAvatarUrl = useMemo(
+    () => avatarFilePreview || avatarUrl.trim() || null,
+    [avatarFilePreview, avatarUrl],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (avatarFilePreview) {
+        URL.revokeObjectURL(avatarFilePreview);
+      }
+    };
+  }, [avatarFilePreview]);
 
   useEffect(() => {
     getProfile().then((result) => {
@@ -84,6 +96,36 @@ export default function EditProfilePage() {
     }
 
     setSaving(false);
+  }
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      setAvatarFilePreview(null);
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setMessage({ type: "error", text: "Choose an image file for your profile picture." });
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setMessage({ type: "error", text: "Profile picture must be 2 MB or smaller." });
+      e.target.value = "";
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setAvatarFilePreview((current) => {
+      if (current) {
+        URL.revokeObjectURL(current);
+      }
+      return objectUrl;
+    });
+    setMessage(null);
   }
 
   if (loading) {
@@ -185,7 +227,28 @@ export default function EditProfilePage() {
                 className="mx-auto shrink-0 sm:mx-0"
               />
               <div className="grid w-full gap-2">
-                <Label htmlFor="avatar_url">Profile picture URL</Label>
+                <Label htmlFor="avatar_file">Profile picture</Label>
+                <label
+                  htmlFor="avatar_file"
+                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-sky-100 dark:border-sky-900 dark:bg-sky-950/30"
+                >
+                  <ImageUp className="size-4" aria-hidden="true" />
+                  Upload a profile picture
+                </label>
+                <Input
+                  id="avatar_file"
+                  name="avatar_file"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={handleAvatarChange}
+                />
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG, WebP, or GIF. Maximum file size: 2 MB.
+                </p>
+                <Label htmlFor="avatar_url" className="pt-2 text-xs text-muted-foreground">
+                  Or paste an image URL
+                </Label>
                 <Input
                   id="avatar_url"
                   name="avatar_url"
@@ -196,7 +259,7 @@ export default function EditProfilePage() {
                   onChange={(e) => setAvatarUrl(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Paste a public image link. Leave blank to use your initials avatar.
+                  Leave both fields blank to use your initials avatar.
                 </p>
               </div>
             </div>
