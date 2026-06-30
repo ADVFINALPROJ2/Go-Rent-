@@ -118,6 +118,46 @@ export async function loginLocalUser(input: {
   };
 }
 
+export async function loginAdminUser(input: {
+  email: string;
+  password: string;
+}): Promise<AuthResult> {
+  const email = normalizeEmail(input.email);
+
+  if (!emailPattern.test(email)) {
+    return { success: false, error: "Enter a valid email address." };
+  }
+
+  const user = db.query.users.findFirst({
+    where: eq(users.email, email),
+  }).sync();
+
+  if (!user) {
+    return { success: false, error: "Invalid email or password." };
+  }
+
+  if (user.status !== "active") {
+    return { success: false, error: "This account is disabled." };
+  }
+
+  const isValidPassword = await verifyPassword(input.password, user.passwordHash);
+
+  if (!isValidPassword) {
+    return { success: false, error: "Invalid email or password." };
+  }
+
+  if (user.role !== "admin") {
+    return { success: false, error: "Admin access only." };
+  }
+
+  await createSession(user.id);
+
+  return {
+    success: true,
+    redirectTo: "/admin",
+  };
+}
+
 export async function logoutLocalUser(): Promise<AuthResult> {
   await clearSession();
   return { success: true, redirectTo: "/login" };

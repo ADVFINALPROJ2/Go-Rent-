@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7c07af25-c96e-45e1-b00d-cd42352eca60",
+  "id": "0ff6fb1e-37a6-4727-a391-7449f395893e",
   "prevId": "b59e1c9d-1f3e-4e89-8243-fa40c3356dbf",
   "tables": {
     "bookings": {
@@ -209,6 +209,20 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mileage": {
+          "name": "mileage",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "daily_rate": {
@@ -503,13 +517,6 @@
         },
         "full_name": {
           "name": "full_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "avatar_url": {
-          "name": "avatar_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

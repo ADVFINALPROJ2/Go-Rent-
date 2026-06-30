@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { FloatingMessageWidget } from "@/components/messages/floating-message-widget";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ export function AppShell({ children }: AppShellProps) {
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
+      <FloatingMessageWidget />
     </div>
   );
 }

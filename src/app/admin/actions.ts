@@ -19,11 +19,11 @@ async function requireAdmin() {
 }
 
 function revalidateAdminPages() {
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/admin/dashboard/users");
-  revalidatePath("/admin/dashboard/listings");
-  revalidatePath("/admin/dashboard/listings/available");
-  revalidatePath("/admin/dashboard/listings/disabled");
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+  revalidatePath("/admin/listings");
+  revalidatePath("/admin/listings/available");
+  revalidatePath("/admin/listings/disabled");
 }
 
 export async function updateAdminUserStatus(userId: string, status: AccountStatus) {
@@ -39,7 +39,7 @@ export async function updateAdminUserStatus(userId: string, status: AccountStatu
     .run();
 
   revalidateAdminPages();
-  revalidatePath(`/admin/dashboard/users/${userId}`);
+  revalidatePath(`/admin/users/${userId}`);
 }
 
 export async function deleteAdminUser(userId: string) {

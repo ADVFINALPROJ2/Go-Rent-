@@ -1,9 +1,9 @@
 "use server";
 
-import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
-import { cars, profiles, users } from "@/db/schema";
+import { cars, profiles, reviews, users } from "@/db/schema";
 import {
   mapCarToLegacy,
   mapOwnerToLegacy,
@@ -12,7 +12,10 @@ import {
   type LegacyProfileRow,
 } from "@/lib/cars/mappers";
 
-export type CarRow = LegacyCarRow;
+export type CarRow = LegacyCarRow & {
+  average_rating: number | null;
+  review_count: number;
+};
 export type ProfileRow = LegacyProfileRow;
 export type CarWithOwner = LegacyCarWithOwner;
 
@@ -20,6 +23,11 @@ export type BrowseCarFilters = {
   location?: string;
   minPrice?: number;
   maxPrice?: number;
+  category?: string;
+  transmission?: string;
+  fuelType?: string;
+  minSeats?: number;
+  search?: string;
 };
 
 export async function fetchAvailableCars(
@@ -27,9 +35,37 @@ export async function fetchAvailableCars(
 ): Promise<CarRow[]> {
   const conditions = [eq(cars.status, "available")];
   const location = filters.location?.trim().toLowerCase();
+  const search = filters.search?.trim().toLowerCase();
 
   if (location) {
-    conditions.push(sql`lower(${cars.location}) like ${`%${location}%`}`);
+    conditions.push(sql`lower(${cars.location}) = ${location}`);
+  }
+
+  if (filters.category) {
+    conditions.push(eq(cars.category, filters.category));
+  }
+
+  if (filters.transmission) {
+    conditions.push(eq(cars.transmission, filters.transmission));
+  }
+
+  if (filters.fuelType) {
+    conditions.push(eq(cars.fuelType, filters.fuelType));
+  }
+
+  if (typeof filters.minSeats === "number") {
+    conditions.push(gte(cars.seats, filters.minSeats));
+  }
+
+  if (search) {
+    conditions.push(
+      sql`(
+        lower(${cars.make}) like ${`%${search}%`} or
+        lower(${cars.model}) like ${`%${search}%`} or
+        lower(${cars.title}) like ${`%${search}%`} or
+        lower(coalesce(${cars.description}, '')) like ${`%${search}%`}
+      )`,
+    );
   }
 
   if (typeof filters.minPrice === "number") {
@@ -45,7 +81,31 @@ export async function fetchAvailableCars(
     orderBy: desc(cars.createdAt),
   }).sync();
 
-  return rows.map(mapCarToLegacy);
+  const carIds = rows.map((car) => car.id);
+  const reviewRows = carIds.length
+    ? db.query.reviews.findMany({
+        where: inArray(reviews.carId, carIds),
+      }).sync()
+    : [];
+  const ratingsByCar = new Map<string, { total: number; count: number }>();
+
+  for (const review of reviewRows) {
+    const current = ratingsByCar.get(review.carId) ?? { total: 0, count: 0 };
+    ratingsByCar.set(review.carId, {
+      total: current.total + review.rating,
+      count: current.count + 1,
+    });
+  }
+
+  return rows.map((row) => {
+    const rating = ratingsByCar.get(row.id);
+
+    return {
+      ...mapCarToLegacy(row),
+      average_rating: rating ? rating.total / rating.count : null,
+      review_count: rating?.count ?? 0,
+    };
+  });
 }
 
 export async function fetchAvailableCarById(

@@ -23,8 +23,18 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createCar, updateCar, uploadCarImage } from "@/lib/actions/cars";
+import {
+  ADDIS_AREAS,
+  CAR_CATEGORIES,
+  FUEL_OPTIONS,
+  TRANSMISSION_OPTIONS,
+  isAddisArea,
+  isCarCategory,
+  isFuelOption,
+  isTransmissionOption,
+  normalizeFuelOption,
+} from "@/lib/car-options";
 import type { Database } from "@/lib/local-types";
-import { ADDIS_AREAS } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -48,8 +58,6 @@ type FormErrors = Record<string, string>;
 // Constants
 // ---------------------------------------------------------------------------
 
-const TRANSMISSION_OPTIONS = ["Automatic", "Manual", "CVT"] as const;
-const FUEL_TYPE_OPTIONS = ["Petrol", "Diesel", "Electric", "Hybrid"] as const;
 const STATUS_OPTIONS: { value: CarStatus; label: string }[] = [
   { value: "draft", label: "Draft" },
   { value: "available", label: "Available" },
@@ -82,16 +90,42 @@ function validate(fd: FormData): FormErrors {
   }
 
   const rate = Number(fd.get("daily_rate"));
-  if (!rate || rate <= 0) errors.daily_rate = "Price per day in Birr must be greater than 0.";
+  if (!rate || rate < 1000) {
+    errors.daily_rate = "Price per day in Birr must be at least 1000.";
+  }
 
-  if (!(fd.get("location") as string)?.trim()) errors.location = "Location is required.";
+  const category = (fd.get("category") as string)?.trim();
+  if (!category || !isCarCategory(category)) {
+    errors.category = "Choose a valid category.";
+  }
+
+  const location = (fd.get("location") as string)?.trim();
+  if (!location || !isAddisArea(location)) {
+    errors.location = "Choose a valid Addis area.";
+  }
 
   if (!(fd.get("description") as string)?.trim()) {
     errors.description = "Description is required.";
   }
 
-  const seats = fd.get("seats") as string;
-  if (seats && Number(seats) <= 0) errors.seats = "Seats must be greater than 0.";
+  const seats = Number(fd.get("seats"));
+  if (!seats || seats <= 0) errors.seats = "Seats must be greater than 0.";
+
+  const mileageValue = (fd.get("mileage") as string)?.trim();
+  const mileage = Number(mileageValue);
+  if (!mileageValue || !Number.isFinite(mileage) || mileage < 0) {
+    errors.mileage = "Mileage must be 0 or greater.";
+  }
+
+  const transmission = (fd.get("transmission") as string)?.trim();
+  if (!transmission || !isTransmissionOption(transmission)) {
+    errors.transmission = "Choose a valid transmission.";
+  }
+
+  const fuelType = (fd.get("fuel_type") as string)?.trim();
+  if (!fuelType || !isFuelOption(fuelType)) {
+    errors.fuel_type = "Choose a valid fuel type.";
+  }
 
   return errors;
 }
@@ -113,11 +147,13 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
   const [status, setStatus] = React.useState<CarStatus>(
     defaultValues?.status ?? "available",
   );
+  const [category, setCategory] = React.useState(defaultValues?.category ?? "");
+  const [location, setLocation] = React.useState(defaultValues?.location ?? "");
   const [transmission, setTransmission] = React.useState(
     defaultValues?.transmission ?? "",
   );
   const [fuelType, setFuelType] = React.useState(
-    defaultValues?.fuel_type ?? "",
+    normalizeFuelOption(defaultValues?.fuel_type) ?? "",
   );
 
   // File input ref
@@ -170,12 +206,14 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
         make: (fd.get("make") as string).trim(),
         model: (fd.get("model") as string).trim(),
         year: Number(fd.get("year")),
+        category,
+        mileage: Number(fd.get("mileage")),
         daily_rate: Number(fd.get("daily_rate")),
-        location: (fd.get("location") as string).trim(),
+        location,
         description: (fd.get("description") as string)?.trim() || null,
         status,
         image_urls: imageUrls,
-        seats: fd.get("seats") ? Number(fd.get("seats")) : null,
+        seats: Number(fd.get("seats")),
         transmission: transmission || null,
         fuel_type: fuelType || null,
       };
@@ -281,41 +319,88 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
             </div>
           </div>
 
-          {/* ---- Price / Location row ---- */}
+          {/* ---- Category / Seats / Mileage row ---- */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger id="category" aria-invalid={!!errors.category}>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CAR_CATEGORIES.map((opt) => (
+                    <SelectItem key={opt} value={opt}>
+                      {opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input name="category" type="hidden" value={category} />
+              {errors.category && <FieldError message={errors.category} />}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="seats">Seats *</Label>
+              <Input
+                id="seats"
+                name="seats"
+                type="number"
+                min={1}
+                placeholder="5"
+                defaultValue={defaultValues?.seats ?? ""}
+                aria-invalid={!!errors.seats}
+              />
+              {errors.seats && <FieldError message={errors.seats} />}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="mileage">Mileage *</Label>
+              <Input
+                id="mileage"
+                name="mileage"
+                type="number"
+                min={0}
+                step={100}
+                placeholder="42000"
+                defaultValue={defaultValues?.mileage ?? ""}
+                aria-invalid={!!errors.mileage}
+              />
+              {errors.mileage && <FieldError message={errors.mileage} />}
+            </div>
+          </div>
+
+          {/* ---- Price / Area row ---- */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="daily_rate">Price per day (ETB) *</Label>
+              <Label htmlFor="daily_rate">Daily rate in Birr *</Label>
               <Input
                 id="daily_rate"
                 name="daily_rate"
                 type="number"
-                step="50"
-                min="1"
+                step="1"
+                min="1000"
                 placeholder="2500"
                 defaultValue={defaultValues?.daily_rate}
                 aria-invalid={!!errors.daily_rate}
               />
-              <p className="text-xs text-muted-foreground">Use Ethiopian Birr, for example Br 2,500/day.</p>
+              <p className="text-xs text-muted-foreground">
+                Use Ethiopian Birr. Minimum daily rate is Br 1,000.
+              </p>
               {errors.daily_rate && <FieldError message={errors.daily_rate} />}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="location">Location *</Label>
-              <Input
-                id="location"
-                name="location"
-                list="addis-areas"
-                placeholder="Bole"
-                defaultValue={defaultValues?.location}
-                aria-invalid={!!errors.location}
-              />
-              <datalist id="addis-areas">
-                {ADDIS_AREAS.map((area) => (
-                  <option key={area} value={area} />
-                ))}
-              </datalist>
-              <p className="text-xs text-muted-foreground">
-                Suggested Addis areas: Bole, Kazanchis, Piassa, Megenagna, CMC, Ayat, Jemo.
-              </p>
+              <Label htmlFor="location">Addis area *</Label>
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger id="location" aria-invalid={!!errors.location}>
+                  <SelectValue placeholder="Select area" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ADDIS_AREAS.map((area) => (
+                    <SelectItem key={area} value={area}>
+                      {area}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input name="location" type="hidden" value={location} />
               {errors.location && <FieldError message={errors.location} />}
             </div>
           </div>
@@ -392,7 +477,7 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
             )}
           </div>
 
-          {/* ---- Status / Seats row ---- */}
+          {/* ---- Status / Transmission / Fuel row ---- */}
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
@@ -408,24 +493,13 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
                   ))}
                 </SelectContent>
               </Select>
+              <input name="status" type="hidden" value={status} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="seats">Seats</Label>
-              <Input
-                id="seats"
-                name="seats"
-                type="number"
-                min={1}
-                placeholder="5"
-                defaultValue={defaultValues?.seats ?? ""}
-              />
-              {errors.seats && <FieldError message={errors.seats} />}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="transmission">Transmission</Label>
+              <Label htmlFor="transmission">Transmission *</Label>
               <Select value={transmission} onValueChange={setTransmission}>
-                <SelectTrigger id="transmission">
-                  <SelectValue placeholder="Select type" />
+                <SelectTrigger id="transmission" aria-invalid={!!errors.transmission}>
+                  <SelectValue placeholder="Select transmission" />
                 </SelectTrigger>
                 <SelectContent>
                   {TRANSMISSION_OPTIONS.map((opt) => (
@@ -435,24 +509,26 @@ export function CarForm({ mode, ownerId, defaultValues, onSuccess, onSubmit }: C
                   ))}
                 </SelectContent>
               </Select>
+              <input name="transmission" type="hidden" value={transmission} />
+              {errors.transmission && <FieldError message={errors.transmission} />}
             </div>
-          </div>
-
-          {/* ---- Fuel type ---- */}
-          <div className="grid gap-2 sm:max-w-xs">
-            <Label htmlFor="fuel_type">Fuel type</Label>
-            <Select value={fuelType} onValueChange={setFuelType}>
-              <SelectTrigger id="fuel_type">
-                <SelectValue placeholder="Select fuel type" />
-              </SelectTrigger>
-              <SelectContent>
-                {FUEL_TYPE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid gap-2">
+              <Label htmlFor="fuel_type">Fuel *</Label>
+              <Select value={fuelType} onValueChange={setFuelType}>
+                <SelectTrigger id="fuel_type" aria-invalid={!!errors.fuel_type}>
+                  <SelectValue placeholder="Select fuel type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FUEL_OPTIONS.map((opt) => (
+                    <SelectItem key={opt} value={opt}>
+                      {opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input name="fuel_type" type="hidden" value={fuelType} />
+              {errors.fuel_type && <FieldError message={errors.fuel_type} />}
+            </div>
           </div>
 
           {/* ---- Submit ---- */}

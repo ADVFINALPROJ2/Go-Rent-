@@ -71,6 +71,8 @@ export type Database = {
           make: string;
           model: string;
           year: number;
+          category: string | null;
+          mileage: number | null;
           location: string;
           daily_rate: number;
           status: CarStatus;
@@ -89,6 +91,8 @@ export type Database = {
           make: string;
           model: string;
           year: number;
+          category?: string | null;
+          mileage?: number | null;
           location: string;
           daily_rate: number;
           status?: CarStatus;

@@ -1,4 +1,5 @@
 import { hashSync } from "bcryptjs";
+import { eq } from "drizzle-orm";
 
 import { db, sqlite } from "../src/db/client";
 import { bookings, cars, messages, profiles, reviews, users } from "../src/db/schema";
@@ -74,6 +75,8 @@ function seedCars() {
         make: "BYD",
         model: "Atto 3",
         year: 2023,
+        category: "Electric",
+        mileage: 18500,
         dailyRate: 4500,
         location: "Bole",
         description:
@@ -94,6 +97,8 @@ function seedCars() {
         make: "Toyota",
         model: "RAV4",
         year: 2022,
+        category: "SUV",
+        mileage: 34200,
         dailyRate: 3800,
         location: "CMC",
         description:
@@ -114,6 +119,8 @@ function seedCars() {
         make: "Hyundai",
         model: "Elantra",
         year: 2021,
+        category: "Sedan",
+        mileage: 58100,
         dailyRate: 2200,
         location: "Kazanchis",
         description:
@@ -129,6 +136,50 @@ function seedCars() {
       },
     ])
     .onConflictDoNothing()
+    .run();
+
+  db.update(cars)
+    .set({
+      category: "Electric",
+      mileage: 18500,
+      fuelType: "Electric",
+      transmission: "Automatic",
+      location: "Bole",
+      seats: 5,
+      updatedAt: now,
+    })
+    .where(eq(cars.id, "demo-car"))
+    .run();
+
+  db.update(cars)
+    .set({
+      category: "SUV",
+      mileage: 34200,
+      fuelType: "Hybrid",
+      transmission: "Automatic",
+      location: "CMC",
+      seats: 5,
+      updatedAt: now,
+    })
+    .where(eq(cars.id, "city-suv"))
+    .run();
+
+  db.update(cars)
+    .set({
+      category: "Sedan",
+      mileage: 58100,
+      fuelType: "Petrol",
+      transmission: "Automatic",
+      location: "Kazanchis",
+      seats: 5,
+      updatedAt: now,
+    })
+    .where(eq(cars.id, "compact-hatch"))
+    .run();
+
+  db.update(cars)
+    .set({ fuelType: "Petrol", updatedAt: now })
+    .where(eq(cars.fuelType, "Benzene"))
     .run();
 }
 

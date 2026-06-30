@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Car, CheckCircle2, Loader2, LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import {
   Card,
   CardContent,
@@ -110,7 +111,7 @@ export default function LoginPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-slate-950/10" />
               <div className="relative flex min-h-60 flex-col justify-between gap-10">
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold italic">GoRent</span>
+                  <BrandLogo dark href="/" subtitle="Ethiopia" />
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs">Secure access</span>
                 </div>
                 <div>
@@ -141,6 +142,7 @@ export default function LoginPage() {
         <div className="flex items-center">
           <Card className="w-full border-sky-100 bg-white shadow-2xl shadow-sky-950/10 dark:border-zinc-800 dark:bg-zinc-950">
             <CardHeader className="space-y-2">
+              <BrandLogo className="mb-2" compact />
               <div className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <LogIn className="size-5" aria-hidden="true" />
               </div>

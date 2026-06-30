@@ -48,7 +48,7 @@ export default function ContactPage() {
               {[
                 {
                   title: "Office Location",
-                  body: "Bole Road, Mega Building, Suite 402, Addis Ababa, Ethiopia",
+                  body: "BITS College, Addis Ababa, Ethiopia",
                   icon: MapPin,
                 },
                 {
@@ -83,7 +83,7 @@ export default function ContactPage() {
               <div className="relative">
                 <p className="text-sm font-black">Interactive Addis Ababa Map</p>
                 <p className="mt-2 text-xs text-slate-500 dark:text-zinc-400">
-                  Mega Building, Bole Road, near Kazanchis junction
+                  BITS College, Addis Ababa, Ethiopia
                 </p>
               </div>
             </div>
