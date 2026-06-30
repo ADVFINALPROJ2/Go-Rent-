@@ -11,6 +11,7 @@ export type NavigationUser = {
   role: ProfileRole;
   status: AccountStatus;
   fullName?: string | null;
+  avatarUrl?: string | null;
 };
 
 type AuthMeResponse = {
