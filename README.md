@@ -2,58 +2,9 @@
 
 GoRent is a peer-to-peer car rental web application built for Addis Ababa. It lets car owners list vehicles, renters browse and request cars, users message each other, renters leave reviews, and admins monitor platform activity.
 
-The current version runs locally without Supabase or any external database service. It uses SQLite with Drizzle ORM and local email/password authentication.
+## Deployment Link
 
-## Key Features
-
-- User registration, login, logout, and role-based redirects
-- Local email/password authentication with HTTP-only session cookies
-- Renter, owner, and admin roles
-- User profile view/edit flow
-- Car listing creation, editing, and status management
-- Browse cars with search and price filtering
-- Car details page with booking, messaging, and reviews
-- Booking request workflow
-- Owner approve, decline, and mark-completed actions
-- Renter booking status display and cancellation
-- Messages inbox and reply flow
-- Reviews and average rating display
-- Admin dashboard for users, listings, and platform overview
-- Addis Ababa localized UI with Birr pricing
-- Dark/light mode UI styling
-- Docker and deployment documentation
-
-## Tech Stack
-
-- **Framework:** Next.js App Router
-- **Language:** TypeScript
-- **UI:** Tailwind CSS and shadcn-style components
-- **Database:** SQLite
-- **ORM:** Drizzle ORM and Drizzle Kit
-- **Authentication:** Local email/password auth with bcrypt and HTTP-only cookies
-- **Icons:** Lucide React
-- **Deployment support:** Dockerfile and deployment guide
-
-## Project Structure
-
-```text
-src/app              Next.js routes and pages
-src/components       Shared UI, layout, cards, forms, dashboards
-src/db               SQLite/Drizzle client and schema
-src/lib/auth         Local session and password auth helpers
-src/lib/actions      Drizzle-backed server actions
-src/lib              Utilities, routes, formatting helpers
-drizzle              Generated SQLite migrations
-scripts/seed.ts      Demo users and sample data
-data                 Local SQLite database files, ignored by Git
-```
-
-## Requirements
-
-- Node.js
-- npm
-
-No Supabase setup is required for the current version.
+[https://go-rent-production.up.railway.app/](https://go-rent-production.up.railway.app/)
 
 ## Local Setup
 
@@ -105,6 +56,57 @@ All seeded users use the password `Password123!`.
 - Admin: `admin@gorent.test`
 - Owner: `owner@gorent.test`
 - Renter: `renter@gorent.test`
+
+## Requirements
+
+- Node.js
+- npm
+
+The current version uses SQLite with Drizzle ORM and local email/password authentication.
+
+## Key Features
+
+- User registration, login, logout, and role-based redirects
+- Local email/password authentication with HTTP-only session cookies
+- Renter, owner, and admin roles
+- User profile view/edit flow
+- Car listing creation, editing, and status management
+- Browse cars with search and price filtering
+- Car details page with booking, messaging, and reviews
+- Booking request workflow
+- Owner approve, decline, and mark-completed actions
+- Renter booking status display and cancellation
+- Messages inbox and reply flow
+- Reviews and average rating display
+- Admin dashboard for users, listings, and platform overview
+- Addis Ababa localized UI with Birr pricing
+- Dark/light mode UI styling
+- Docker and deployment documentation
+
+## Tech Stack
+
+- **Framework:** Next.js App Router
+- **Language:** TypeScript
+- **UI:** Tailwind CSS and shadcn-style components
+- **Database:** SQLite
+- **ORM:** Drizzle ORM and Drizzle Kit
+- **Authentication:** Local email/password auth with bcrypt and HTTP-only cookies
+- **Icons:** Lucide React
+- **Deployment support:** Dockerfile and deployment guide
+
+## Project Structure
+
+```text
+src/app              Next.js routes and pages
+src/components       Shared UI, layout, cards, forms, dashboards
+src/db               SQLite/Drizzle client and schema
+src/lib/auth         Local session and password auth helpers
+src/lib/actions      Drizzle-backed server actions
+src/lib              Utilities, routes, formatting helpers
+drizzle              Generated SQLite migrations
+scripts/seed.ts      Demo users and sample data
+data                 Local SQLite database files, ignored by Git
+```
 
 ## Important Links
 
@@ -225,5 +227,4 @@ See `DEPLOYMENT.md` for more deployment guidance.
 
 - `.env.local` is ignored by Git and should not be committed.
 - `data/` is ignored by Git because it contains local SQLite database files.
-- The project no longer uses Supabase at runtime.
 - Run `npm run lint` and `npm run build` before final submission.
